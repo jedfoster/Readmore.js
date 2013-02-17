@@ -1,0 +1,59 @@
+<!doctype html>
+<!--[if IE 8]>    <html class="no-js ie8" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+	<title>{{ page.title }}</title>
+	{{ page.description }}
+	<link rel="author" href="humans.txt">
+
+	<!-- Mobile viewport optimized: j.mp/bplateviewport -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Place favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+	<link rel="shortcut icon" href="http://jedfoster.com/favicon.ico">
+	<link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/apple-touch-icon-72x72-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/apple-touch-icon-114x114-precomposed.png">
+
+	<!-- CSS: implied media="all" -->
+	<link rel="stylesheet" href="/css/styles.css">
+	
+	{{ page.css }}
+	<!-- All JavaScript at the bottom, except for Modernizr which enables HTML5 elements & feature detects -->
+	<script src="/js/modernizr.js"></script>
+</head>
+
+<body class="pg-{{ page.slug }}">
+
+	<div class="container">
+		<header>
+			<h1><a href="http://jedfoster.com/">Jed Foster</a></h1>
+
+			<h2><span>Code. </span><span>Design. </span><span>For the web.</span></h2>
+
+			<nav>
+				{% include navigation.html %}
+			</nav>
+		</header>
+
+		<div id="main" role="main">
+			{{ content }}
+		</div>
+
+		<div id="sidebar">
+				{% include sidebar.html %}
+		</div>
+
+		<footer>
+
+		</footer>
+	</div>
+
+
+	<!-- JavaScript at the bottom for fast page loading -->  
+  {{ page.js }}
+</body>
+</html>

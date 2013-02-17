@@ -1,41 +1,19 @@
-<!doctype html>
-<!--[if IE 7]>    <html class="no-js ie7" lang="en"> <![endif]-->
-<!--[if IE 8]>    <html class="no-js ie8" lang="en"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
-<head>
-  <meta charset="utf-8">
+--- 
+layout: default
+title: Readmore.js: jQuery plugin for long blocks of text
+css: |
+  <link rel="stylesheet" href="css/audio.css">
+js: |
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="js/libs/jquery-1.8.3.js"%3E%3C/script%3E'))</script>
 
-  <title>Readmore.js: jQuery plugin for long blocks of text</title>
+  <script src="js/readmore.min.js"></script>
 
-  <link rel="author" href="humans.txt">
-
-  <!-- Mobile viewport optimized: j.mp/bplateviewport -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Place favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
-  <link rel="shortcut icon" href="/favicon.ico">
-  <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="/apple-touch-icon-72x72-precomposed.png">
-  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/apple-touch-icon-114x114-precomposed.png">
-
-  <!-- CSS: implied media="all" -->
-  <link rel="stylesheet" href="/css/styles.css">
-
-  <!-- All JavaScript at the bottom, except for Modernizr which enables HTML5 elements & feature detects -->
-  <script src="/js/modernizr.js"></script>
-
-</head>
-
-<body class="pg-readmore">
-
-  <div class="container">
-    <header>
-			<h1><a href="http://jedfoster.com/">Jed Foster</a></h1>
-
-			<h2><span>Code. </span><span>Design. </span><span>For the web.</span></h2>
-		</header>
-
-    <div id="main" role="main">
+  <script>
+    $('article').readmore();
+  </script>
+---
+  
       <h2>Readmore.js</h2>
 
       <p>A smooth, lightweight jQuery plugin for collapsing and expanding long blocks of text with &#8220;Read more&#8221; and &#8220;Close&#8221; links. </p>
@@ -98,71 +76,4 @@
         <p>Yr messenger bag fanny pack small batch, single-origin coffee literally gluten-free farm-to-table 8-bit godard butcher fap actually biodiesel trust fund. Pickled squid cred pug pop-up. Polaroid deep v 90's, +1 godard mumblecore retro next level carles salvia try-hard food truck gluten-free. Four loko post-ironic tofu lomo, narwhal readymade mustache jean shorts letterpress. Leggings put a bird on it farm-to-table jean shorts williamsburg cardigan. Gentrify pug bushwick PBR fixie etsy. PBR banh mi cardigan, cosby sweater master cleanse mixtape fingerstache.</p>
       </article>
     </section>
-  </div>
-
-	<div id="sidebar">
-    <nav id="socialLinks">
-    	<a href="http://twitter.com/#!/jed_foster" id="twitter"><span>Twitter</span></a>
-    	<a href="http://github.com/jedfoster" id="github"><span>GitHub</span></a>
-    	<a href="https://plus.google.com/106006305598754927268" id="gplus"><span>Google+</span></a>
-    	<a href="http://jedfoster.com/contact" id="email" class="last"><span>Contact</span></a>
-    </nav>
-
-    <section id="twttr">
-      <h1>Recently on Twitter...</h1>
-      <script src="http://widgets.twimg.com/j/2/widget.js"></script>
-      <script>
-      new TWTR.Widget({
-    	  version: 2,
-    	  type: 'profile',
-    	  rpp: 3,
-    	  interval: 8000,
-    	  width: 'auto',
-    	  height: '220',
-    	  theme: {
-    	    shell: {
-    	      background: '#ddd',
-    	      color: '#898989'
-    	    },
-    	    tweets: {
-    	      background: '#ffffff',
-    	      color: '#696969',
-    	      links: '#006eb2'
-    	    }
-    	  },
-    	  features: {
-    	    scrollbar: true,
-    	    loop: false,
-    	    live: false,
-    	    hashtags: false,
-    	    timestamp: true,
-    	    avatars: false,
-    	    behavior: 'all'
-    	  }
-    	}).render().setUser('jed_foster').start();
-    	</script>
-    </section>
-	</div>
-
-  <footer>
-
-  </footer>
-</div>
-
-
-<!-- JavaScript at the bottom for fast page loading
-<script src="/js/prototaculous.min.js"></script>
-
-<script src="/js/script.js"></script> -->
-
-
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="js/libs/jquery-1.8.3.js"%3E%3C/script%3E'))</script>
-
-  <script src="js/readmore.min.js"></script>
-
-  <script>
-    $('article').readmore();
-  </script>
-</body>
-</html>
+    
