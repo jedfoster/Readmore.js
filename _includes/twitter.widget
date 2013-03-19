@@ -1,34 +1,5 @@
 <section id="twttr">
 	<h1>Recently on Twitter...</h1>
-	<script src="http://widgets.twimg.com/j/2/widget.js"></script>
-	<script>
-	new TWTR.Widget({
-	  version: 2,
-	  type: 'profile',
-	  rpp: 3,
-	  interval: 8000,
-	  width: 'auto',
-	  height: '220',
-	  theme: {
-	    shell: {
-	      background: '#ddd',
-	      color: '#898989'
-	    },
-	    tweets: {
-	      background: '#ffffff',
-	      color: '#696969',
-	      links: '#006eb2'
-	    }
-	  },
-	  features: {
-	    scrollbar: true,
-	    loop: false,
-	    live: false,
-	    hashtags: false,
-	    timestamp: true,
-	    avatars: false,
-	    behavior: 'all'
-	  }
-	}).render().setUser('jed_foster').start();
-	</script>
+  <a class="twitter-timeline" href="https://twitter.com/jed_foster" data-widget-id="314049955574718464">Tweets by @jed_foster</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>  
 </section>
