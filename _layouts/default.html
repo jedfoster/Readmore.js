@@ -6,31 +6,32 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
 	<title>{{ page.title }}</title>
-	{{ page.description }}
-	<link rel="author" href="humans.txt">
+	{% if page.description %}
+  <meta name="description" content="{{ page.description | escape }}">
+  {% endif %}
+  <meta name="author" lang="en" content="Jed Fdster">
+	<link rel="author" href="/humans.txt">
 
 	<!-- Mobile viewport optimized: j.mp/bplateviewport -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<!-- Place favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
-	<link rel="shortcut icon" href="http://jedfoster.com/favicon.ico">
+	<link rel="shortcut icon" href="/favicon.ico">
 	<link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png">
 	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/apple-touch-icon-72x72-precomposed.png">
 	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/apple-touch-icon-114x114-precomposed.png">
 
 	<!-- CSS: implied media="all" -->
 	<link rel="stylesheet" href="/css/styles.css">
-	
 	{{ page.css }}
 	<!-- All JavaScript at the bottom, except for Modernizr which enables HTML5 elements & feature detects -->
 	<script src="/js/modernizr.js"></script>
 </head>
 
-<body class="pg-{{ page.slug }}">
-
+<body class="pg-{{ page.slug | replace:'.','-' }}">
 	<div class="container">
 		<header>
-			<h1><a href="http://jedfoster.com/">Jed Foster</a></h1>
+			<h1><a href="{{ site.url }}/">Jed Foster</a></h1>
 
 			<h2><span>Code. </span><span>Design. </span><span>For the web.</span></h2>
 
@@ -46,14 +47,16 @@
 		<div id="sidebar">
 				{% include sidebar.html %}
 		</div>
-
-		<footer>
-
-		</footer>
 	</div>
 
-
-	<!-- JavaScript at the bottom for fast page loading -->  
+	<!-- JavaScript at the bottom for fast page loading -->
   {{ page.js }}
+
+  <script>
+    var _gaq=[["_setAccount","UA-24822554-1"],["_trackPageview"],["_setDomainName", ".jedfoster.com"]];
+    (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+    g.src=("https:"==location.protocol?"//ssl":"//www")+".google-analytics.com/ga.js";
+    s.parentNode.insertBefore(g,s)}(document,"script"));
+  </script>
 </body>
 </html>
