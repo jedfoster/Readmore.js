@@ -46,7 +46,7 @@
           return true;
         }
         else {
-          current.after($($this.options.moreLink).on('click', function() { $this.openSlider(this, current) }));
+          current.after($($this.options.moreLink).on('click', function(event) { $this.openSlider(this, current, event) }));
         }
 
         sliderHeight = maxHeight;
@@ -55,7 +55,7 @@
       });
     },
 
-    openSlider: function(trigger, element)
+    openSlider: function(trigger, element, event)
     {
       event.preventDefault();
 
@@ -64,10 +64,10 @@
 
       $(element).animate({"height": open_height}, {duration: $this.options.speed });
 
-      $(trigger).replaceWith($($this.options.lessLink).on('click', function() { $this.closeSlider(this, element) }));
+      $(trigger).replaceWith($($this.options.lessLink).on('click', function(event) { $this.closeSlider(this, element, event) }));
     },
 
-    closeSlider: function(trigger, element)
+    closeSlider: function(trigger, element, event)
     {
       event.preventDefault();
 
@@ -75,7 +75,7 @@
 
       $(element).animate({"height": sliderHeight}, {duration: $this.options.speed });
 
-      $(trigger).replaceWith($($this.options.moreLink).on('click', function() { $this.openSlider(this, element) }));
+      $(trigger).replaceWith($($this.options.moreLink).on('click', function(event) { $this.openSlider(this, element, event) }));
     }
   };
 
