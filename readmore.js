@@ -46,7 +46,7 @@
           return true;
         }
         else {
-          current.after($($this.options.moreLink).on('click', function(event) { $this.openSlider(this, current, event) }));
+          current.after($($this.options.moreLink).on('click', function(event) { $this.toggleSlider(this, current, event) }));
         }
 
         sliderHeight = maxHeight;
@@ -55,27 +55,26 @@
       });
     },
 
-    openSlider: function(trigger, element, event)
+    toggleSlider: function(trigger, element, event)
     {
       event.preventDefault();
 
       var $this = this,
-          open_height = $(element).data().boxHeight + "px";
+          newHeight = newLink = '';
 
-      $(element).animate({"height": open_height}, {duration: $this.options.speed });
+      if ($(element).height() == sliderHeight) {
+        newHeight = $(element).data().boxHeight + "px";
+        newLink = 'lessLink';
+      }
 
-      $(trigger).replaceWith($($this.options.lessLink).on('click', function(event) { $this.closeSlider(this, element, event) }));
-    },
+      else {
+        newHeight = sliderHeight;
+        newLink = 'moreLink';
+      }
 
-    closeSlider: function(trigger, element, event)
-    {
-      event.preventDefault();
+      $(element).animate({"height": newHeight}, {duration: $this.options.speed });
 
-      var $this = this;
-
-      $(element).animate({"height": sliderHeight}, {duration: $this.options.speed });
-
-      $(trigger).replaceWith($($this.options.moreLink).on('click', function(event) { $this.openSlider(this, element, event) }));
+      $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }));
     }
   };
 
