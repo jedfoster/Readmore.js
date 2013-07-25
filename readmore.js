@@ -13,7 +13,21 @@
         maxHeight: 200,
         moreLink: '<a href="#">Read More</a>',
         lessLink: '<a href="#">Close</a>'
-      };
+      },
+
+      styles = '.readmore-js-section { overflow: hidden; display: block; width: 100%; }\
+.readmore-js-toggle { }';
+
+    (function(d,u) {
+      if(d.createStyleSheet) {
+        d.createStyleSheet( u );
+      }
+      else {
+        var css=d.createElement('style');
+        css.appendChild(document.createTextNode(u));
+        d.getElementsByTagName("head")[0].appendChild(css);
+      }
+    }(document, styles));
 
   function Readmore( element, options ) {
     this.element = element;
@@ -35,13 +49,15 @@
         var current = $(this),
             maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > $this.options.maxHeight) ? current.css('max-height').replace(/[^-\d\.]/g, '') : $this.options.maxHeight;
 
+        current.addClass('readmore-js-section');
+
         if(current.css('max-height') != "none") {
           current.css("max-height", "none");
         }
 
-        current.data("boxHeight", current.height());
+        current.data("boxHeight", current.outerHeight(true));
 
-        if(current.innerHeight() < maxHeight) {
+        if(current.outerHeight(true) < maxHeight) {
           // The block is shorter than the limit, so there's no need to truncate it.
           return true;
         }
@@ -51,7 +67,7 @@
 
         sliderHeight = maxHeight;
 
-        current.css("height", sliderHeight).css("overflow", 'hidden');
+        current.css({height: sliderHeight});
       });
     },
 
