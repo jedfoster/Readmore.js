@@ -15,8 +15,8 @@
         lessLink: '<a href="#">Close</a>'
       },
 
-      styles = '.readmore-js-section { overflow: hidden; display: block; width: 100%; }\
-.readmore-js-toggle { }';
+      styles = '.readmore-js-toggle, .readmore-js-section { display: block; width: 100%; }\
+.readmore-js-section { overflow: hidden; }';
 
     (function(d,u) {
       if(d.createStyleSheet) {
@@ -62,7 +62,7 @@
           return true;
         }
         else {
-          current.after($($this.options.moreLink).on('click', function(event) { $this.toggleSlider(this, current, event) }));
+          current.after($($this.options.moreLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle'));
         }
 
         sliderHeight = maxHeight;
@@ -90,7 +90,7 @@
 
       $(element).animate({"height": newHeight}, {duration: $this.options.speed });
 
-      $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }));
+      $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).addClass('readmore-js-toggle'));
     }
   };
 
