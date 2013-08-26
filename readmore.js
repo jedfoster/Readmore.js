@@ -12,7 +12,11 @@
         speed: 100,
         maxHeight: 200,
         moreLink: '<a href="#">Read More</a>',
-        lessLink: '<a href="#">Close</a>'
+        lessLink: '<a href="#">Close</a>',
+
+        // callbacks
+        beforeToggle: function(){},
+        afterToggle: function(){}
       },
 
       styles = '.readmore-js-toggle, .readmore-js-section { display: block; width: 100%; }\
@@ -76,11 +80,13 @@
       event.preventDefault();
 
       var $this = this,
-          newHeight = newLink = '';
+          newHeight = newLink = '',
+          more = false;
 
       if ($(element).height() == sliderHeight) {
         newHeight = $(element).data().boxHeight + "px";
         newLink = 'lessLink';
+        more = true;
       }
 
       else {
@@ -88,9 +94,15 @@
         newLink = 'moreLink';
       }
 
+      // Fire beforeToggle callback
+      $this.options.beforeToggle(trigger, element, more);
+
       $(element).animate({"height": newHeight}, {duration: $this.options.speed });
 
       $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).addClass('readmore-js-toggle'));
+
+      // Fire afterToggle callback
+      $this.options.afterToggle(trigger, element, more);
     }
   };
 
