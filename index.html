@@ -41,9 +41,35 @@ js: |
     <li><code>maxHeight: 200</code>  (in pixels)</li>
     <li><code>moreLink: '&lt;a href="#"&gt;Read more&lt;/a&gt;'</code></li>
     <li><code>lessLink: '&lt;a href="#"&gt;Close&lt;/a&gt;'</code></li>
+    <li><code>beforeToggle: function() {}</code> (called after a more or less link is clicked, but <i>before</i> the block is collapsed or expanded)</li>
+    <li><code>afterToggle: function() {}</code> (called <i>after</i> the block is collapsed or expanded)</li>
   </ul>
 
   <p>If the element has a <code>max-height</code> CSS property, Readmore.js will use that value rather than the value of the <code>maxHeight</code> option.</p>
+
+  <h3 id="thecallbacks">The callbacks:</h3>
+
+  <p>The callback functions, <code>beforeToggle()</code> and <code>afterToggle</code>, both receive the same arguments: <code>trigger</code>, <code>element</code>, and <code>more</code>.</p>
+
+  <ul>
+    <li><code>trigger</code>: the "Read more" or "Close" element that was clicked</li>
+    <li><code>element</code>: the block that is being collapsed or expanded</li>
+    <li><code>more</code>: Boolean; <code>true</code> means the block is expanded</li>
+  </ul>
+
+  <h4 id="callbackexample">Callback example:</h4>
+
+  <p>Here's an example of how you could use the <code>afterToggle</code> callback to scroll back to the top of a block when the "Close" link is clicked.</p>
+
+  <pre><code>$('article').readmore({
+  afterToggle: function(trigger, element, more) {
+    if(! more) { // The "Close" link was clicked
+      $('html, body').animate( { scrollTop: element.offset().top }, {duration: 100 } );
+    }
+  }
+});</code></pre>
+
+</section>
 
 <h2>Demo</h2>
 
