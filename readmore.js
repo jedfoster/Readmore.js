@@ -36,7 +36,11 @@
   function Readmore( element, options ) {
     this.element = element;
 
-    this.options = $.extend( {}, defaults, options) ;
+    this.options = $.extend( {}, defaults, options);
+
+    $(this.element).data('max-height', this.options.maxHeight);
+
+    delete(this.options.maxHeight);
 
     this._defaults = defaults;
     this._name = readmore;
@@ -51,7 +55,7 @@
 
       $(this.element).each(function() {
         var current = $(this),
-            maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > $this.options.maxHeight) ? current.css('max-height').replace(/[^-\d\.]/g, '') : $this.options.maxHeight;
+            maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > current.data('max-height')) ? current.css('max-height').replace(/[^-\d\.]/g, '') : current.data('max-height');
 
         current.addClass('readmore-js-section');
 
@@ -69,9 +73,9 @@
           current.after($($this.options.moreLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle'));
         }
 
-        sliderHeight = maxHeight;
+        current.data('sliderHeight', maxHeight);
 
-        current.css({height: sliderHeight});
+        current.css({height: maxHeight});
       });
     },
 
@@ -81,7 +85,8 @@
 
       var $this = this,
           newHeight = newLink = '',
-          more = false;
+          more = false,
+          sliderHeight = $(element).data('sliderHeight');
 
       if ($(element).height() == sliderHeight) {
         newHeight = $(element).data().boxHeight + "px";
