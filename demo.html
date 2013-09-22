@@ -51,6 +51,7 @@
         <li><code>maxHeight: 200</code>  (in pixels)</li>
         <li><code>moreLink: '&lt;a href="#"&gt;Read more&lt;/a&gt;'</code></li>
         <li><code>lessLink: '&lt;a href="#"&gt;Close&lt;/a&gt;'</code></li>
+        <li><code>embedCSS: true</code> (insert required CSS dynamically, set this to <code>false</code> if you include the necessary CSS in a stylesheet)</li>
         <li><code>sectionCSS: 'display: block; width: 100%;'</code> (sets the styling of the blocks)</li>
         <li><code>beforeToggle: function() {}</code> (called after a more or less link is clicked, but <i>before</i> the block is collapsed or expanded)</li>
         <li><code>afterToggle: function() {}</code> (called <i>after</i> the block is collapsed or expanded)</li>
@@ -79,6 +80,28 @@
     }
   }
 });</code></pre>
+
+      <h3 id="recommendedcss">Recommended CSS:</h3>
+
+      <p>The intention behind Readmore.js is to use CSS for as much functionality as possible. In particular, &#8220;collapsing&#8221; is achieved by setting <code>overflow: hidden</code> on the containing block and changing the <code>height</code> property.</p>
+
+      <p>By default, Readmore.js inserts the following CSS:</p>
+
+      <pre><code class="css">.readmore-js-toggle, .readmore-js-section {
+  display: block;
+  width: 100%;
+}
+.readmore-js-section {
+  overflow: hidden;
+}</code></pre>
+
+      <p>You can override the the first set of rules when you set up Readmore.js like so:</p>
+
+      <pre><code class="javascript">$(&apos;article&apos;).readmore({sectionCSS: &apos;display: inline-block; width: 50%;&apos;});</code></pre>
+
+      <p>If you want to include the necessary styling in your site&#8217;s stylesheet, you can disable the dynamic embedding by passing <code>embedCSS: false</code> in the options hash.</p>
+
+      <pre><code class="javascript">$(&apos;article&apos;).readmore({embedCSS: false});</code></pre>
 
     </section>
 

@@ -13,12 +13,14 @@
         maxHeight: 200,
         moreLink: '<a href="#">Read More</a>',
         lessLink: '<a href="#">Close</a>',
+        embedCSS: true,
         sectionCSS: 'display: block; width: 100%;',
 
         // callbacks
         beforeToggle: function(){},
         afterToggle: function(){}
-      };
+      },
+      cssEmbedded = false;
 
   function Readmore( element, options ) {
     this.element = element;
@@ -29,14 +31,18 @@
 
     delete(this.options.maxHeight);
 
-    var styles = '.readmore-js-toggle, .readmore-js-section { ' + this.options.sectionCSS + ' } .readmore-js-section { overflow: hidden; }';
+    if(this.options.embedCSS && ! cssEmbedded) {
+      var styles = '.readmore-js-toggle, .readmore-js-section { ' + this.options.sectionCSS + ' } .readmore-js-section { overflow: hidden; }';
 
-    (function(d,u) {
-      var css=d.createElement('style');
-      css.type = 'text/css';
-      css.appendChild(d.createTextNode(u));
-      d.getElementsByTagName("head")[0].appendChild(css);
-    }(document, styles));
+      (function(d,u) {
+        var css=d.createElement('style');
+        css.type = 'text/css';
+        css.appendChild(d.createTextNode(u));
+        d.getElementsByTagName("head")[0].appendChild(css);
+      }(document, styles));
+
+      cssEmbedded = true;
+    }
 
     this._defaults = defaults;
     this._name = readmore;
