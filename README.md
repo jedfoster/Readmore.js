@@ -22,6 +22,7 @@ Yes, it's that simple. You can change the speed of the animation, the height of 
 * `maxHeight: 200`  (in pixels)
 * `moreLink: '<a href="#">Read more</a>'`
 * `lessLink: '<a href="#">Close</a>'`
+* `sectionCSS: 'display: block; width: 100%;'` (sets the styling of the blocks)
 * `beforeToggle: function() {}` (called after a more or less link is clicked, but *before* the block is collapsed or expanded)
 * `afterToggle: function() {}` (called *after* the block is collapsed or expanded)
 

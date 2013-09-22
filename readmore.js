@@ -13,6 +13,7 @@
         maxHeight: 200,
         moreLink: '<a href="#">Read More</a>',
         lessLink: '<a href="#">Close</a>',
+        sectionCSS: 'display: block; width: 100%;',
 
         // callbacks
         beforeToggle: function(){},
@@ -28,7 +29,7 @@
 
     delete(this.options.maxHeight);
 
-    var styles = '.readmore-js-toggle, .readmore-js-section { display: block; width: 100%; } .readmore-js-section { overflow: hidden; }';
+    var styles = '.readmore-js-toggle, .readmore-js-section { ' + this.options.sectionCSS + ' } .readmore-js-section { overflow: hidden; }';
 
     (function(d,u) {
       var css=d.createElement('style');
