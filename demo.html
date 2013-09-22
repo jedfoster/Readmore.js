@@ -16,7 +16,7 @@
     code { color: #777; font-family: "Source Code Pro", "Menlo", "Courier New", monospace;}
     a { color: #178DB1; }
     .container { margin: 0 auto; max-width: 960px; }
-    #info { border-bottom: 1px solid #999; }
+    #info + .readmore-js-toggle { padding-bottom: 1.5em; border-bottom: 1px solid #999; font-weight: bold;}
     #demo { padding: 0 10%; }
   </style>
 </head>
@@ -149,6 +149,16 @@
   <script src="readmore.js"></script>
 
   <script>
+  $('#info').readmore({
+    moreLink: '<a href="#">More examples and options</a>',
+    maxHeight: 390,
+    afterToggle: function(trigger, element, more) {
+      if(! more) { // The "Close" link was clicked
+        $('html, body').animate( { scrollTop: element.offset().top }, {duration: 100 } );
+      }
+    }
+  });
+  
     $('article').readmore({maxHeight: 240});
   </script>
 </body>
