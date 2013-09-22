@@ -17,21 +17,7 @@
         // callbacks
         beforeToggle: function(){},
         afterToggle: function(){}
-      },
-
-      styles = '.readmore-js-toggle, .readmore-js-section { display: block; width: 100%; }\
-.readmore-js-section { overflow: hidden; }';
-
-    (function(d,u) {
-      if(d.createStyleSheet) {
-        d.createStyleSheet( u );
-      }
-      else {
-        var css=d.createElement('style');
-        css.appendChild(document.createTextNode(u));
-        d.getElementsByTagName("head")[0].appendChild(css);
-      }
-    }(document, styles));
+      };
 
   function Readmore( element, options ) {
     this.element = element;
@@ -41,6 +27,15 @@
     $(this.element).data('max-height', this.options.maxHeight);
 
     delete(this.options.maxHeight);
+
+    var styles = '.readmore-js-toggle, .readmore-js-section { display: block; width: 100%; } .readmore-js-section { overflow: hidden; }';
+
+    (function(d,u) {
+      var css=d.createElement('style');
+      css.type = 'text/css';
+      css.appendChild(d.createTextNode(u));
+      d.getElementsByTagName("head")[0].appendChild(css);
+    }(document, styles));
 
     this._defaults = defaults;
     this._name = readmore;
