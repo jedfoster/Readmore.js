@@ -5,6 +5,8 @@ A smooth, lightweight jQuery plugin for collapsing and expanding long blocks of 
 
 The required markup for Readmore.js is also extremely lightweight and very simple. No need for complicated sets of `div`s or hardcoded class names, just call ``.readmore()`` on the element containing your block of text and Readmore.js takes care of the rest.
 
+Readmore.js is compatible with all versions of jQuery greater than 1.7.0.
+
 ## Example ##
 
     $('article').readmore();
