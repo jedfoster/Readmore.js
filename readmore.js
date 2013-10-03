@@ -37,7 +37,12 @@
       (function(d,u) {
         var css=d.createElement('style');
         css.type = 'text/css';
-        css.appendChild(d.createTextNode(u));
+        if(css.styleSheet) {
+            css.styleSheet.cssText = u;
+        }
+        else {
+            css.appendChild(d.createTextNode(u));
+        }
         d.getElementsByTagName("head")[0].appendChild(css);
       }(document, styles));
 
