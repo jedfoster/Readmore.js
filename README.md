@@ -26,6 +26,7 @@ Yes, it's that simple. You can change the speed of the animation, the height of 
 * `lessLink: '<a href="#">Close</a>'`
 * `embedCSS: true` (insert required CSS dynamically, set this to `false` if you include the necessary CSS in a stylesheet)
 * `sectionCSS: 'display: block; width: 100%;'` (sets the styling of the blocks, ignored if `embedCSS` is `false`)
+* `startOpen: false` (do not immediately truncate, start in the fully opened position)
 * `beforeToggle: function() {}` (called after a more or less link is clicked, but *before* the block is collapsed or expanded)
 * `afterToggle: function() {}` (called *after* the block is collapsed or expanded)
 

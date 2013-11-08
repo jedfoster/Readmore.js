@@ -15,6 +15,7 @@
         lessLink: '<a href="#">Close</a>',
         embedCSS: true,
         sectionCSS: 'display: block; width: 100%;',
+        startOpen: false,
 
         // callbacks
         beforeToggle: function(){},
@@ -77,12 +78,16 @@
           return true;
         }
         else {
-          current.after($($this.options.moreLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle'));
+          current.data('sliderHeight', maxHeight);
+
+          var useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
+          current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle'));
+
+          if(!$this.options.startOpen) {
+            current.css({height: maxHeight});
+          }
         }
 
-        current.data('sliderHeight', maxHeight);
-
-        current.css({height: maxHeight});
       });
     },
 
