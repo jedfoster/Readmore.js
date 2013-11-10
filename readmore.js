@@ -87,7 +87,6 @@
             current.css({height: maxHeight});
           }
         }
-
       });
     },
 
