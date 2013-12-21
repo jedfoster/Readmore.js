@@ -100,7 +100,7 @@
           sliderHeight = $(element).data('sliderHeight');
 
       if ($(element).height() == sliderHeight) {
-        newHeight = $(element).data().boxHeight + "px";
+        newHeight = "auto";
         newLink = 'lessLink';
         more = true;
       }
