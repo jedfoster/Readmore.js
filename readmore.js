@@ -60,7 +60,7 @@
         var current = $(this),
             maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > current.data('max-height')) ? current.css('max-height').replace(/[^-\d\.]/g, '') : current.data('max-height'),
             hightMargin = current.data('height-margin');
-console.log(current.data('height-margin'));
+
         current.addClass('readmore-js-section');
 
         if(current.css('max-height') != "none") {
