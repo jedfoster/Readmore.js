@@ -122,6 +122,16 @@
 
       // Fire afterToggle callback
       $this.options.afterToggle(trigger, element, more);
+    },
+
+    destroy: function() {
+      $(this.element).each(function() {
+        var current = $(this);
+
+        current.removeClass('readmore-js-section').css({'max-height': '', 'height': 'auto'}).next('.readmore-js-toggle').remove();
+
+        current.removeData();
+      });
     }
   };
 
