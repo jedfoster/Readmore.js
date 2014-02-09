@@ -130,6 +130,8 @@
     },
 
     destroy: function() {
+      var $this = this;
+
       $(this.element).each(function() {
         var current = $(this);
 
@@ -144,9 +146,12 @@
     var args = arguments;
     if (options === undefined || typeof options === 'object') {
       return this.each(function () {
-        if (!$.data(this, 'plugin_' + readmore)) {
-          $.data(this, 'plugin_' + readmore, new Readmore( this, options ));
+        if ($.data(this, 'plugin_' + readmore)) {
+          var instance = $.data(this, 'plugin_' + readmore);
+          instance['destroy'].apply(instance);
         }
+
+        $.data(this, 'plugin_' + readmore, new Readmore( this, options ));
       });
     } else if (typeof options === 'string' && options[0] !== '_' && options !== 'init') {
       return this.each(function () {
