@@ -116,12 +116,13 @@
       // Fire beforeToggle callback
       $this.options.beforeToggle(trigger, element, more);
 
-      $(element).animate({"height": newHeight}, {duration: $this.options.speed });
+      $(element).animate({"height": newHeight}, {duration: $this.options.speed, complete: function() {
+          // Fire afterToggle callback
+          $this.options.afterToggle(trigger, element, more);
+        }
+      });
 
       $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).addClass('readmore-js-toggle'));
-
-      // Fire afterToggle callback
-      $this.options.afterToggle(trigger, element, more);
     },
 
     destroy: function() {
