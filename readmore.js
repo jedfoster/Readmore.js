@@ -1,10 +1,17 @@
+/*!
+ * Readmore.js jQuery plugin
+ * Author: @jed_foster
+ * Project home: jedfoster.github.io/Readmore.js
+ * Licensed under the MIT license
+ */
+
 ;(function($) {
 
   var readmore = 'readmore',
       defaults = {
         speed: 100,
         maxHeight: 200,
-        heightMargin: 15,
+        heightMargin: 16,
         moreLink: '<a href="#">Read More</a>',
         lessLink: '<a href="#">Close</a>',
         embedCSS: true,
@@ -69,7 +76,7 @@
 
         current.data("boxHeight", current.outerHeight(true));
 
-        if(current.outerHeight(true) < maxHeight + hightMargin) {
+        if(current.outerHeight(true) <= maxHeight + hightMargin) {
           // The block is shorter than the limit, so there's no need to truncate it.
           return true;
         }

@@ -22,6 +22,7 @@ Yes, it's that simple. You can change the speed of the animation, the height of 
 
 * `speed: 100` (in milliseconds)
 * `maxHeight: 200`  (in pixels)
+* `heightMargin: 16` (in pixels, avoids collapsing blocks that are only slightly larger than `maxHeight`)
 * `moreLink: '<a href="#">Read more</a>'`
 * `lessLink: '<a href="#">Close</a>'`
 * `embedCSS: true` (insert required CSS dynamically, set this to `false` if you include the necessary CSS in a stylesheet)
