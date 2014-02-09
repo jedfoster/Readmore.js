@@ -81,7 +81,7 @@
 
       <p>Here's an example of how you could use the <code>afterToggle</code> callback to scroll back to the top of a block when the "Close" link is clicked.</p>
 
-      <pre><code>$('article').readmore({
+      <pre><code class="javascript">$('article').readmore({
   afterToggle: function(trigger, element, more) {
     if(! more) { // The "Close" link was clicked
       $('html, body').animate( { scrollTop: element.offset().top }, {duration: 100 } );
@@ -111,6 +111,15 @@
 
       <pre><code class="javascript">$(&apos;article&apos;).readmore({embedCSS: false});</code></pre>
 
+      <h2 id="removingreadmore">Removing Readmore</h2>
+
+      <p>You can remove the Readmore functionality like so:</p>
+
+      <pre><code class="javascript">$('article').readmore('destroy');</code></pre>
+
+      <p>Or, you can be more surgical by specifying a particular element:</p>
+
+      <pre><code class="javascript">$('article:first').readmore('destroy');</code></pre>
     </section>
 
     <h1>Demo</h1>
