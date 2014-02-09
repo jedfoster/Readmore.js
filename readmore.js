@@ -11,6 +11,7 @@
       defaults = {
         speed: 100,
         maxHeight: 200,
+        heightMargin: 16,
         moreLink: '<a href="#">Read More</a>',
         lessLink: '<a href="#">Close</a>',
         embedCSS: true,
@@ -29,6 +30,7 @@
     this.options = $.extend( {}, defaults, options);
 
     $(this.element).data('max-height', this.options.maxHeight);
+    $(this.element).data('height-margin', this.options.heightMargin);
 
     delete(this.options.maxHeight);
 
@@ -63,7 +65,8 @@
 
       $(this.element).each(function() {
         var current = $(this),
-            maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > current.data('max-height')) ? current.css('max-height').replace(/[^-\d\.]/g, '') : current.data('max-height');
+            maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > current.data('max-height')) ? current.css('max-height').replace(/[^-\d\.]/g, '') : current.data('max-height'),
+            hightMargin = current.data('height-margin');
 
         current.addClass('readmore-js-section');
 
@@ -73,7 +76,7 @@
 
         current.data("boxHeight", current.outerHeight(true));
 
-        if(current.outerHeight(true) < maxHeight) {
+        if(current.outerHeight(true) <= maxHeight + hightMargin) {
           // The block is shorter than the limit, so there's no need to truncate it.
           return true;
         }
