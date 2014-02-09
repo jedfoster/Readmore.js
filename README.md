@@ -82,3 +82,17 @@ If you want to include the necessary styling in your site's stylesheet, you can 
 ```javascript
 $('article').readmore({embedCSS: false});
 ```
+
+## Removing Readmore
+
+You can remove the Readmore functionality like so:
+
+```javascript
+$('article').readmore('destroy');
+```
+
+Or, you can be more surgical by specifying a particular element:
+
+```javascript
+$('article:first').readmore('destroy');
+```
