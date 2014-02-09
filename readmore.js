@@ -70,8 +70,6 @@
             maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > current.data('max-height')) ? current.css('max-height').replace(/[^-\d\.]/g, '') : current.data('max-height'),
             hightMargin = current.data('height-margin');
 
-        current.addClass('readmore-js-section');
-
         if(current.css('max-height') != 'none') {
           current.css("max-height", 'none');
         }
@@ -83,7 +81,7 @@
           return true;
         }
         else {
-          current.data('sliderHeight', maxHeight);
+          current.addClass('readmore-js-section ' + $this.options.collapsedClass).data('sliderHeight', maxHeight);
 
           var useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
           current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle'));
@@ -100,7 +98,7 @@
       event.preventDefault();
 
       var $this = this,
-          newHeight = newLink = '',
+          newHeight = newLink = sectionClass = '',
           expanded = false,
           sliderHeight = $(element).data('sliderHeight');
 
@@ -108,11 +106,13 @@
         newHeight = $(element).data().boxHeight + 'px';
         newLink = 'lessLink';
         expanded = true;
+        sectionClass = $this.options.expandedClass;
       }
 
       else {
         newHeight = sliderHeight;
         newLink = 'moreLink';
+        sectionClass = $this.options.collapsedClass;
       }
 
       // Fire beforeToggle callback
@@ -123,6 +123,8 @@
           $this.options.afterToggle(trigger, element, expanded);
 
           $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).addClass('readmore-js-toggle'));
+
+          $(this).removeClass($this.options.collapsedClass + ' ' + $this.options.expandedClass).addClass(sectionClass);
         }
       });
     },
@@ -131,7 +133,7 @@
       $(this.element).each(function() {
         var current = $(this);
 
-        current.removeClass('readmore-js-section').css({'max-height': '', 'height': 'auto'}).next('.readmore-js-toggle').remove();
+        current.removeClass('readmore-js-section ' + $this.options.collapsedClass + ' ' + $this.options.expandedClass).css({'max-height': '', 'height': 'auto'}).next('.readmore-js-toggle').remove();
 
         current.removeData();
       });
