@@ -46,7 +46,7 @@
         else {
             css.appendChild(d.createTextNode(u));
         }
-        d.getElementsByTagName("head")[0].appendChild(css);
+        d.getElementsByTagName('head')[0].appendChild(css);
       }(document, styles));
 
       cssEmbedded = true;
@@ -70,11 +70,11 @@
 
         current.addClass('readmore-js-section');
 
-        if(current.css('max-height') != "none") {
-          current.css("max-height", "none");
+        if(current.css('max-height') != 'none') {
+          current.css("max-height", 'none');
         }
 
-        current.data("boxHeight", current.outerHeight(true));
+        current.data('boxHeight', current.outerHeight(true));
 
         if(current.outerHeight(true) <= maxHeight + hightMargin) {
           // The block is shorter than the limit, so there's no need to truncate it.
@@ -103,7 +103,7 @@
           sliderHeight = $(element).data('sliderHeight');
 
       if ($(element).height() == sliderHeight) {
-        newHeight = $(element).data().boxHeight + "px";
+        newHeight = $(element).data().boxHeight + 'px';
         newLink = 'lessLink';
         more = true;
       }
@@ -116,7 +116,7 @@
       // Fire beforeToggle callback
       $this.options.beforeToggle(trigger, element, more);
 
-      $(element).animate({"height": newHeight}, {duration: $this.options.speed, complete: function() {
+      $(element).animate({'height': newHeight}, {duration: $this.options.speed, complete: function() {
           // Fire afterToggle callback
           $this.options.afterToggle(trigger, element, more);
 
