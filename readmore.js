@@ -17,6 +17,8 @@
         embedCSS: true,
         sectionCSS: 'display: block; width: 100%;',
         startOpen: false,
+        expandedClass: 'readmore-js-expanded',
+        collapsedClass: 'readmore-js-collapsed',
 
         // callbacks
         beforeToggle: function(){},
@@ -99,13 +101,13 @@
 
       var $this = this,
           newHeight = newLink = '',
-          more = false,
+          expanded = false,
           sliderHeight = $(element).data('sliderHeight');
 
       if ($(element).height() == sliderHeight) {
         newHeight = $(element).data().boxHeight + 'px';
         newLink = 'lessLink';
-        more = true;
+        expanded = true;
       }
 
       else {
@@ -114,11 +116,11 @@
       }
 
       // Fire beforeToggle callback
-      $this.options.beforeToggle(trigger, element, more);
+      $this.options.beforeToggle(trigger, element, expanded);
 
       $(element).animate({'height': newHeight}, {duration: $this.options.speed, complete: function() {
           // Fire afterToggle callback
-          $this.options.afterToggle(trigger, element, more);
+          $this.options.afterToggle(trigger, element, expanded);
 
           $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).addClass('readmore-js-toggle'));
         }

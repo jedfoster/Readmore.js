@@ -69,12 +69,12 @@
 
       <h3 id="thecallbacks">The callbacks:</h3>
 
-      <p>The callback functions, <code>beforeToggle()</code> and <code>afterToggle</code>, both receive the same arguments: <code>trigger</code>, <code>element</code>, and <code>more</code>.</p>
+      <p>The callback functions, <code>beforeToggle()</code> and <code>afterToggle</code>, both receive the same arguments: <code>trigger</code>, <code>element</code>, and <code>expanded</code>.</p>
 
       <ul>
         <li><code>trigger</code>: the "Read more" or "Close" element that was clicked</li>
         <li><code>element</code>: the block that is being collapsed or expanded</li>
-        <li><code>more</code>: Boolean; <code>true</code> means the block is expanded</li>
+        <li><code>expanded</code>: Boolean; <code>true</code> means the block is expanded</li>
       </ul>
 
       <h4 id="callbackexample">Callback example:</h4>
@@ -82,8 +82,8 @@
       <p>Here's an example of how you could use the <code>afterToggle</code> callback to scroll back to the top of a block when the "Close" link is clicked.</p>
 
       <pre><code class="javascript">$('article').readmore({
-  afterToggle: function(trigger, element, more) {
-    if(! more) { // The "Close" link was clicked
+  afterToggle: function(trigger, element, expanded) {
+    if(! expanded) { // The "Close" link was clicked
       $('html, body').animate( { scrollTop: element.offset().top }, {duration: 100 } );
     }
   }
@@ -167,8 +167,8 @@
   $('#info').readmore({
     moreLink: '<a href="#">More examples and options</a>',
     maxHeight: 390,
-    afterToggle: function(trigger, element, more) {
-      if(! more) { // The "Close" link was clicked
+    afterToggle: function(trigger, element, expanded) {
+      if(! expanded) { // The "Close" link was clicked
         $('html, body').animate( { scrollTop: element.offset().top }, {duration: 100 } );
       }
     }
