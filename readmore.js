@@ -81,7 +81,7 @@
           return true;
         }
         else {
-          current.addClass('readmore-js-section ' + $this.options.collapsedClass).data('sliderHeight', maxHeight);
+          current.addClass('readmore-js-section ' + $this.options.collapsedClass).data('collapsedHeight', maxHeight);
 
           var useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
           current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle'));
@@ -104,17 +104,17 @@
       var $this = this,
           newHeight = newLink = sectionClass = '',
           expanded = false,
-          sliderHeight = $(element).data('sliderHeight');
+          collapsedHeight = $(element).data('collapsedHeight');
 
-      if ($(element).height() == sliderHeight) {
-        newHeight = $(element).data().boxHeight + 'px';
+      if ($(element).height() <= collapsedHeight) {
+        newHeight = $(element).data('expandedHeight') + 'px';
         newLink = 'lessLink';
         expanded = true;
         sectionClass = $this.options.expandedClass;
       }
 
       else {
-        newHeight = sliderHeight;
+        newHeight = collapsedHeight;
         newLink = 'moreLink';
         sectionClass = $this.options.collapsedClass;
       }
@@ -139,7 +139,7 @@
 
       el.remove();
 
-      element.data('boxHeight', height);
+      element.data('expandedHeight', height);
     },
 
     resizeBoxes: function() {
@@ -150,8 +150,8 @@
 
         $this.setBoxHeight(current);
 
-        if(current.height() > current.data('boxHeight') || (current.hasClass($this.options.expandedClass) && current.height() < current.data('boxHeight')) ) {
-          current.css('height', current.data('boxHeight'));
+        if(current.height() > current.data('expandedHeight') || (current.hasClass($this.options.expandedClass) && current.height() < current.data('expandedHeight')) ) {
+          current.css('height', current.data('expandedHeight'));
         }
       });
     },
