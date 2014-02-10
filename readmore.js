@@ -68,15 +68,15 @@
       $(this.element).each(function() {
         var current = $(this),
             maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > current.data('max-height')) ? current.css('max-height').replace(/[^-\d\.]/g, '') : current.data('max-height'),
-            hightMargin = current.data('height-margin');
+            heightMargin = current.data('height-margin');
 
         if(current.css('max-height') != 'none') {
-          current.css("max-height", 'none');
+          current.css('max-height', 'none');
         }
 
-        current.data('boxHeight', current.outerHeight(true));
+        $this.setBoxHeight(current);
 
-        if(current.outerHeight(true) <= maxHeight + hightMargin) {
+        if(current.outerHeight(true) <= maxHeight + heightMargin) {
           // The block is shorter than the limit, so there's no need to truncate it.
           return true;
         }
@@ -90,6 +90,10 @@
             current.css({height: maxHeight});
           }
         }
+      });
+
+      $(window).on('resize', function(event) {
+        $this.resizeBoxes();
       });
     },
 
@@ -125,6 +129,31 @@
           $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).addClass('readmore-js-toggle'));
 
           $(this).removeClass($this.options.collapsedClass + ' ' + $this.options.expandedClass).addClass(sectionClass);
+        }
+      });
+    },
+
+    setBoxHeight: function(element) {
+      var el = element.clone().css({'height': 'auto', 'width': element.width(), 'overflow': 'hidden'}).insertAfter(element),
+          height = el.outerHeight(true);
+
+      el.remove();
+
+      console.log(height);
+
+      element.data('boxHeight', height);
+    },
+
+    resizeBoxes: function() {
+      var $this = this;
+
+      $('.readmore-js-section').each(function() {
+        var current = $(this);
+
+        $this.setBoxHeight(current);
+
+        if(current.height() > current.data('boxHeight') || (current.hasClass($this.options.expandedClass) && current.height() < current.data('boxHeight')) ) {
+          current.css('height', current.data('boxHeight'));
         }
       });
     },
