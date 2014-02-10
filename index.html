@@ -18,8 +18,8 @@ js: |
       $('#info').readmore({
         moreLink: '<a href="#">More examples and options</a>',
         maxHeight: 390,
-        afterToggle: function(trigger, element, more) {
-          if(! more) { // The "Close" link was clicked
+        afterToggle: function(trigger, element, expanded) {
+          if(! expanded) { // The "Close" link was clicked
             $('html, body').animate( { scrollTop: element.offset().top }, {duration: 100 } );
           }
         }
@@ -44,31 +44,31 @@ js: |
   <h3 id="example">Example</h3>
 
 {% highlight javascript %}
-
 $('article').readmore();
-
 {% endhighlight %}
 
   <p>Yes, it&#8217;s that simple. You can change the speed of the animation, the height of the collapsed block, and the open and close elements.</p>
 
 {% highlight javascript %}
-
 $('article').readmore({
   speed: 75,
   maxHeight: 500
 });
-
 {% endhighlight %}
 
   <h3 id="theoptions">The options:</h3>
 
   <ul>
     <li><code>speed: 100</code> (in milliseconds)</li>
-    <li><code>maxHeight: 200</code>  (in pixels)</li>
+    <li><code>maxHeight: 200</code> (in pixels)</li>
+    <li><code>heightMargin: 16</code> (in pixels, avoids collapsing blocks that are only slightly larger than <code>maxHeight</code>)</li>
     <li><code>moreLink: '&lt;a href="#"&gt;Read more&lt;/a&gt;'</code></li>
     <li><code>lessLink: '&lt;a href="#"&gt;Close&lt;/a&gt;'</code></li>
     <li><code>embedCSS: true</code> (insert required CSS dynamically, set this to <code>false</code> if you include the necessary CSS in a stylesheet)</li>
     <li><code>sectionCSS: 'display: block; width: 100%;'</code> (sets the styling of the blocks)</li>
+    <li><code>startOpen: false</code> (do not immediately truncate, start in the fully opened position)</li>
+    <li><code>expandedClass: 'readmore-js-expanded'</code> (class added to expanded blocks)</li>
+    <li><code>collapsedClass: 'readmore-js-collapsed'</code> (class added to collapsed blocks)</li>
     <li><code>beforeToggle: function() {}</code> (called after a more or less link is clicked, but <i>before</i> the block is collapsed or expanded)</li>
     <li><code>afterToggle: function() {}</code> (called <i>after</i> the block is collapsed or expanded)</li>
   </ul>
@@ -90,7 +90,6 @@ $('article').readmore({
   <p>Here's an example of how you could use the <code>afterToggle</code> callback to scroll back to the top of a block when the "Close" link is clicked.</p>
 
 {% highlight javascript %}
-
 $('article').readmore({
   afterToggle: function(trigger, element, more) {
     if(! more) { // The "Close" link was clicked
@@ -98,7 +97,6 @@ $('article').readmore({
     }
   }
 });
-
 {% endhighlight %}
 
   <h3 id="recommendedcss">Recommended CSS:</h3>
@@ -129,6 +127,19 @@ $('article').readmore({sectionCSS: 'display: inline-block; width: 50%;'});
 $('article').readmore({embedCSS: false});
 {% endhighlight %}
 
+  <h2 id="removingreadmore">Removing Readmore</h2>
+
+  <p>You can remove the Readmore functionality like so:</p>
+
+{% highlight javascript %}
+$('article').readmore('destroy');
+{% endhighlight %}
+
+  <p>Or, you can be more surgical by specifying a particular element:</p>
+
+{% highlight javascript %}
+$('article:first').readmore('destroy');
+{% endhighlight %}
 
 </section>
 
