@@ -10,28 +10,34 @@
   <meta name="author" content="Jed Foster">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
+  <![endif]-->
+
   <style media="screen">
     body { font: 16px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif; color: #444; }
-    code { color: #777; }
+    code { color: #777; font-family: "Source Code Pro", "Menlo", "Courier New", monospace;}
     a { color: #178DB1; }
-    #container { margin: 0 auto; width: 960px; }
-    #info { border-bottom: 1px solid #999; }
-    #demo { padding: 0 2em; }
+    .container { margin: 0 auto; max-width: 960px; }
+    #info + .readmore-js-toggle { padding-bottom: 1.5em; border-bottom: 1px solid #999; font-weight: bold;}
+    #demo { padding: 0 10%; }
   </style>
 </head>
 
 <body>
 
-  <div id="container">
+  <div class="container">
     <header>
       <h1>Readmore.js</h1>
 
       <p>A smooth, lightweight jQuery plugin for collapsing and expanding long blocks of text with &#8220;Read more&#8221; and &#8220;Close&#8221; links. </p>
     </header>
-    
+
     <section id="info">
-      <p>The required markup for Readmore.js is also extremely lightweight and very simple. No need for complicated sets of <code>divs</code> or hardcoded class names, just call <code>.readmore()</code> on the element containing your block of text and Readmore.js takes care of the rest. </p>
+      <p>The required markup for Readmore.js is extremely lightweight. No need for complicated sets of <code>divs</code> or hardcoded class names, just call <code>.readmore()</code> on the element containing your block of text and Readmore.js takes care of the rest. </p>
+
+      <p>Readmore.js is compatible with all versions of jQuery greater than 1.7.0.</p>
 
       <h2 id="example">Example</h2>
 
@@ -51,17 +57,66 @@
         <li><code>maxHeight: 200</code>  (in pixels)</li>
         <li><code>moreLink: '&lt;a href="#"&gt;Read more&lt;/a&gt;'</code></li>
         <li><code>lessLink: '&lt;a href="#"&gt;Close&lt;/a&gt;'</code></li>
+        <li><code>embedCSS: true</code> (insert required CSS dynamically, set this to <code>false</code> if you include the necessary CSS in a stylesheet)</li>
+        <li><code>sectionCSS: 'display: block; width: 100%;'</code> (sets the styling of the blocks)</li>
+        <li><code>startOpen: false</code> (do not immediately truncate, start in the fully opened position)</li>
+        <li><code>beforeToggle: function() {}</code> (called after a more or less link is clicked, but <i>before</i> the block is collapsed or expanded)</li>
+        <li><code>afterToggle: function() {}</code> (called <i>after</i> the block is collapsed or expanded)</li>
       </ul>
 
       <p>If the element has a <code>max-height</code> CSS property, Readmore.js will use that value rather than the value of the <code>maxHeight</code> option.</p>
-    </section>
-    
-    <h1>Demo</h1>
-    
-    <section id="demo">
-      
 
-      <article class="slide">
+      <h3 id="thecallbacks">The callbacks:</h3>
+
+      <p>The callback functions, <code>beforeToggle()</code> and <code>afterToggle</code>, both receive the same arguments: <code>trigger</code>, <code>element</code>, and <code>more</code>.</p>
+
+      <ul>
+        <li><code>trigger</code>: the "Read more" or "Close" element that was clicked</li>
+        <li><code>element</code>: the block that is being collapsed or expanded</li>
+        <li><code>more</code>: Boolean; <code>true</code> means the block is expanded</li>
+      </ul>
+
+      <h4 id="callbackexample">Callback example:</h4>
+
+      <p>Here's an example of how you could use the <code>afterToggle</code> callback to scroll back to the top of a block when the "Close" link is clicked.</p>
+
+      <pre><code>$('article').readmore({
+  afterToggle: function(trigger, element, more) {
+    if(! more) { // The "Close" link was clicked
+      $('html, body').animate( { scrollTop: element.offset().top }, {duration: 100 } );
+    }
+  }
+});</code></pre>
+
+      <h3 id="recommendedcss">Recommended CSS:</h3>
+
+      <p>The intention behind Readmore.js is to use CSS for as much functionality as possible. In particular, &#8220;collapsing&#8221; is achieved by setting <code>overflow: hidden</code> on the containing block and changing the <code>height</code> property.</p>
+
+      <p>By default, Readmore.js inserts the following CSS:</p>
+
+      <pre><code class="css">.readmore-js-toggle, .readmore-js-section {
+  display: block;
+  width: 100%;
+}
+.readmore-js-section {
+  overflow: hidden;
+}</code></pre>
+
+      <p>You can override the the first set of rules when you set up Readmore.js like so:</p>
+
+      <pre><code class="javascript">$(&apos;article&apos;).readmore({sectionCSS: &apos;display: inline-block; width: 50%;&apos;});</code></pre>
+
+      <p>If you want to include the necessary styling in your site&#8217;s stylesheet, you can disable the dynamic embedding by passing <code>embedCSS: false</code> in the options hash.</p>
+
+      <pre><code class="javascript">$(&apos;article&apos;).readmore({embedCSS: false});</code></pre>
+
+    </section>
+
+    <h1>Demo</h1>
+
+    <section id="demo">
+
+      <article>
         <h2>Artisanal Narwahls</h2>
 
         <p>Salvia portland leggings banh mi fanny pack mixtape, authentic bushwick wes anderson intelligentsia artisan typewriter high life they sold out mixtape high life. Marfa ethnic wayfarers brooklyn keytar mixtape. Blue bottle shoreditch gluten-free, mixtape hoodie whatever pinterest viral twee fashion axe high life irony biodiesel tofu.</p>
@@ -73,7 +128,7 @@
         <p>Flannel pinterest Austin twee narwhal, hoodie swag wolf photo booth. Hella kale chips marfa occupy pitchfork put a bird on it. Semiotics dreamcatcher selfies beard DIY umami craft beer 3 wolf moon. Try-hard literally mustache polaroid ennui VHS. High life fixie wolf, trust fund twee seitan pinterest blog helvetica sriracha. Tattooed selvage try-hard, biodiesel banjo direct trade echo park kogi tonx bespoke. Pork belly put a bird on it iphone, fixie literally bespoke tonx butcher +1 swag.</p>
       </article>
 
-      <article class="slide">
+      <article>
         <h2>Portland Leggings</h2>
 
         <p>Put a bird on it you probably haven't heard of them DIY, vice photo booth terry richardson pickled vegan cray. Pug DIY blog stumptown 3 wolf moon, blue bottle farm-to-table actually banh mi fanny pack quinoa small batch. Mumblecore raw denim hoodie ethnic. Craft beer sriracha mlkshk, organic bicycle rights twee gentrify messenger bag keffiyeh ethical helvetica tumblr. Gluten-free tousled vinyl pop-up. Butcher keytar pickled literally, cosby sweater chambray authentic. Fixie odd future kale chips, church-key pinterest beard pour-over banksy typewriter dreamcatcher squid blue bottle sartorial.</p>
@@ -85,17 +140,31 @@
 
         <p>Yr messenger bag fanny pack small batch, single-origin coffee literally gluten-free farm-to-table 8-bit godard butcher fap actually biodiesel trust fund. Pickled squid cred pug pop-up. Polaroid deep v 90's, +1 godard mumblecore retro next level carles salvia try-hard food truck gluten-free. Four loko post-ironic tofu lomo, narwhal readymade mustache jean shorts letterpress. Leggings put a bird on it farm-to-table jean shorts williamsburg cardigan. Gentrify pug bushwick PBR fixie etsy. PBR banh mi cardigan, cosby sweater master cleanse mixtape fingerstache.</p>
       </article>
+
+      <article>
+        <h2>This section is shorter than the Readmore minimum</h2>
+
+        <p>Put a bird on it you probably haven't heard of them DIY, vice photo booth terry richardson pickled vegan cray. Pug DIY blog stumptown 3 wolf moon, blue bottle farm-to-table actually banh mi fanny pack quinoa small batch. Mumblecore raw denim hoodie ethnic. Craft beer sriracha mlkshk, organic bicycle rights twee gentrify messenger bag keffiyeh ethical helvetica tumblr. Gluten-free tousled vinyl pop-up. Butcher keytar pickled literally, cosby sweater chambray authentic. Fixie odd future kale chips, church-key pinterest beard pour-over banksy typewriter dreamcatcher squid blue bottle sartorial.</p>
+      </article>
     </section>
   </div>
 
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="js/libs/jquery-1.8.3.js"%3E%3C/script%3E'))</script>
-
-  <script src="readmore.min.js"></script>
+  <script src="readmore.js"></script>
 
   <script>
-    $('article').readmore();
+  $('#info').readmore({
+    moreLink: '<a href="#">More examples and options</a>',
+    maxHeight: 390,
+    afterToggle: function(trigger, element, more) {
+      if(! more) { // The "Close" link was clicked
+        $('html, body').animate( { scrollTop: element.offset().top }, {duration: 100 } );
+      }
+    }
+  });
+
+    $('article').readmore({maxHeight: 240});
   </script>
 </body>
 </html>

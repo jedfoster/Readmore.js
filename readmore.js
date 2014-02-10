@@ -1,7 +1,7 @@
 /*!
  * Readmore.js jQuery plugin
  * Author: @jed_foster
- * Project home: jedfoster.github.com/Readmore.js
+ * Project home: jedfoster.github.io/Readmore.js
  * Licensed under the MIT license
  */
 
@@ -12,13 +12,43 @@
         speed: 100,
         maxHeight: 200,
         moreLink: '<a href="#">Read More</a>',
-        lessLink: '<a href="#">Close</a>'
-      };
+        lessLink: '<a href="#">Close</a>',
+        embedCSS: true,
+        sectionCSS: 'display: block; width: 100%;',
+        startOpen: false,
+
+        // callbacks
+        beforeToggle: function(){},
+        afterToggle: function(){}
+      },
+      cssEmbedded = false;
 
   function Readmore( element, options ) {
     this.element = element;
 
-    this.options = $.extend( {}, defaults, options) ;
+    this.options = $.extend( {}, defaults, options);
+
+    $(this.element).data('max-height', this.options.maxHeight);
+
+    delete(this.options.maxHeight);
+
+    if(this.options.embedCSS && ! cssEmbedded) {
+      var styles = '.readmore-js-toggle, .readmore-js-section { ' + this.options.sectionCSS + ' } .readmore-js-section { overflow: hidden; }';
+
+      (function(d,u) {
+        var css=d.createElement('style');
+        css.type = 'text/css';
+        if(css.styleSheet) {
+            css.styleSheet.cssText = u;
+        }
+        else {
+            css.appendChild(d.createTextNode(u));
+        }
+        d.getElementsByTagName("head")[0].appendChild(css);
+      }(document, styles));
+
+      cssEmbedded = true;
+    }
 
     this._defaults = defaults;
     this._name = readmore;
@@ -33,49 +63,62 @@
 
       $(this.element).each(function() {
         var current = $(this),
-            maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > $this.options.maxHeight) ? current.css('max-height').replace(/[^-\d\.]/g, '') : $this.options.maxHeight;
+            maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > current.data('max-height')) ? current.css('max-height').replace(/[^-\d\.]/g, '') : current.data('max-height');
+
+        current.addClass('readmore-js-section');
 
         if(current.css('max-height') != "none") {
           current.css("max-height", "none");
         }
 
-        current.data("boxHeight", current.height());
+        current.data("boxHeight", current.outerHeight(true));
 
-        if(current.innerHeight() < maxHeight) {
+        if(current.outerHeight(true) < maxHeight) {
           // The block is shorter than the limit, so there's no need to truncate it.
           return true;
         }
         else {
-          current.after($($this.options.moreLink).on('click', function() { $this.openSlider(this, current) }));
+          current.data('sliderHeight', maxHeight);
+
+          var useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
+          current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle'));
+
+          if(!$this.options.startOpen) {
+            current.css({height: maxHeight});
+          }
         }
-
-        sliderHeight = maxHeight;
-
-        current.css("height", sliderHeight).css("overflow", 'hidden');
       });
     },
 
-    openSlider: function(trigger, element)
+    toggleSlider: function(trigger, element, event)
     {
       event.preventDefault();
 
       var $this = this,
-          open_height = $(element).data().boxHeight + "px";
+          newHeight = newLink = '',
+          more = false,
+          sliderHeight = $(element).data('sliderHeight');
 
-      $(element).animate({"height": open_height}, {duration: $this.options.speed });
+      if ($(element).height() == sliderHeight) {
+        newHeight = "auto";
+        newLink = 'lessLink';
+        more = true;
+      }
 
-      $(trigger).replaceWith($($this.options.lessLink).on('click', function() { $this.closeSlider(this, element) }));
-    },
+      else {
+        newHeight = sliderHeight;
+        newLink = 'moreLink';
+      }
 
-    closeSlider: function(trigger, element)
-    {
-      event.preventDefault();
+      // Fire beforeToggle callback
+      $this.options.beforeToggle(trigger, element, more);
 
-      var $this = this;
+      $(element).animate({"height": newHeight}, {duration: $this.options.speed });
 
-      $(element).animate({"height": sliderHeight}, {duration: $this.options.speed });
+      $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).addClass('readmore-js-toggle'));
 
-      $(trigger).replaceWith($($this.options.moreLink).on('click', function() { $this.openSlider(this, element) }));
+      // Fire afterToggle callback
+      $this.options.afterToggle(trigger, element, more);
     }
   };
 
