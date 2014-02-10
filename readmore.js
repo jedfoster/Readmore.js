@@ -139,8 +139,6 @@
 
       el.remove();
 
-      console.log(height);
-
       element.data('boxHeight', height);
     },
 
