@@ -20,6 +20,9 @@
         expandedClass: 'readmore-js-expanded',
         collapsedClass: 'readmore-js-collapsed',
 
+        // Should the resize event be debounced? It can prevent the browser from freezing if there are a lot of readmore boxes
+        debounceResize: false,
+
         // callbacks
         beforeToggle: function(){},
         afterToggle: function(){}
@@ -92,9 +95,14 @@
         }
       });
 
-      $(window).on('resize', function(event) {
-        $this.resizeBoxes();
-      });
+      if ($this.options.debounceResize && $.debounce) {
+        $(window).on('resize', $.debounce(250, function() {
+          $this.resizeBoxes();
+        }));
+      }
+      else {
+        $(window).on('resize', $this.resizeBoxes());
+      }
     },
 
     toggleSlider: function(trigger, element, event)
