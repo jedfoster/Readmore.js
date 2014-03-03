@@ -76,7 +76,7 @@
 
         $this.setBoxHeight(current);
 
-        if(current.outerHeight(true) <= maxHeight + heightMargin) {
+        if(current.outerHeight(true) <= parseInt(maxHeight) + heightMargin) {
           // The block is shorter than the limit, so there's no need to truncate it.
           return true;
         }
