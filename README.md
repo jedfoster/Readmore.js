@@ -18,6 +18,10 @@ Yes, it's that simple. You can change the speed of the animation, the height of 
       maxHeight: 500
     });
 
+You can even toggle the slider from your code.
+
+    $('article').readmore('toggleSlider');
+
 ## The options: ##
 
 * `speed: 100` (in milliseconds)
