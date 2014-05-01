@@ -147,8 +147,7 @@
 
         <p>Banksy blog craft beer PBR fap retro wayfarers polaroid narwhal blue bottle mixtape squid YOLO. Pitchfork brunch put a bird on it, fashion axe squid vegan vice pop-up organic blue bottle forage plaid deep v locavore +1. American apparel 3 wolf moon cray tonx single-origin coffee, gluten-free sartorial. Try-hard iphone pork belly bespoke keffiyeh leggings selfies, chillwave gastropub. Master cleanse plaid hella readymade. Keytar cosby sweater truffaut kogi, try-hard flannel chillwave. Truffaut selvage bespoke banjo freegan, ugh williamsburg.</p>
 
-        <p>Austin single-origin coffee umami vice pork belly, ethical williamsburg flexitarian forage aesthetic street art keytar fashion axe twee. Cliche aesthetic trust fund, williamsburg carles godard four loko. Photo booth authentic cred semiotics, pickled vegan williamsburg mixtape church-key intelligentsia irony umami PBR. Wayfarers fixie keffiyeh hella ugh, dreamcatcher kale chips banksy Austin swag stumptown deep v tattooed. Mlkshk viral seitan small batch squid cosby sweater, jean shorts neutra. Vegan pitchfork banjo readymade, helvetica ethical bushwick banksy artisan sriracha single-origin coffee. Umami viral fashion axe, marfa DIY banh mi wes anderson master cleanse cosby sweater cray selvage organic actually semiotics.
-  </p>
+        <p>Austin single-origin coffee umami vice pork belly, ethical williamsburg flexitarian forage aesthetic street art keytar fashion axe twee. Cliche aesthetic trust fund, williamsburg carles godard four loko. Photo booth authentic cred semiotics, pickled vegan williamsburg mixtape church-key intelligentsia irony umami PBR. Wayfarers fixie keffiyeh hella ugh, dreamcatcher kale chips banksy Austin swag stumptown deep v tattooed. Mlkshk viral seitan small batch squid cosby sweater, jean shorts neutra. Vegan pitchfork banjo readymade, helvetica ethical bushwick banksy artisan sriracha single-origin coffee. Umami viral fashion axe, marfa DIY banh mi wes anderson master cleanse cosby sweater cray selvage organic actually semiotics.</p>
 
         <p>Yr messenger bag fanny pack small batch, single-origin coffee literally gluten-free farm-to-table 8-bit godard butcher fap actually biodiesel trust fund. Pickled squid cred pug pop-up. Polaroid deep v 90's, +1 godard mumblecore retro next level carles salvia try-hard food truck gluten-free. Four loko post-ironic tofu lomo, narwhal readymade mustache jean shorts letterpress. Leggings put a bird on it farm-to-table jean shorts williamsburg cardigan. Gentrify pug bushwick PBR fixie etsy. PBR banh mi cardigan, cosby sweater master cleanse mixtape fingerstache.</p>
       </article>
@@ -166,15 +165,15 @@
   <script src="readmore.js"></script>
 
   <script>
-  $('#info').readmore({
-    moreLink: '<a href="#">More examples and options</a>',
-    maxHeight: 390,
-    afterToggle: function(trigger, element, expanded) {
-      if(! expanded) { // The "Close" link was clicked
-        $('html, body').animate( { scrollTop: element.offset().top }, {duration: 100 } );
+    $('#info').readmore({
+      moreLink: '<a href="#">More examples and options</a>',
+      maxHeight: 390,
+      afterToggle: function(trigger, element, expanded) {
+        if(! expanded) { // The "Close" link was clicked
+          $('html, body').animate( { scrollTop: element.offset().top }, {duration: 100 } );
+        }
       }
-    }
-  });
+    });
 
     $('article').readmore({maxHeight: 240});
   </script>
