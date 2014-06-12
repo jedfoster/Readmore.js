@@ -5,7 +5,7 @@
  * Licensed under the MIT license
  */
 
-;(function($) {
+(function($) {
 
   var readmore = 'readmore',
       defaults = {
@@ -188,5 +188,5 @@
         }
       });
     }
-  }
+  };
 })(jQuery);
