@@ -98,7 +98,7 @@
           clearTimeout(resizeTimeout);
         }
 
-        resizeTimeout = setTimeout($proxy($this.resizeBoxes, $this), 200);
+        resizeTimeout = setTimeout($.proxy($this.resizeBoxes, $this), 200);
       });
     },
 
