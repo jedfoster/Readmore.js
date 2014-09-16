@@ -24,7 +24,6 @@
     "node_modules",
     "bower_components",
     "demo*",
-    "src*",
     "Gruntfile.js",
     "karma.conf.js",
     "package.json"
