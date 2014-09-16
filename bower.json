@@ -1,0 +1,37 @@
+{
+  "name": "readmorejs",
+  "version": "0.1.0",
+  "description": "A smooth, lightweight jQuery plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links.",
+  "keywords": [
+    "readmore",
+    "readmorejs",
+    "jQuery"
+  ],
+  "homepage": "https://github.com/jedfoster/Readmore.js",
+  "bugs": "https://github.com/jedfoster/Readmore.js/issues",
+  "author": {
+    "name": "Jed Foster",
+    "email": "jed@jedfoster.com",
+    "url": "http://jedfoster.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:jedfoster/Readmore.js.git"
+  },
+  "main": "./dist/readmore.min.js",
+  "ignore": [
+    ".*",
+    "node_modules",
+    "bower_components",
+    "demo*",
+    "src*",
+    "Gruntfile.js",
+    "karma.conf.js",
+    "package.json"
+  ],
+  "dependencies": {
+    "jquery": "~1.7.0"
+  },
+  "devDependencies": {},
+  "license": "MIT"
+}
