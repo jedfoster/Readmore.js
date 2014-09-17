@@ -1,0 +1,10 @@
+.buildpath
+.project
+.settings
+.idea
+.tmp
+.sass-cache
+nbproject
+node_modules
+coverage
+bower_components
