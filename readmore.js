@@ -134,11 +134,8 @@
     },
 
     setBoxHeight: function(element) {
-      var el = element.clone().css({'height': 'auto', 'width': element.width(), 'overflow': 'hidden'}).insertAfter(element),
-          height = el.outerHeight(true);
-
-      el.remove();
-
+      element.css({'height': 'auto', 'width': element.width(), 'overflow': 'hidden'});
+      height = element.outerHeight(true);
       element.data('expandedHeight', height);
     },
 
