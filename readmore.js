@@ -84,6 +84,7 @@
           current.addClass('readmore-js-section ' + $this.options.collapsedClass).data('collapsedHeight', maxHeight);
 
           var useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
+          this.useLink = useLink;
           current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle'));
 
           if(!$this.options.startOpen) {
@@ -99,8 +100,13 @@
 
     toggleSlider: function(trigger, element, event)
     {
-      event.preventDefault();
-
+      if (element == undefined)
+    	  trigger = $(this.element).parent().find('.readmore-js-toggle')[0];
+      if (element == undefined)
+    	  element = this.element;
+      if (event != undefined)
+    	  event.preventDefault();
+      
       var $this = this,
           newHeight = newLink = sectionClass = '',
           expanded = false,
@@ -190,3 +196,4 @@
     }
   };
 })(jQuery);
+
