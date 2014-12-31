@@ -92,8 +92,13 @@
         }
       });
 
+      var resizeTimeout = false;
       $(window).on('resize', function(event) {
-        $this.resizeBoxes();
+        if(resizeTimeout !== false){
+          clearTimeout(resizeTimeout);
+        }
+
+        resizeTimeout = setTimeout($.proxy($this.resizeBoxes, $this), 200);
       });
     },
 
