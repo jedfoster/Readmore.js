@@ -17,6 +17,8 @@
         embedCSS: true,
         sectionCSS: 'display: block; width: 100%;',
         startOpen: false,
+        toggleClass: 'readmore-js-toggle',
+        sectionClass: 'readmore-js-section',
         expandedClass: 'readmore-js-expanded',
         collapsedClass: 'readmore-js-collapsed',
 
@@ -24,7 +26,7 @@
         beforeToggle: function(){},
         afterToggle: function(){}
       },
-      cssEmbedded = false;
+      cssEmbeddeds = {};
 
   function Readmore( element, options ) {
     this.element = element;
@@ -36,8 +38,13 @@
 
     delete(this.options.maxHeight);
 
-    if(this.options.embedCSS && ! cssEmbedded) {
-      var styles = '.readmore-js-toggle, .readmore-js-section { ' + this.options.sectionCSS + ' } .readmore-js-section { overflow: hidden; }';
+    var cssEmbedKey = this.options.toggleClass + ' + ' + this.options.sectionClass;
+
+    if(this.options.embedCSS && !(cssEmbedKey in cssEmbeddeds)) {
+      var styles = '.' + this.options.toggleClass + ', .' + this.options.sectionClass +
+        ' { ' + this.options.sectionCSS + ' } ' +
+        '.' + this.options.sectionClass +
+        ' { overflow: hidden; } ';
 
       (function(d,u) {
         var css=d.createElement('style');
@@ -51,7 +58,7 @@
         d.getElementsByTagName('head')[0].appendChild(css);
       }(document, styles));
 
-      cssEmbedded = true;
+      cssEmbeddeds[cssEmbedKey] = true;
     }
 
     this._defaults = defaults;
@@ -81,10 +88,12 @@
           return true;
         }
         else {
-          current.addClass('readmore-js-section ' + $this.options.collapsedClass).data('collapsedHeight', maxHeight);
+          current.addClass($this.options.sectionClass + ' ' + $this.options.collapsedClass).data('collapsedHeight', maxHeight);
 
           var useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
-          current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle'));
+          current.after($(useLink).on('click', function(event) {
+            $this.toggleSlider(this, current, event);
+          }).addClass($this.options.toggleClass));
 
           if(!$this.options.startOpen) {
             current.css({height: maxHeight});
@@ -102,7 +111,7 @@
       event.preventDefault();
 
       var $this = this,
-          newHeight = newLink = sectionClass = '',
+          newHeight = newLink = sectionStateClass = '',
           expanded = false,
           collapsedHeight = $(element).data('collapsedHeight');
 
@@ -110,13 +119,13 @@
         newHeight = $(element).data('expandedHeight') + 'px';
         newLink = 'lessLink';
         expanded = true;
-        sectionClass = $this.options.expandedClass;
+        sectionStateClass = $this.options.expandedClass;
       }
 
       else {
         newHeight = collapsedHeight;
         newLink = 'moreLink';
-        sectionClass = $this.options.collapsedClass;
+        sectionStateClass = $this.options.collapsedClass;
       }
 
       // Fire beforeToggle callback
@@ -126,9 +135,11 @@
           // Fire afterToggle callback
           $this.options.afterToggle(trigger, element, expanded);
 
-          $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).addClass('readmore-js-toggle'));
+          $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) {
+            $this.toggleSlider(this, element, event);
+          }).addClass($this.options.toggleClass));
 
-          $(this).removeClass($this.options.collapsedClass + ' ' + $this.options.expandedClass).addClass(sectionClass);
+          $(this).removeClass($this.options.collapsedClass + ' ' + $this.options.expandedClass).addClass(sectionStateClass);
         }
       });
     },
@@ -145,7 +156,7 @@
     resizeBoxes: function() {
       var $this = this;
 
-      $('.readmore-js-section').each(function() {
+      $('.' +  $this.options.sectionClass).each(function() {
         var current = $(this);
 
         $this.setBoxHeight(current);
@@ -162,7 +173,7 @@
       $(this.element).each(function() {
         var current = $(this);
 
-        current.removeClass('readmore-js-section ' + $this.options.collapsedClass + ' ' + $this.options.expandedClass).css({'max-height': '', 'height': 'auto'}).next('.readmore-js-toggle').remove();
+        current.removeClass($this.options.sectionClass + $this.options.collapsedClass + ' ' + $this.options.expandedClass).css({'max-height': '', 'height': 'auto'}).next($this.options.toggleClass).remove();
 
         current.removeData();
       });
