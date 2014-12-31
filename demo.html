@@ -55,6 +55,7 @@
       <ul>
         <li><code>speed: 100</code> (in milliseconds)</li>
         <li><code>maxHeight: 200</code> (in pixels)</li>
+        <li><code>maxLines: 0</code> (when set to more than 0 adds responsive calculation for <code>maxHeight</code> for the number of lines)</li>
         <li><code>heightMargin: 16</code> (in pixels, avoids collapsing blocks that are only slightly larger than <code>maxHeight</code>)</li>
         <li><code>moreLink: '&lt;a href="#"&gt;Read more&lt;/a&gt;'</code></li>
         <li><code>lessLink: '&lt;a href="#"&gt;Close&lt;/a&gt;'</code></li>
@@ -157,6 +158,18 @@
 
         <p>Put a bird on it you probably haven't heard of them DIY, vice photo booth terry richardson pickled vegan cray. Pug DIY blog stumptown 3 wolf moon, blue bottle farm-to-table actually banh mi fanny pack quinoa small batch. Mumblecore raw denim hoodie ethnic. Craft beer sriracha mlkshk, organic bicycle rights twee gentrify messenger bag keffiyeh ethical helvetica tumblr. Gluten-free tousled vinyl pop-up. Butcher keytar pickled literally, cosby sweater chambray authentic. Fixie odd future kale chips, church-key pinterest beard pour-over banksy typewriter dreamcatcher squid blue bottle sartorial.</p>
       </article>
+
+        <article class="maxLinesExample">
+            <h2>Artisanal Narwahls with Max Lines</h2>
+
+            <p>Salvia portland leggings banh mi fanny pack mixtape, authentic bushwick wes anderson intelligentsia artisan typewriter high life they sold out mixtape high life. Marfa ethnic wayfarers brooklyn keytar mixtape. Blue bottle shoreditch gluten-free, mixtape hoodie whatever pinterest viral twee fashion axe high life irony biodiesel tofu.</p>
+
+            <p>Retro church-key thundercats keytar, skateboard irony selvage ethnic freegan banjo pour-over fixie. Raw denim fashion ax eoke locavore disrupt, tonx retro authentic letterpress raw denim stumptown mixtape ugh kale chips flexitarian 90's deep v. Squid fingerstache bespoke wolf DIY. Banjo pour-over shoreditch cardigan try-hard.</p>
+
+            <p>Skateboard artisan bicycle rights next level vinyl cardigan beard twee, farm-to-table truffaut. Shoreditch freegan cliche thundercats, bushwick VHS intelligentsia selfies ethnic try-hard before they sold out. Marfa terry richardson hella, seitan odd future pug butcher. Wes anderson tousled YOLO cardigan. Typewriter high life carles, artisan gentrify messenger bag single-origin coffee truffaut thundercats cray 90's pour-over seitan. Banksy 8-bit organic, salvia gentrify stumptown wayfarers. Godard echo park before they sold out chambray, skateboard twee mcsweeney's synth hella.</p>
+
+            <p>Flannel pinterest Austin twee narwhal, hoodie swag wolf photo booth. Hella kale chips marfa occupy pitchfork put a bird on it. Semiotics dreamcatcher selfies beard DIY umami craft beer 3 wolf moon. Try-hard literally mustache polaroid ennui VHS. High life fixie wolf, trust fund twee seitan pinterest blog helvetica sriracha. Tattooed selvage try-hard, biodiesel banjo direct trade echo park kogi tonx bespoke. Pork belly put a bird on it iphone, fixie literally bespoke tonx butcher +1 swag.</p>
+        </article>
     </section>
   </div>
 
@@ -176,6 +189,8 @@
     });
 
     $('article').readmore({maxHeight: 240});
+
+    $('article.maxLinesExample').readmore({ maxLines: 3 });
   </script>
 </body>
 </html>

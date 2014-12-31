@@ -11,6 +11,7 @@
       defaults = {
         speed: 100,
         maxHeight: 200,
+        maxLines: 0,
         heightMargin: 16,
         moreLink: '<a href="#">Read More</a>',
         lessLink: '<a href="#">Close</a>',
@@ -33,6 +34,7 @@
 
     $(this.element).data('max-height', this.options.maxHeight);
     $(this.element).data('height-margin', this.options.heightMargin);
+    $(this.element).data('maxLines', this.options.maxLines);
 
     delete(this.options.maxHeight);
 
@@ -67,8 +69,15 @@
 
       $(this.element).each(function() {
         var current = $(this),
-            maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > current.data('max-height')) ? current.css('max-height').replace(/[^-\d\.]/g, '') : current.data('max-height'),
-            heightMargin = current.data('height-margin');
+            heightMargin = current.data('height-margin'),
+            maxHeight;
+
+        if ($this.options.maxLines > 0) {
+          maxHeight = $this.calculateMaxHeightForMaxLines(current);
+        }
+        else {
+          maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > current.data('max-height')) ? current.css('max-height').replace(/[^-\d\.]/g, '') : current.data('max-height');
+        }
 
         if(current.css('max-height') != 'none') {
           current.css('max-height', 'none');
@@ -133,6 +142,49 @@
       });
     },
 
+    calculateMaxHeightForMaxLines: function(element) {
+      var children = element.children(),
+        lineCount = this.options.maxLines,
+        heightTotal = 0,
+        lastChildMarginBottom = 0;
+
+      heightTotal += parseInt(element.css('padding-top'), 10);
+      for (var i = 0; i < children.length; i++) {
+        var child = $(children[i]),
+          lineHeight = parseInt(child.css('line-height'), 10),
+          marginTop = parseInt(child.css('margin-top'), 10);
+
+        // get margin/padding for the child
+        heightTotal += parseInt(child.css('padding-top'), 10);
+        if (lastChildMarginBottom > marginTop)
+          heightTotal += lastChildMarginBottom;
+        else
+          heightTotal += marginTop;
+
+        // add height for lines on child
+        var elementValid = true,
+          lineHeightCalculation = 0;
+        while(lineCount > 0 && elementValid) {
+          if ((lineHeightCalculation + lineHeight) > child.height()){
+            elementValid = false;
+            break;
+          }
+
+          lineHeightCalculation += lineHeight;
+          lineCount--;
+        }
+        heightTotal += lineHeightCalculation;
+
+        if (lineCount <= 0)
+          break;
+
+        // must add padding-bottom and save value for margin-bottom for calculation on the next child
+        heightTotal += parseInt(child.css('padding-bottom'));
+        lastChildMarginBottom = parseInt(child.css('margin-bottom'), 10);
+      }
+      return heightTotal;
+    },
+
     setBoxHeight: function(element) {
       var el = element.clone().css({'height': 'auto', 'width': element.width(), 'overflow': 'hidden'}).insertAfter(element),
           height = el.outerHeight(true);
@@ -150,10 +202,21 @@
 
         $this.setBoxHeight(current);
 
+        if ($this.options.maxLines > 0) {
+          current.data('collapsedHeight', $this.calculateMaxHeightForMaxLines(current));
+        }
+
         if(current.height() > current.data('expandedHeight') || (current.hasClass($this.options.expandedClass) && current.height() < current.data('expandedHeight')) ) {
           current.css('height', current.data('expandedHeight'));
         }
       });
+
+      if ($this.options.maxLines > 0) {
+        $('.readmore-js-collapsed').each(function() {
+          var current = $(this);
+          current.css({height: current.data('collapsedHeight')});
+        });
+      }
     },
 
     destroy: function() {
