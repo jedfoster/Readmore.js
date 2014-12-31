@@ -37,7 +37,13 @@
     delete(this.options.maxHeight);
 
     if(this.options.embedCSS && ! cssEmbedded) {
-      var styles = '.readmore-js-toggle, .readmore-js-section { ' + this.options.sectionCSS + ' } .readmore-js-section { overflow: hidden; }';
+      var styles = '.readmore-js-toggle, .readmore-js-section { ' + this.options.sectionCSS + ' } .readmore-js-section { ' +
+        'transition: height ' + this.options.speed + 'ms;' +
+        '-webkit-transform: translate3d(0,0,0);' +
+        '-ms-transform: translate3d(0,0,0);' +
+        'transform: translate3d(0,0,0);' +
+        'overflow: hidden;' +
+      '}';
 
       (function(d,u) {
         var css=d.createElement('style');
@@ -122,15 +128,16 @@
       // Fire beforeToggle callback
       $this.options.beforeToggle(trigger, element, expanded);
 
-      $(element).animate({'height': newHeight}, {duration: $this.options.speed, complete: function() {
-          // Fire afterToggle callback
-          $this.options.afterToggle(trigger, element, expanded);
+      $(element).css({"height": newHeight});
 
-          $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).addClass('readmore-js-toggle'));
+      // Fire afterToggle callback
+      $(element).on('transitionend', function(e) {
+        $this.options.afterToggle(trigger, element, expanded);
 
-          $(this).removeClass($this.options.collapsedClass + ' ' + $this.options.expandedClass).addClass(sectionClass);
-        }
+        $(this).removeClass($this.options.collapsedClass + ' ' + $this.options.expandedClass).addClass(sectionClass);
       });
+
+      $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).addClass('readmore-js-toggle'));
     },
 
     setBoxHeight: function(element) {
