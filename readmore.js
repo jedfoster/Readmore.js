@@ -24,7 +24,7 @@
         beforeToggle: function(){},
         afterToggle: function(){}
       },
-      cssEmbedded = false;
+      cssEmbedded = {};
 
   function Readmore( element, options ) {
     this.element = element;
@@ -36,14 +36,15 @@
 
     delete(this.options.maxHeight);
 
-    if(this.options.embedCSS && ! cssEmbedded) {
-      var styles = '.readmore-js-toggle, .readmore-js-section { ' + this.options.sectionCSS + ' } .readmore-js-section { ' +
-        'transition: height ' + this.options.speed + 'ms;' +
-        '-webkit-transform: translate3d(0,0,0);' +
-        '-ms-transform: translate3d(0,0,0);' +
-        'transform: translate3d(0,0,0);' +
-        'overflow: hidden;' +
-      '}';
+    if(this.options.embedCSS && (! cssEmbedded[this.options.selector])) {
+      var styles = ' ' + this.options.selector + ' + .readmore-js-toggle, ' + this.options.selector + '.readmore-js-section{' + this.options.sectionCSS + '}' +
+        this.options.selector + '.readmore-js-section{' +
+          'transition: height ' + this.options.speed + 'ms;' +
+          '-webkit-transform: translate3d(0,0,0);' +
+          '-ms-transform: translate3d(0,0,0);' +
+          'transform: translate3d(0,0,0);' +
+          'overflow: hidden;' +
+        '}';
 
       (function(d,u) {
         var css=d.createElement('style');
@@ -57,7 +58,7 @@
         d.getElementsByTagName('head')[0].appendChild(css);
       }(document, styles));
 
-      cssEmbedded = true;
+      cssEmbedded[this.options.selector] = true;
     }
 
     this._defaults = defaults;
@@ -176,14 +177,17 @@
     }
   };
 
-  $.fn[readmore] = function( options ) {
-    var args = arguments;
+  $.fn.readmore = function( options ) {
+    var args = arguments,
+        selector = this.selector;
     if (options === undefined || typeof options === 'object') {
       return this.each(function () {
         if ($.data(this, 'plugin_' + readmore)) {
           var instance = $.data(this, 'plugin_' + readmore);
           instance['destroy'].apply(instance);
         }
+
+        options['selector'] = selector;
 
         $.data(this, 'plugin_' + readmore, new Readmore( this, options ));
       });
