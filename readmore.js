@@ -14,6 +14,7 @@
         heightMargin: 16,
         moreLink: '<a href="#">Read More</a>',
         lessLink: '<a href="#">Close</a>',
+        linkContainer: null,
         embedCSS: true,
         sectionCSS: 'display: block; width: 100%;',
         startOpen: false,
@@ -84,7 +85,15 @@
           current.addClass('readmore-js-section ' + $this.options.collapsedClass).data('collapsedHeight', maxHeight);
 
           var useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
-          current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle'));
+          var element = $(useLink);
+
+          if ($this.options.linkContainer) {
+            current.find($this.options.linkContainer).append(element);
+          } else {
+            current.after(element);
+          }
+
+          element.on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle');
 
           if(!$this.options.startOpen) {
             current.css({height: maxHeight});

@@ -25,6 +25,7 @@ Yes, it's that simple. You can change the speed of the animation, the height of 
 * `heightMargin: 16` (in pixels, avoids collapsing blocks that are only slightly larger than `maxHeight`)
 * `moreLink: '<a href="#">Read more</a>'`
 * `lessLink: '<a href="#">Close</a>'`
+* `linkContainer: '.child-element'`
 * `embedCSS: true` (insert required CSS dynamically, set this to `false` if you include the necessary CSS in a stylesheet)
 * `sectionCSS: 'display: block; width: 100%;'` (sets the styling of the blocks, ignored if `embedCSS` is `false`)
 * `startOpen: false` (do not immediately truncate, start in the fully opened position)
