@@ -3,6 +3,8 @@
  * Author: @jed_foster
  * Project home: jedfoster.github.io/Readmore.js
  * Licensed under the MIT license
+ *
+ * Debounce function from http://davidwalsh.name/javascript-debounce-function
  */
 
 ;(function($) {
@@ -25,6 +27,21 @@
         afterToggle: function(){}
       },
       cssEmbedded = {};
+
+  function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      var later = function() {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func.apply(context, args);
+    };
+  }
 
   function Readmore( element, options ) {
     this.element = element;
@@ -103,7 +120,7 @@
         }
       });
 
-      $(window).on('resize', function(event) {
+      window.addEventListener('resize', function(event) {
         $this.resizeBoxes();
       });
     },
@@ -154,7 +171,7 @@
       element.data('expandedHeight', height);
     },
 
-    resizeBoxes: function() {
+    resizeBoxes: debounce(function() {
       var $this = this;
 
       $('.readmore-js-section').each(function() {
@@ -166,7 +183,7 @@
           current.css('height', current.data('expandedHeight'));
         }
       });
-    },
+    }, 100),
 
     destroy: function() {
       var $this = this;
