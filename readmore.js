@@ -36,15 +36,22 @@
 
     delete(this.options.maxHeight);
 
-    if(this.options.embedCSS && (! cssEmbedded[this.options.selector])) {
-      var styles = ' ' + this.options.selector + ' + .readmore-js-toggle, ' + this.options.selector + '.readmore-js-section{' + this.options.sectionCSS + '}' +
-        this.options.selector + '.readmore-js-section{' +
-          'transition: height ' + this.options.speed + 'ms;' +
-          '-webkit-transform: translate3d(0,0,0);' +
-          '-ms-transform: translate3d(0,0,0);' +
-          'transform: translate3d(0,0,0);' +
-          'overflow: hidden;' +
-        '}';
+    if(! cssEmbedded[this.options.selector]) {
+      var styles = ' ';
+
+      // Include sectionCSS if embedCSS is true
+      if(this.options.embedCSS) {
+        styles += this.options.selector + ' + .readmore-js-toggle, ' + this.options.selector + '.readmore-js-section{' + this.options.sectionCSS + '}'
+      }
+
+      // Include the transition CSS even if embedCSS is false
+      styles += this.options.selector + '.readmore-js-section{' +
+        'transition: height ' + this.options.speed + 'ms;' +
+        '-webkit-transform: translate3d(0,0,0);' +
+        '-ms-transform: translate3d(0,0,0);' +
+        'transform: translate3d(0,0,0);' +
+        'overflow: hidden;' +
+      '}';
 
       (function(d,u) {
         var css=d.createElement('style');
@@ -53,7 +60,7 @@
             css.styleSheet.cssText = u;
         }
         else {
-            css.appendChild(d.createTextNode(u));
+          css.appendChild(d.createTextNode(u));
         }
         d.getElementsByTagName('head')[0].appendChild(css);
       }(document, styles));
