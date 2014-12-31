@@ -47,9 +47,6 @@
       // Include the transition CSS even if embedCSS is false
       styles += this.options.selector + '.readmore-js-section{' +
         'transition: height ' + this.options.speed + 'ms;' +
-        '-webkit-transform: translate3d(0,0,0);' +
-        '-ms-transform: translate3d(0,0,0);' +
-        'transform: translate3d(0,0,0);' +
         'overflow: hidden;' +
       '}';
 
