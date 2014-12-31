@@ -67,7 +67,7 @@
 
       $(this.element).each(function() {
         var current = $(this),
-            maxHeight = (current.css('max-height').replace(/[^-\d\.]/g, '') > current.data('max-height')) ? current.css('max-height').replace(/[^-\d\.]/g, '') : current.data('max-height'),
+            maxHeight = (parseInt(current.css('max-height').replace(/[^-\d\.]/g, ''), 10) > current.data('max-height')) ? parseInt(current.css('max-height').replace(/[^-\d\.]/g, ''), 10) : current.data('max-height'),
             heightMargin = current.data('height-margin');
 
         if(current.css('max-height') != 'none') {
