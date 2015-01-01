@@ -48,6 +48,8 @@
   }
 
   function Readmore( element, options ) {
+    var $this = this;
+
     this.element = element;
 
     this.options = $.extend( {}, defaults, options);
@@ -89,7 +91,9 @@
     this._defaults = defaults;
     this._name = readmore;
 
-    this.init();
+    window.addEventListener('load', function(event) {
+      $this.init();
+    });
   }
 
   Readmore.prototype = {
