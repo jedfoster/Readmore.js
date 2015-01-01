@@ -24,7 +24,8 @@
         beforeToggle: function(){},
         afterToggle: function(){}
       },
-      cssEmbedded = {};
+      cssEmbedded = {},
+      uniqueIdCounter = 0;
 
   function debounce(func, wait, immediate) {
     var timeout;
@@ -39,6 +40,11 @@
       timeout = setTimeout(later, wait);
       if (callNow) func.apply(context, args);
     };
+  }
+
+  function uniqueId(prefix) {
+    var id = ++uniqueIdCounter;
+    return String(prefix == null ? 'readmore-js-' : prefix) + id;
   }
 
   function Readmore( element, options ) {
@@ -107,11 +113,12 @@
           return true;
         }
         else {
+          var id = current.attr('id') || uniqueId(),
+              useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
 
-          var useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
-          current.attr({'data-readmore-js-section': '', 'aria-expanded': false}).data('collapsedHeight', maxHeight);
+          current.attr({'data-readmore-js-section': '', 'aria-expanded': false, 'id': id}).data('collapsedHeight', maxHeight);
 
-          current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).attr('data-readmore-js-toggle', ''));
+          current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).attr({'data-readmore-js-toggle': '', 'aria-controls': id}));
 
           if(!$this.options.startOpen) {
             current.css({height: maxHeight});
@@ -158,7 +165,7 @@
         $(this).attr('aria-expanded', expanded);
       });
 
-      $trigger.replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).attr('data-readmore-js-toggle', ''));
+      $trigger.replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).attr({'data-readmore-js-toggle': '', 'aria-controls': $element.attr('id')}));
     },
 
     setBoxHeight: function(element) {
