@@ -131,9 +131,18 @@
       });
     },
 
-    {
-      event.preventDefault();
     toggle: function(trigger, element, event) {
+      if(event) {
+        event.preventDefault();
+      }
+
+      if(! trigger) {
+        trigger = $('[aria-controls="' + this.element.id + '"]')[0];
+      }
+
+      if(! element) {
+        element = this.element;
+      }
 
       var $this = this,
           $element = $(element),
