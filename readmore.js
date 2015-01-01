@@ -19,8 +19,6 @@
         embedCSS: true,
         sectionCSS: 'display: block; width: 100%;',
         startOpen: false,
-        expandedClass: 'readmore-js-expanded',
-        collapsedClass: 'readmore-js-collapsed',
 
         // callbacks
         beforeToggle: function(){},
@@ -58,11 +56,11 @@
 
       // Include sectionCSS if embedCSS is true
       if(this.options.embedCSS) {
-        styles += this.options.selector + ' + .readmore-js-toggle, ' + this.options.selector + '.readmore-js-section{' + this.options.sectionCSS + '}'
+        styles += this.options.selector + ' + [readmore-js-toggle], ' + this.options.selector + '[data-readmore-js-section]{' + this.options.sectionCSS + '}'
       }
 
       // Include the transition CSS even if embedCSS is false
-      styles += this.options.selector + '.readmore-js-section{' +
+      styles += this.options.selector + '[data-readmore-js-section]{' +
         'transition: height ' + this.options.speed + 'ms;' +
         'overflow: hidden;' +
       '}';
@@ -109,10 +107,11 @@
           return true;
         }
         else {
-          current.addClass('readmore-js-section ' + $this.options.collapsedClass).data('collapsedHeight', maxHeight);
 
           var useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
-          current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle'));
+          current.attr({'data-readmore-js-section': '', 'aria-expanded': false}).data('collapsedHeight', maxHeight);
+
+          current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).attr('data-readmore-js-toggle', ''));
 
           if(!$this.options.startOpen) {
             current.css({height: maxHeight});
@@ -130,36 +129,36 @@
       event.preventDefault();
 
       var $this = this,
-          newHeight = newLink = sectionClass = '',
+          $element = $(element),
+          $trigger = $(trigger),
+          newHeight = newLink = '',
           expanded = false,
-          collapsedHeight = $(element).data('collapsedHeight');
+          collapsedHeight = $element.data('collapsedHeight');
 
-      if ($(element).height() <= collapsedHeight) {
-        newHeight = $(element).data('expandedHeight') + 'px';
+      if ($element.height() <= collapsedHeight) {
+        newHeight = $element.data('expandedHeight') + 'px';
         newLink = 'lessLink';
         expanded = true;
-        sectionClass = $this.options.expandedClass;
       }
 
       else {
         newHeight = collapsedHeight;
         newLink = 'moreLink';
-        sectionClass = $this.options.collapsedClass;
       }
 
       // Fire beforeToggle callback
       $this.options.beforeToggle(trigger, element, expanded);
 
-      $(element).css({"height": newHeight});
+      $element.css({'height': newHeight});
 
       // Fire afterToggle callback
-      $(element).on('transitionend', function(e) {
+      $element.on('transitionend', function(e) {
         $this.options.afterToggle(trigger, element, expanded);
 
-        $(this).removeClass($this.options.collapsedClass + ' ' + $this.options.expandedClass).addClass(sectionClass);
+        $(this).attr('aria-expanded', expanded);
       });
 
-      $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).addClass('readmore-js-toggle'));
+      $trigger.replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).attr('data-readmore-js-toggle', ''));
     },
 
     setBoxHeight: function(element) {
@@ -174,12 +173,12 @@
     resizeBoxes: debounce(function() {
       var $this = this;
 
-      $('.readmore-js-section').each(function() {
+      $('[data-readmore-js-section]').each(function() {
         var current = $(this);
 
         $this.setBoxHeight(current);
 
-        if(current.height() > current.data('expandedHeight') || (current.hasClass($this.options.expandedClass) && current.height() < current.data('expandedHeight')) ) {
+        if(current.height() > current.data('expandedHeight') || (current.attr('aria-expanded') && current.height() < current.data('expandedHeight')) ) {
           current.css('height', current.data('expandedHeight'));
         }
       });
@@ -191,7 +190,7 @@
       $(this.element).each(function() {
         var current = $(this);
 
-        current.removeClass('readmore-js-section ' + $this.options.collapsedClass + ' ' + $this.options.expandedClass).css({'max-height': '', 'height': 'auto'}).next('.readmore-js-toggle').remove();
+        current.attr({'data-readmore-js-section': null, 'aria-expanded': null }).css({'max-height': '', 'height': ''}).next('[data-readmore-js-toggle]').remove();
 
         current.removeData();
       });
