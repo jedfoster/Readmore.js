@@ -92,6 +92,10 @@
         }
       });
 
+      $(window).on('load', function(event) {
+        $this.resizeBoxes();
+      });
+
       $(window).on('resize', function(event) {
         $this.resizeBoxes();
       });
