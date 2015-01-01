@@ -118,7 +118,7 @@
 
           current.attr({'data-readmore-js-section': '', 'aria-expanded': false, 'id': id}).data('collapsedHeight', maxHeight);
 
-          current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).attr({'data-readmore-js-toggle': '', 'aria-controls': id}));
+          current.after($(useLink).on('click', function(event) { $this.toggle(this, current, event) }).attr({'data-readmore-js-toggle': '', 'aria-controls': id}));
 
           if(!$this.options.startOpen) {
             current.css({height: maxHeight});
@@ -131,9 +131,9 @@
       });
     },
 
-    toggleSlider: function(trigger, element, event)
     {
       event.preventDefault();
+    toggle: function(trigger, element, event) {
 
       var $this = this,
           $element = $(element),
@@ -165,7 +165,7 @@
         $(this).attr('aria-expanded', expanded);
       });
 
-      $trigger.replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).attr({'data-readmore-js-toggle': '', 'aria-controls': $element.attr('id')}));
+      $trigger.replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggle(this, element, event) }).attr({'data-readmore-js-toggle': '', 'aria-controls': $element.attr('id')}));
     },
 
     setBoxHeight: function(element) {
