@@ -7,7 +7,9 @@
  * Debounce function from http://davidwalsh.name/javascript-debounce-function
  */
 
-!(function($) {
+/* global jQuery */
+
+(function($) {
 
   var readmore = 'readmore',
       defaults = {
@@ -52,7 +54,7 @@
   function uniqueId(prefix) {
     var id = ++uniqueIdCounter;
 
-    return String(prefix == null ? 'readmore-js-' : prefix) + id;
+    return String(prefix === null ? 'readmore-js-' : prefix) + id;
   }
 
   var setBoxHeights = function(element) {
@@ -102,7 +104,10 @@
       var styles = ' ';
 
       if (options.embedCSS) {
-        styles += options.selector + ' + [data-readmore-js-toggle], ' + options.selector + '[data-readmore-js-section]{' + options.sectionCSS + '}'
+        styles += options.selector + ' + [data-readmore-js-toggle], ' +
+          options.selector + '[data-readmore-js-section]{' +
+            options.sectionCSS +
+          '}';
       }
 
       // Include the transition CSS even if embedCSS is false
@@ -129,7 +134,6 @@
     }
   }
 
-
   function Readmore(element, options) {
     var $this = this;
 
@@ -147,7 +151,7 @@
     this._defaults = defaults;
     this._name = readmore;
 
-    window.addEventListener('load', function(event) {
+    window.addEventListener('load', function() {
       $this.init();
     });
   }
@@ -175,7 +179,9 @@
 
           current.attr({'data-readmore-js-section': '', 'aria-expanded': false, 'id': id});
 
-          current.after($(useLink).on('click', function(event) { $this.toggle(this, current[0], event); }).attr({'data-readmore-js-toggle': '', 'aria-controls': id}));
+          current.after($(useLink)
+            .on('click', function(event) { $this.toggle(this, current[0], event); })
+            .attr({'data-readmore-js-toggle': '', 'aria-controls': id}));
 
           if (! $this.options.startOpen) {
             current.css({height: collapsedHeight});
@@ -183,7 +189,7 @@
         }
       });
 
-      window.addEventListener('resize', function(event) {
+      window.addEventListener('resize', function() {
         resizeBoxes();
       });
     },
@@ -203,7 +209,8 @@
 
       var $this = this,
           $element = $(element),
-          newHeight = newLink = '',
+          newHeight = '',
+          newLink = '',
           expanded = false,
           collapsedHeight = $element.data('collapsedHeight');
 
@@ -225,22 +232,25 @@
       $element.css({'height': newHeight});
 
       // Fire afterToggle callback
-      $element.on('transitionend', function(e) {
+      $element.on('transitionend', function() {
         $this.options.afterToggle(trigger, element, expanded);
 
         $(this).attr('aria-expanded', expanded).off('transitionend');
       });
 
-      $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggle(this, element, event); }).attr({'data-readmore-js-toggle': '', 'aria-controls': $element.attr('id')}));
+      $(trigger).replaceWith($($this.options[newLink])
+          .on('click', function(event) { $this.toggle(this, element, event); })
+          .attr({'data-readmore-js-toggle': '', 'aria-controls': $element.attr('id')}));
     },
 
     destroy: function() {
-      var $this = this;
-
       $(this.element).each(function() {
         var current = $(this);
 
-        current.attr({'data-readmore-js-section': null, 'aria-expanded': null }).css({'max-height': '', 'height': ''}).next('[data-readmore-js-toggle]').remove();
+        current.attr({'data-readmore-js-section': null, 'aria-expanded': null })
+          .css({'max-height': '', 'height': ''})
+          .next('[data-readmore-js-toggle]')
+          .remove();
 
         current.removeData();
       });
@@ -258,10 +268,10 @@
       return this.each(function() {
         if ($.data(this, 'plugin_' + readmore)) {
           var instance = $.data(this, 'plugin_' + readmore);
-          instance['destroy'].apply(instance);
+          instance.destroy.apply(instance);
         }
 
-        options['selector'] = selector;
+        options.selector = selector;
 
         $.data(this, 'plugin_' + readmore, new Readmore(this, options));
       });
