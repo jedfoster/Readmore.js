@@ -97,29 +97,17 @@
     });
   }, 100);
 
-
-  function Readmore(element, options) {
-    var $this = this;
-
-    this.element = element;
-
-    this.options = $.extend({}, defaults, options);
-
-    $(this.element).data({
-      'defaultCollapsedHeight': this.options.collapsedHeight,
-      'heightMargin': this.options.heightMargin
-    });
-
-    if (! cssEmbedded[this.options.selector]) {
+  function embedCSS(options) {
+    if (! cssEmbedded[options.selector]) {
       var styles = ' ';
 
-      if (this.options.embedCSS) {
-        styles += this.options.selector + ' + [data-readmore-js-toggle], ' + this.options.selector + '[data-readmore-js-section]{' + this.options.sectionCSS + '}'
+      if (options.embedCSS) {
+        styles += options.selector + ' + [data-readmore-js-toggle], ' + options.selector + '[data-readmore-js-section]{' + options.sectionCSS + '}'
       }
 
       // Include the transition CSS even if embedCSS is false
-      styles += this.options.selector + '[data-readmore-js-section]{' +
-        'transition: height ' + this.options.speed + 'ms;' +
+      styles += options.selector + '[data-readmore-js-section]{' +
+        'transition: height ' + options.speed + 'ms;' +
         'overflow: hidden;' +
       '}';
 
@@ -137,8 +125,24 @@
         d.getElementsByTagName('head')[0].appendChild(css);
       }(document, styles));
 
-      cssEmbedded[this.options.selector] = true;
+      cssEmbedded[options.selector] = true;
     }
+  }
+
+
+  function Readmore(element, options) {
+    var $this = this;
+
+    this.element = element;
+
+    this.options = $.extend({}, defaults, options);
+
+    $(this.element).data({
+      'defaultCollapsedHeight': this.options.collapsedHeight,
+      'heightMargin': this.options.heightMargin
+    });
+
+    embedCSS(this.options);
 
     this._defaults = defaults;
     this._name = readmore;
