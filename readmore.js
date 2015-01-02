@@ -184,7 +184,7 @@
       $element.on('transitionend', function(e) {
         $this.options.afterToggle(trigger, element, expanded);
 
-        $(this).attr('aria-expanded', expanded);
+        $(this).attr('aria-expanded', expanded).off('transitionend');
       });
 
       $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggle(this, element, event); }).attr({'data-readmore-js-toggle': '', 'aria-controls': $element.attr('id')}));
