@@ -55,6 +55,49 @@
     return String(prefix == null ? 'readmore-js-' : prefix) + id;
   }
 
+  var setBoxHeights = function(element) {
+    var el = element.clone().css({
+          'height': 'auto',
+          'width': element.width(),
+          'max-height': 'none',
+          'overflow': 'hidden'
+        }).insertAfter(element),
+        expandedHeight = el.outerHeight(true),
+        cssMaxHeight = parseInt(el.css({'max-height': ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10);
+
+    el.remove();
+
+    var collapsedHeight = element.data('collapsedHeight') || element.data('defaultCollapsedHeight');
+
+    if (!cssMaxHeight) {
+      collapsedHeight = element.data('defaultCollapsedHeight');
+    }
+    else if (cssMaxHeight > collapsedHeight) {
+      collapsedHeight = cssMaxHeight;
+    }
+
+    // Store our measurements.
+    element.data({
+      'expandedHeight': expandedHeight,
+      'maxHeight': cssMaxHeight,
+      'collapsedHeight': collapsedHeight
+    })
+    // and disable any `max-height` property set in CSS
+    .css('max-height', 'none');
+  };
+
+  var resizeBoxes = debounce(function() {
+    $('[data-readmore-js-section]').each(function() {
+      var current = $(this),
+          isExpanded = (current.attr('aria-expanded') === 'true');
+
+      setBoxHeights(current);
+
+      current.css('height', current.data( (isExpanded ? 'expandedHeight' : 'collapsedHeight') ));
+    });
+  }, 100);
+
+
   function Readmore(element, options) {
     var $this = this;
 
@@ -113,7 +156,7 @@
       $(this.element).each(function() {
         var current = $(this);
 
-        $this.setBoxHeights(current);
+        setBoxHeights(current);
 
         var collapsedHeight = current.data('collapsedHeight'),
             heightMargin = current.data('heightMargin');
@@ -137,7 +180,7 @@
       });
 
       window.addEventListener('resize', function(event) {
-        $this.resizeBoxes();
+        resizeBoxes();
       });
     },
 
@@ -186,50 +229,6 @@
 
       $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggle(this, element, event); }).attr({'data-readmore-js-toggle': '', 'aria-controls': $element.attr('id')}));
     },
-
-    setBoxHeights: function(element) {
-      var el = element.clone().css({
-            'height': 'auto',
-            'width': element.width(),
-            'max-height': 'none',
-            'overflow': 'hidden'
-          }).insertAfter(element),
-          expandedHeight = el.outerHeight(true),
-          cssMaxHeight = parseInt(el.css({'max-height': ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10);
-
-      el.remove();
-
-      var collapsedHeight = element.data('collapsedHeight') || element.data('defaultCollapsedHeight');
-
-      if (!cssMaxHeight) {
-        collapsedHeight = element.data('defaultCollapsedHeight');
-      }
-      else if (cssMaxHeight > collapsedHeight) {
-        collapsedHeight = cssMaxHeight;
-      }
-
-      // Store our measurements.
-      element.data({
-        'expandedHeight': expandedHeight,
-        'maxHeight': cssMaxHeight,
-        'collapsedHeight': collapsedHeight
-      })
-      // and disable any `max-height` property set in CSS
-      .css('max-height', 'none');
-    },
-
-    resizeBoxes: debounce(function() {
-      var $this = this;
-
-      $('[data-readmore-js-section]').each(function() {
-        var current = $(this),
-            isExpanded = (current.attr('aria-expanded') === 'true');
-
-        $this.setBoxHeights(current);
-
-        current.css('height', current.data( (isExpanded ? 'expandedHeight' : 'collapsedHeight') ));
-      });
-    }, 100),
 
     destroy: function() {
       var $this = this;
