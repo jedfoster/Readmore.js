@@ -10,6 +10,7 @@
 /* global jQuery */
 
 (function($) {
+  'use strict';
 
   var readmore = 'readmore',
       defaults = {
