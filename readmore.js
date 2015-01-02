@@ -133,7 +133,7 @@
 
           current.attr({'data-readmore-js-section': '', 'aria-expanded': false, 'id': id}).data('collapsedHeight', maxHeight);
 
-          current.after($(useLink).on('click', function(event) { $this.toggle(this, current, event); }).attr({'data-readmore-js-toggle': '', 'aria-controls': id}));
+          current.after($(useLink).on('click', function(event) { $this.toggle(this, current[0], event); }).attr({'data-readmore-js-toggle': '', 'aria-controls': id}));
 
           if (! $this.options.startOpen) {
             current.css({height: maxHeight});
