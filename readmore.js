@@ -230,7 +230,9 @@
     var args = arguments,
         selector = this.selector;
 
-    if (options === undefined || typeof options === 'object') {
+    options = options || {};
+
+    if (typeof options === 'object') {
       return this.each(function() {
         if ($.data(this, 'plugin_' + readmore)) {
           var instance = $.data(this, 'plugin_' + readmore);
