@@ -1,7 +1,9 @@
 /*!
+ * @preserve
+ *
  * Readmore.js jQuery plugin
  * Author: @jed_foster
- * Project home: jedfoster.github.io/Readmore.js
+ * Project home: http://jedfoster.github.io/Readmore.js
  * Licensed under the MIT license
  *
  * Debounce function from http://davidwalsh.name/javascript-debounce-function
@@ -55,10 +57,10 @@
   function uniqueId(prefix) {
     var id = ++uniqueIdCounter;
 
-    return String(prefix === null ? 'readmore-js-' : prefix) + id;
+    return String(prefix === null ? 'rmjs-' : prefix) + id;
   }
 
-  var setBoxHeights = function(element) {
+  function setBoxHeights(element) {
     var el = element.clone().css({
           'height': 'auto',
           'width': element.width(),
@@ -66,14 +68,15 @@
           'overflow': 'hidden'
         }).insertAfter(element),
         expandedHeight = el.outerHeight(true),
-        cssMaxHeight = parseInt(el.css({'max-height': ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10);
+        cssMaxHeight = parseInt(el.css({'max-height': ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10),
+        defaultHeight = element.data('defaultHeight');
 
     el.remove();
 
-    var collapsedHeight = element.data('collapsedHeight') || element.data('defaultCollapsedHeight');
+    var collapsedHeight = element.data('collapsedHeight') || defaultHeight;
 
     if (!cssMaxHeight) {
-      collapsedHeight = element.data('defaultCollapsedHeight');
+      collapsedHeight = defaultHeight;
     }
     else if (cssMaxHeight > collapsedHeight) {
       collapsedHeight = cssMaxHeight;
@@ -87,10 +90,10 @@
     })
     // and disable any `max-height` property set in CSS
     .css('max-height', 'none');
-  };
+  }
 
   var resizeBoxes = debounce(function() {
-    $('[data-readmore-js-section]').each(function() {
+    $('[data-readmore]').each(function() {
       var current = $(this),
           isExpanded = (current.attr('aria-expanded') === 'true');
 
@@ -104,15 +107,15 @@
     if (! cssEmbedded[options.selector]) {
       var styles = ' ';
 
-      if (options.embedCSS) {
-        styles += options.selector + ' + [data-readmore-js-toggle], ' +
-          options.selector + '[data-readmore-js-section]{' +
+      if (options.embedCSS && options.sectionCSS !== '') {
+        styles += options.selector + ' + [data-readmore-toggle], ' +
+          options.selector + '[data-readmore]{' +
             options.sectionCSS +
           '}';
       }
 
       // Include the transition CSS even if embedCSS is false
-      styles += options.selector + '[data-readmore-js-section]{' +
+      styles += options.selector + '[data-readmore]{' +
         'transition: height ' + options.speed + 'ms;' +
         'overflow: hidden;' +
       '}';
@@ -143,7 +146,7 @@
     this.options = $.extend({}, defaults, options);
 
     $(this.element).data({
-      'defaultCollapsedHeight': this.options.collapsedHeight,
+      'defaultHeight': this.options.collapsedHeight,
       'heightMargin': this.options.heightMargin
     });
 
@@ -178,11 +181,11 @@
           var id = current.attr('id') || uniqueId(),
               useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
 
-          current.attr({'data-readmore-js-section': '', 'aria-expanded': false, 'id': id});
+          current.attr({'data-readmore': '', 'aria-expanded': false, 'id': id});
 
           current.after($(useLink)
             .on('click', function(event) { $this.toggle(this, current[0], event); })
-            .attr({'data-readmore-js-toggle': '', 'aria-controls': id}));
+            .attr({'data-readmore-toggle': '', 'aria-controls': id}));
 
           if (! $this.options.startOpen) {
             current.css({height: collapsedHeight});
@@ -241,16 +244,16 @@
 
       $(trigger).replaceWith($($this.options[newLink])
           .on('click', function(event) { $this.toggle(this, element, event); })
-          .attr({'data-readmore-js-toggle': '', 'aria-controls': $element.attr('id')}));
+          .attr({'data-readmore-toggle': '', 'aria-controls': $element.attr('id')}));
     },
 
     destroy: function() {
       $(this.element).each(function() {
         var current = $(this);
 
-        current.attr({'data-readmore-js-section': null, 'aria-expanded': null })
+        current.attr({'data-readmore': null, 'aria-expanded': null })
           .css({'max-height': '', 'height': ''})
-          .next('[data-readmore-js-toggle]')
+          .next('[data-readmore-toggle]')
           .remove();
 
         current.removeData();
