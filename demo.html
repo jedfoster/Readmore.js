@@ -31,97 +31,146 @@
     <header>
       <h1>Readmore.js</h1>
 
-      <p>A smooth, lightweight jQuery plugin for collapsing and expanding long blocks of text with &#8220;Read more&#8221; and &#8220;Close&#8221; links. </p>
+      <p>A smooth, responsive jQuery plugin for collapsing and expanding long blocks of text with &#8220;Read more&#8221; and &#8220;Close&#8221; links.</p>
     </header>
 
     <section id="info">
-      <p>The required markup for Readmore.js is extremely lightweight. No need for complicated sets of <code>divs</code> or hardcoded class names, just call <code>.readmore()</code> on the element containing your block of text and Readmore.js takes care of the rest. </p>
+      <p>The markup Readmore.js requires is so simple, you can probably use it with your existing HTML—there&#8217;s no need for complicated sets of <code>div</code>&#8217;s or hardcoded classes, just call <code>.readmore()</code> on the element containing your block of text and Readmore.js takes care of the rest. Readmore.js plays well in a responsive environment, too.</p>
 
-      <p>Readmore.js is compatible with all versions of jQuery greater than 1.7.0.</p>
+      <p>Readmore.js is tested with—and supported on—all versions of jQuery greater than 1.9.1. All the &#8220;good&#8221; browsers are supported, as well as IE10+; IE8 &amp; 9 <em>should</em> work, but are not supported and the experience will not be ideal.</p>
 
-      <h2 id="example">Example</h2>
+      <h2 id="install">Install</h2>
 
-      <pre><code class="javascript">$('article').readmore();</code></pre>
+      <p>Install Readmore.js with Bower:</p>
 
-      <p>Yes, it&#8217;s that simple. You can change the speed of the animation, the height of the collapsed block, and the open and close elements.</p>
+      <pre><code>$ bower install readmore</code></pre>
 
-      <pre><code>$('article').readmore({
+      <p>Then include it in your HTML:</p>
+
+      <pre><code class="html">&lt;script src=&quot;/bower_components/readmore/readmore.min.js&quot;&gt;&lt;/script&gt;</code></pre>
+
+      <h2 id="use">Use</h2>
+
+      <pre><code class="javascript">$(&apos;article&apos;).readmore();</code></pre>
+
+      <p>It&#8217;s that simple. You can change the speed of the animation, the height of the collapsed block, and the open and close elements.</p>
+
+      <pre><code class="javascript">$(&apos;article&apos;).readmore({
   speed: 75,
-  maxHeight: 500
+  lessLink: &apos;&lt;a href=&quot;#&quot;&gt;Read less&lt;/a&gt;&apos;
 });</code></pre>
 
-      <h2 id="theoptions">The options:</h2>
+      <h3 id="theoptions">The options:</h3>
 
       <ul>
-        <li><code>speed: 100</code> (in milliseconds)</li>
-        <li><code>maxHeight: 200</code> (in pixels)</li>
-        <li><code>heightMargin: 16</code> (in pixels, avoids collapsing blocks that are only slightly larger than <code>maxHeight</code>)</li>
-        <li><code>moreLink: '&lt;a href="#"&gt;Read more&lt;/a&gt;'</code></li>
-        <li><code>lessLink: '&lt;a href="#"&gt;Close&lt;/a&gt;'</code></li>
-        <li><code>embedCSS: true</code> (insert required CSS dynamically, set this to <code>false</code> if you include the necessary CSS in a stylesheet)</li>
-        <li><code>sectionCSS: 'display: block; width: 100%;'</code> (sets the styling of the blocks)</li>
-        <li><code>startOpen: false</code> (do not immediately truncate, start in the fully opened position)</li>
-        <li><code>expandedClass: 'readmore-js-expanded'</code> (class added to expanded blocks)</li>
-        <li><code>collapsedClass: 'readmore-js-collapsed'</code> (class added to collapsed blocks)</li>
-        <li><code>beforeToggle: function() {}</code> (called after a more or less link is clicked, but <i>before</i> the block is collapsed or expanded)</li>
-        <li><code>afterToggle: function() {}</code> (called <i>after</i> the block is collapsed or expanded)</li>
+        <li><code>speed: 100</code> in milliseconds</li>
+        <li><code>collapsedHeight: 200</code> in pixels</li>
+        <li><code>heightMargin: 16</code> in pixels, avoids collapsing blocks that are only slightly larger than <code>collapsedHeight</code></li>
+        <li><code>moreLink: '&lt;a href=&quot;#&quot;&gt;Read more&lt;/a&gt;'</code></li>
+        <li><code>lessLink: '&lt;a href=&quot;#&quot;&gt;Close&lt;/a&gt;'</code></li>
+        <li><code>embedCSS: true</code> insert required CSS dynamically, set this to <code>false</code> if you include the necessary CSS in a stylesheet</li>
+        <li><code>blockCSS: 'display: block; width: 100%;'</code> sets the styling of the blocks, ignored if <code>embedCSS</code> is <code>false</code></li>
+        <li><code>startOpen: false</code> do not immediately truncate, start in the fully opened position</li>
+        <li><code>beforeToggle: function() {}</code> called after a more or less link is clicked, but <em>before</em> the block is collapsed or expanded</li>
+        <li><code>afterToggle: function() {}</code> called <em>after</em> the block is collapsed or expanded</li>
       </ul>
 
-      <p>If the element has a <code>max-height</code> CSS property, Readmore.js will use that value rather than the value of the <code>maxHeight</code> option.</p>
+      <p>If the element has a <code>max-height</code> CSS property, Readmore.js will use that value rather than the value of the <code>collapsedHeight</code> option.</p>
 
       <h3 id="thecallbacks">The callbacks:</h3>
 
-      <p>The callback functions, <code>beforeToggle()</code> and <code>afterToggle</code>, both receive the same arguments: <code>trigger</code>, <code>element</code>, and <code>expanded</code>.</p>
+      <p>The callback functions, <code>beforeToggle</code> and <code>afterToggle</code>, both receive the same arguments: <code>trigger</code>, <code>element</code>, and <code>expanded</code>.</p>
 
       <ul>
-        <li><code>trigger</code>: the "Read more" or "Close" element that was clicked</li>
+        <li><code>trigger</code>: the &#8220;Read more&#8221; or &#8220;Close&#8221; element that was clicked</li>
         <li><code>element</code>: the block that is being collapsed or expanded</li>
         <li><code>expanded</code>: Boolean; <code>true</code> means the block is expanded</li>
       </ul>
 
       <h4 id="callbackexample">Callback example:</h4>
 
-      <p>Here's an example of how you could use the <code>afterToggle</code> callback to scroll back to the top of a block when the "Close" link is clicked.</p>
+      <p>Here&#8217;s an example of how you could use the <code>afterToggle</code> callback to scroll back to the top of a block when the &#8220;Close&#8221; link is clicked.</p>
 
-      <pre><code class="javascript">$('article').readmore({
+      <pre><code class="javascript">$(&apos;article&apos;).readmore({
   afterToggle: function(trigger, element, expanded) {
-    if(! expanded) { // The "Close" link was clicked
-      $('html, body').animate( { scrollTop: element.offset().top }, {duration: 100 } );
+    if(! expanded) { // The &quot;Close&quot; link was clicked
+      $(&apos;html, body&apos;).animate( { scrollTop: element.offset().top }, {duration: 100 } );
     }
   }
 });</code></pre>
 
-      <h3 id="recommendedcss">Recommended CSS:</h3>
+      <h3 id="removingreadmore">Removing Readmore:</h3>
 
-      <p>The intention behind Readmore.js is to use CSS for as much functionality as possible. In particular, &#8220;collapsing&#8221; is achieved by setting <code>overflow: hidden</code> on the containing block and changing the <code>height</code> property.</p>
+      <p>You can remove the Readmore.js functionality like so:</p>
 
-      <p>By default, Readmore.js inserts the following CSS:</p>
-
-      <pre><code class="css">.readmore-js-toggle, .readmore-js-section {
-  display: block;
-  width: 100%;
-}
-.readmore-js-section {
-  overflow: hidden;
-}</code></pre>
-
-      <p>You can override the the first set of rules when you set up Readmore.js like so:</p>
-
-      <pre><code class="javascript">$(&apos;article&apos;).readmore({sectionCSS: &apos;display: inline-block; width: 50%;&apos;});</code></pre>
-
-      <p>If you want to include the necessary styling in your site&#8217;s stylesheet, you can disable the dynamic embedding by passing <code>embedCSS: false</code> in the options hash.</p>
-
-      <pre><code class="javascript">$(&apos;article&apos;).readmore({embedCSS: false});</code></pre>
-
-      <h2 id="removingreadmore">Removing Readmore</h2>
-
-      <p>You can remove the Readmore functionality like so:</p>
-
-      <pre><code class="javascript">$('article').readmore('destroy');</code></pre>
+      <pre><code class="javascript">$(&apos;article&apos;).readmore(&apos;destroy&apos;);</code></pre>
 
       <p>Or, you can be more surgical by specifying a particular element:</p>
 
-      <pre><code class="javascript">$('article:first').readmore('destroy');</code></pre>
+      <pre><code class="javascript">$(&apos;article:first&apos;).readmore(&apos;destroy&apos;);</code></pre>
+
+      <h3 id="togglingblocksprogrammatically">Toggling blocks programmatically:</h3>
+
+      <p>You can toggle a block from code:</p>
+
+      <pre><code class="javascript">$(&apos;article:nth-of-type(3)&apos;).readmore(&apos;toggle&apos;);</code></pre>
+
+      <h2 id="css">CSS:</h2>
+
+      <p>Readmore.js is designed to use CSS for as much functionality as possible: collapsed height can be set in CSS with the <code>max-height</code> property; &#8220;collapsing&#8221; is achieved by setting <code>overflow: hidden</code> on the containing block and changing the <code>height</code> property; and, finally, the expanding/collapsing animation is done with CSS3 transitions.</p>
+
+      <p>By default, Readmore.js inserts the following CSS, in addition to some transition-related rules:</p>
+
+      <pre><code class="css">selector + [data-readmore-toggle], selector[data-readmore] {
+  display: block;
+  width: 100%;
+}</code></pre>
+
+      <p><em><code>selector</code> would be the element you invoked <code>readmore()</code> on, e.g.: <code>$('selector').readmore()</code></em></p>
+
+      <p>You can override the base rules when you set up Readmore.js like so:</p>
+
+      <pre><code class="javascript">$(&apos;article&apos;).readmore({blockCSS: &apos;display: inline-block; width: 50%;&apos;});</code></pre>
+
+      <p>If you want to include the necessary styling in your site&#8217;s stylesheet, you can disable the dynamic embedding by setting <code>embedCSS</code> to <code>false</code>:</p>
+
+      <pre><code class="javascript">$(&apos;article&apos;).readmore({embedCSS: false});</code></pre>
+
+      <h3 id="mediaqueriesandothercsstricks">Media queries and other CSS tricks:</h3>
+
+      <p>If you wanted to set a <code>maxHeight</code> based on lines, you could do so in CSS with something like:</p>
+
+      <pre><code class="css">body {
+  font: 16px/1.5 sans-serif;
+}
+
+/* Show only 4 lines in smaller screens */
+article {
+  max-height: 6em; /* (4 * 1.5 = 6) */
+}</code></pre>
+
+      <p>Then, with a media query you could change the number of lines shown, like so:</p>
+
+      <pre><code class="css">/* Show 8 lines on larger screens */
+@media screen and (min-width: 640px) {
+  article {
+    max-height: 12em;
+  }
+}</code></pre>
+
+      <h2 id="contributing">Contributing</h2>
+
+      <p>Pull requests are always welcome, but not all suggested features will get merged. Feel free to contact me if you have an idea for a feature.</p>
+
+      <p>Pull requests should include the minified script and this readme and the demo HTML should be updated with descriptions of your new feature. </p>
+
+      <p>You&#8217;ll need NPM:</p>
+
+      <pre><code>$ npm install</code></pre>
+
+      <p>Which will install the necessary development dependencies. Then, to build the minified script:</p>
+
+      <pre><code>$ gulp compress</code></pre>
     </section>
 
     <h1>Demo</h1>
@@ -166,8 +215,8 @@
 
   <script>
     $('#info').readmore({
-      moreLink: '<a href="#">More examples and options</a>',
-      maxHeight: 390,
+      moreLink: '<a href="#">Usage, examples, and options</a>',
+      collapsedHeight: 384,
       afterToggle: function(trigger, element, expanded) {
         if(! expanded) { // The "Close" link was clicked
           $('html, body').animate({scrollTop: $(element).offset().top}, {duration: 100});
