@@ -1,192 +1,318 @@
 /*!
+ * @preserve
+ *
  * Readmore.js jQuery plugin
  * Author: @jed_foster
- * Project home: jedfoster.github.io/Readmore.js
+ * Project home: http://jedfoster.github.io/Readmore.js
  * Licensed under the MIT license
+ *
+ * Debounce function from http://davidwalsh.name/javascript-debounce-function
  */
 
-;(function($) {
+/* global jQuery */
+
+(function($) {
+  'use strict';
 
   var readmore = 'readmore',
       defaults = {
         speed: 100,
-        maxHeight: 200,
+        collapsedHeight: 200,
         heightMargin: 16,
         moreLink: '<a href="#">Read More</a>',
         lessLink: '<a href="#">Close</a>',
         embedCSS: true,
-        sectionCSS: 'display: block; width: 100%;',
+        blockCSS: 'display: block; width: 100%;',
         startOpen: false,
-        expandedClass: 'readmore-js-expanded',
-        collapsedClass: 'readmore-js-collapsed',
 
         // callbacks
         beforeToggle: function(){},
         afterToggle: function(){}
       },
-      cssEmbedded = false;
+      cssEmbedded = {},
+      uniqueIdCounter = 0;
 
-  function Readmore( element, options ) {
-    this.element = element;
+  function debounce(func, wait, immediate) {
+    var timeout;
 
-    this.options = $.extend( {}, defaults, options);
+    return function() {
+      var context = this, args = arguments;
+      var later = function() {
+        timeout = null;
+        if (! immediate) {
+          func.apply(context, args);
+        }
+      };
+      var callNow = immediate && !timeout;
 
-    $(this.element).data('max-height', this.options.maxHeight);
-    $(this.element).data('height-margin', this.options.heightMargin);
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
 
-    delete(this.options.maxHeight);
+      if (callNow) {
+        func.apply(context, args);
+      }
+    };
+  }
 
-    if(this.options.embedCSS && ! cssEmbedded) {
-      var styles = '.readmore-js-toggle, .readmore-js-section { ' + this.options.sectionCSS + ' } .readmore-js-section { overflow: hidden; }';
+  function uniqueId(prefix) {
+    var id = ++uniqueIdCounter;
 
-      (function(d,u) {
-        var css=d.createElement('style');
+    return String(prefix === null ? 'rmjs-' : prefix) + id;
+  }
+
+  function setBoxHeights(element) {
+    var el = element.clone().css({
+          height: 'auto',
+          width: element.width(),
+          maxHeight: 'none',
+          overflow: 'hidden'
+        }).insertAfter(element),
+        expandedHeight = el.outerHeight(true),
+        cssMaxHeight = parseInt(el.css({maxHeight: ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10),
+        defaultHeight = element.data('defaultHeight');
+
+    el.remove();
+
+    var collapsedHeight = element.data('collapsedHeight') || defaultHeight;
+
+    if (!cssMaxHeight) {
+      collapsedHeight = defaultHeight;
+    }
+    else if (cssMaxHeight > collapsedHeight) {
+      collapsedHeight = cssMaxHeight;
+    }
+
+    // Store our measurements.
+    element.data({
+      expandedHeight: expandedHeight,
+      maxHeight: cssMaxHeight,
+      collapsedHeight: collapsedHeight
+    })
+    // and disable any `max-height` property set in CSS
+    .css({
+      maxHeight: 'none'
+    });
+  }
+
+  var resizeBoxes = debounce(function() {
+    $('[data-readmore]').each(function() {
+      var current = $(this),
+          isExpanded = (current.attr('aria-expanded') === 'true');
+
+      setBoxHeights(current);
+
+      current.css({
+        height: current.data( (isExpanded ? 'expandedHeight' : 'collapsedHeight') )
+      });
+    });
+  }, 100);
+
+  function embedCSS(options) {
+    if (! cssEmbedded[options.selector]) {
+      var styles = ' ';
+
+      if (options.embedCSS && options.blockCSS !== '') {
+        styles += options.selector + ' + [data-readmore-toggle], ' +
+          options.selector + '[data-readmore]{' +
+            options.blockCSS +
+          '}';
+      }
+
+      // Include the transition CSS even if embedCSS is false
+      styles += options.selector + '[data-readmore]{' +
+        'transition: height ' + options.speed + 'ms;' +
+        'overflow: hidden;' +
+      '}';
+
+      (function(d, u) {
+        var css = d.createElement('style');
         css.type = 'text/css';
-        if(css.styleSheet) {
-            css.styleSheet.cssText = u;
+
+        if (css.styleSheet) {
+          css.styleSheet.cssText = u;
         }
         else {
-            css.appendChild(d.createTextNode(u));
+          css.appendChild(d.createTextNode(u));
         }
+
         d.getElementsByTagName('head')[0].appendChild(css);
       }(document, styles));
 
-      cssEmbedded = true;
+      cssEmbedded[options.selector] = true;
     }
+  }
+
+  function Readmore(element, options) {
+    var $this = this;
+
+    this.element = element;
+
+    this.options = $.extend({}, defaults, options);
+
+    $(this.element).data({
+      defaultHeight: this.options.collapsedHeight,
+      heightMargin: this.options.heightMargin
+    });
+
+    embedCSS(this.options);
 
     this._defaults = defaults;
     this._name = readmore;
 
-    this.init();
+    window.addEventListener('load', function() {
+      $this.init();
+    });
   }
 
-  Readmore.prototype = {
 
+  Readmore.prototype = {
     init: function() {
       var $this = this;
 
       $(this.element).each(function() {
-        var current = $(this),
-            maxHeight = (parseInt(current.css('max-height').replace(/[^-\d\.]/g, ''), 10) > current.data('max-height')) ? parseInt(current.css('max-height').replace(/[^-\d\.]/g, ''), 10) : current.data('max-height'),
-            heightMargin = current.data('height-margin');
+        var current = $(this);
 
-        if(current.css('max-height') != 'none') {
-          current.css('max-height', 'none');
-        }
+        setBoxHeights(current);
 
-        $this.setBoxHeight(current);
+        var collapsedHeight = current.data('collapsedHeight'),
+            heightMargin = current.data('heightMargin');
 
-        if(current.outerHeight(true) <= maxHeight + heightMargin) {
+        if (current.outerHeight(true) <= collapsedHeight + heightMargin) {
           // The block is shorter than the limit, so there's no need to truncate it.
           return true;
         }
         else {
-          current.addClass('readmore-js-section ' + $this.options.collapsedClass).data('collapsedHeight', maxHeight);
+          var id = current.attr('id') || uniqueId(),
+              useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
 
-          var useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
-          current.after($(useLink).on('click', function(event) { $this.toggleSlider(this, current, event) }).addClass('readmore-js-toggle'));
+          current.attr({
+            'data-readmore': '',
+            'aria-expanded': false,
+            'id': id
+          });
 
-          if(!$this.options.startOpen) {
-            current.css({height: maxHeight});
+          current.after($(useLink)
+            .on('click', function(event) { $this.toggle(this, current[0], event); })
+            .attr({
+              'data-readmore-toggle': '',
+              'aria-controls': id
+            }));
+
+          if (! $this.options.startOpen) {
+            current.css({
+              height: collapsedHeight
+            });
           }
         }
       });
 
-      $(window).on('resize', function(event) {
-        $this.resizeBoxes();
+      window.addEventListener('resize', function() {
+        resizeBoxes();
       });
     },
 
-    toggleSlider: function(trigger, element, event)
-    {
-      event.preventDefault();
-
-      var $this = this,
-          newHeight = newLink = sectionClass = '',
-          expanded = false,
-          collapsedHeight = $(element).data('collapsedHeight');
-
-      if ($(element).height() <= collapsedHeight) {
-        newHeight = $(element).data('expandedHeight') + 'px';
-        newLink = 'lessLink';
-        expanded = true;
-        sectionClass = $this.options.expandedClass;
+    toggle: function(trigger, element, event) {
+      if (event) {
+        event.preventDefault();
       }
 
+      if (! trigger) {
+        trigger = $('[aria-controls="' + this.element.id + '"]')[0];
+      }
+
+      if (! element) {
+        element = this.element;
+      }
+
+      var $this = this,
+          $element = $(element),
+          newHeight = '',
+          newLink = '',
+          expanded = false,
+          collapsedHeight = $element.data('collapsedHeight');
+
+      if ($element.height() <= collapsedHeight) {
+        newHeight = $element.data('expandedHeight') + 'px';
+        newLink = 'lessLink';
+        expanded = true;
+      }
       else {
         newHeight = collapsedHeight;
         newLink = 'moreLink';
-        sectionClass = $this.options.collapsedClass;
       }
 
       // Fire beforeToggle callback
-      $this.options.beforeToggle(trigger, element, expanded);
+      // Since we determined the new "expanded" state above we're now out of sync
+      // with our true current state, so we need to flip the value of `expanded`
+      $this.options.beforeToggle(trigger, element, ! expanded);
 
-      $(element).animate({'height': newHeight}, {duration: $this.options.speed, complete: function() {
-          // Fire afterToggle callback
-          $this.options.afterToggle(trigger, element, expanded);
+      $element.css({'height': newHeight});
 
-          $(trigger).replaceWith($($this.options[newLink]).on('click', function(event) { $this.toggleSlider(this, element, event) }).addClass('readmore-js-toggle'));
+      // Fire afterToggle callback
+      $element.on('transitionend', function() {
+        $this.options.afterToggle(trigger, element, expanded);
 
-          $(this).removeClass($this.options.collapsedClass + ' ' + $this.options.expandedClass).addClass(sectionClass);
-        }
+        $(this).attr({
+          'aria-expanded': expanded
+        }).off('transitionend');
       });
-    },
 
-    setBoxHeight: function(element) {
-      var el = element.clone().css({'height': 'auto', 'width': element.width(), 'overflow': 'hidden'}).insertAfter(element),
-          height = el.outerHeight(true);
-
-      el.remove();
-
-      element.data('expandedHeight', height);
-    },
-
-    resizeBoxes: function() {
-      var $this = this;
-
-      $('.readmore-js-section').each(function() {
-        var current = $(this);
-
-        $this.setBoxHeight(current);
-
-        if(current.height() > current.data('expandedHeight') || (current.hasClass($this.options.expandedClass) && current.height() < current.data('expandedHeight')) ) {
-          current.css('height', current.data('expandedHeight'));
-        }
-      });
+      $(trigger).replaceWith($($this.options[newLink])
+          .on('click', function(event) { $this.toggle(this, element, event); })
+          .attr({
+            'data-readmore-toggle': '',
+            'aria-controls': $element.attr('id')
+          }));
     },
 
     destroy: function() {
-      var $this = this;
-
       $(this.element).each(function() {
         var current = $(this);
 
-        current.removeClass('readmore-js-section ' + $this.options.collapsedClass + ' ' + $this.options.expandedClass).css({'max-height': '', 'height': 'auto'}).next('.readmore-js-toggle').remove();
+        current.attr({
+          'data-readmore': null,
+          'aria-expanded': null
+        })
+          .css({
+            maxHeight: '',
+            height: ''
+          })
+          .next('[data-readmore-toggle]')
+          .remove();
 
         current.removeData();
       });
     }
   };
 
-  $.fn[readmore] = function( options ) {
-    var args = arguments;
-    if (options === undefined || typeof options === 'object') {
-      return this.each(function () {
+
+  $.fn.readmore = function(options) {
+    var args = arguments,
+        selector = this.selector;
+
+    options = options || {};
+
+    if (typeof options === 'object') {
+      return this.each(function() {
         if ($.data(this, 'plugin_' + readmore)) {
           var instance = $.data(this, 'plugin_' + readmore);
-          instance['destroy'].apply(instance);
+          instance.destroy.apply(instance);
         }
 
-        $.data(this, 'plugin_' + readmore, new Readmore( this, options ));
+        options.selector = selector;
+
+        $.data(this, 'plugin_' + readmore, new Readmore(this, options));
       });
-    } else if (typeof options === 'string' && options[0] !== '_' && options !== 'init') {
+    }
+    else if (typeof options === 'string' && options[0] !== '_' && options !== 'init') {
       return this.each(function () {
         var instance = $.data(this, 'plugin_' + readmore);
         if (instance instanceof Readmore && typeof instance[options] === 'function') {
-          instance[options].apply( instance, Array.prototype.slice.call( args, 1 ) );
+          instance[options].apply(instance, Array.prototype.slice.call(args, 1));
         }
       });
     }
   };
+
 })(jQuery);
+
