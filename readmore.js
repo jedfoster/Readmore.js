@@ -62,13 +62,13 @@
 
   function setBoxHeights(element) {
     var el = element.clone().css({
-          'height': 'auto',
-          'width': element.width(),
-          'max-height': 'none',
-          'overflow': 'hidden'
+          height: 'auto',
+          width: element.width(),
+          maxHeight: 'none',
+          overflow: 'hidden'
         }).insertAfter(element),
         expandedHeight = el.outerHeight(true),
-        cssMaxHeight = parseInt(el.css({'max-height': ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10),
+        cssMaxHeight = parseInt(el.css({maxHeight: ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10),
         defaultHeight = element.data('defaultHeight');
 
     el.remove();
@@ -84,12 +84,14 @@
 
     // Store our measurements.
     element.data({
-      'expandedHeight': expandedHeight,
-      'maxHeight': cssMaxHeight,
-      'collapsedHeight': collapsedHeight
+      expandedHeight: expandedHeight,
+      maxHeight: cssMaxHeight,
+      collapsedHeight: collapsedHeight
     })
     // and disable any `max-height` property set in CSS
-    .css('max-height', 'none');
+    .css({
+      maxHeight: 'none'
+    });
   }
 
   var resizeBoxes = debounce(function() {
@@ -99,7 +101,9 @@
 
       setBoxHeights(current);
 
-      current.css('height', current.data( (isExpanded ? 'expandedHeight' : 'collapsedHeight') ));
+      current.css({
+        height: current.data( (isExpanded ? 'expandedHeight' : 'collapsedHeight') )
+      });
     });
   }, 100);
 
@@ -146,8 +150,8 @@
     this.options = $.extend({}, defaults, options);
 
     $(this.element).data({
-      'defaultHeight': this.options.collapsedHeight,
-      'heightMargin': this.options.heightMargin
+      defaultHeight: this.options.collapsedHeight,
+      heightMargin: this.options.heightMargin
     });
 
     embedCSS(this.options);
@@ -181,14 +185,23 @@
           var id = current.attr('id') || uniqueId(),
               useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
 
-          current.attr({'data-readmore': '', 'aria-expanded': false, 'id': id});
+          current.attr({
+            'data-readmore': '',
+            'aria-expanded': false,
+            'id': id
+          });
 
           current.after($(useLink)
             .on('click', function(event) { $this.toggle(this, current[0], event); })
-            .attr({'data-readmore-toggle': '', 'aria-controls': id}));
+            .attr({
+              'data-readmore-toggle': '',
+              'aria-controls': id
+            }));
 
           if (! $this.options.startOpen) {
-            current.css({height: collapsedHeight});
+            current.css({
+              height: collapsedHeight
+            });
           }
         }
       });
@@ -239,20 +252,31 @@
       $element.on('transitionend', function() {
         $this.options.afterToggle(trigger, element, expanded);
 
-        $(this).attr('aria-expanded', expanded).off('transitionend');
+        $(this).attr({
+          'aria-expanded': expanded
+        }).off('transitionend');
       });
 
       $(trigger).replaceWith($($this.options[newLink])
           .on('click', function(event) { $this.toggle(this, element, event); })
-          .attr({'data-readmore-toggle': '', 'aria-controls': $element.attr('id')}));
+          .attr({
+            'data-readmore-toggle': '',
+            'aria-controls': $element.attr('id')
+          }));
     },
 
     destroy: function() {
       $(this.element).each(function() {
         var current = $(this);
 
-        current.attr({'data-readmore': null, 'aria-expanded': null })
-          .css({'max-height': '', 'height': ''})
+        current.attr({
+          'data-readmore': null,
+          'aria-expanded': null
+        })
+          .css({
+            maxHeight: '',
+            height: ''
+          })
           .next('[data-readmore-toggle]')
           .remove();
 
