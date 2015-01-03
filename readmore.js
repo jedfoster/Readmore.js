@@ -22,7 +22,7 @@
         moreLink: '<a href="#">Read More</a>',
         lessLink: '<a href="#">Close</a>',
         embedCSS: true,
-        sectionCSS: 'display: block; width: 100%;',
+        blockCSS: 'display: block; width: 100%;',
         startOpen: false,
 
         // callbacks
@@ -111,10 +111,10 @@
     if (! cssEmbedded[options.selector]) {
       var styles = ' ';
 
-      if (options.embedCSS && options.sectionCSS !== '') {
+      if (options.embedCSS && options.blockCSS !== '') {
         styles += options.selector + ' + [data-readmore-toggle], ' +
           options.selector + '[data-readmore]{' +
-            options.sectionCSS +
+            options.blockCSS +
           '}';
       }
 
