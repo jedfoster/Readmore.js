@@ -57,7 +57,7 @@
   function uniqueId(prefix) {
     var id = ++uniqueIdCounter;
 
-    return String(prefix === null ? 'rmjs-' : prefix) + id;
+    return String(prefix == null ? 'rmjs-' : prefix) + id;
   }
 
   function setBoxHeights(element) {
@@ -67,7 +67,7 @@
           maxHeight: 'none',
           overflow: 'hidden'
         }).insertAfter(element),
-        expandedHeight = el.outerHeight(true),
+        expandedHeight = el.outerHeight(),
         cssMaxHeight = parseInt(el.css({maxHeight: ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10),
         defaultHeight = element.data('defaultHeight');
 
