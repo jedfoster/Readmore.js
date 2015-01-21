@@ -159,9 +159,7 @@
     this._defaults = defaults;
     this._name = readmore;
 
-    window.addEventListener('load', function() {
-      $this.init();
-    });
+    $this.init();
   }
 
 
