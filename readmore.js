@@ -75,7 +75,7 @@
 
     var collapsedHeight = element.data('collapsedHeight') || defaultHeight;
 
-    if (!cssMaxHeight) {
+    if (! cssMaxHeight) {
       collapsedHeight = defaultHeight;
     }
     else if (cssMaxHeight > collapsedHeight) {
@@ -149,66 +149,62 @@
 
     this.options = $.extend({}, defaults, options);
 
-    $(this.element).data({
-      defaultHeight: this.options.collapsedHeight,
-      heightMargin: this.options.heightMargin
-    });
-
     embedCSS(this.options);
 
     this._defaults = defaults;
     this._name = readmore;
 
-    window.addEventListener('load', function() {
-      $this.init();
-    });
+    this.init();
+
+    // Need to resize boxes when the page has fully loaded.
+    window.addEventListener('load', resizeBoxes);
+
+    window.addEventListener('resize', resizeBoxes);
   }
 
 
   Readmore.prototype = {
     init: function() {
-      var $this = this;
+      var $this = this,
+          current = $(this.element);
 
-      $(this.element).each(function() {
-        var current = $(this);
+      current.data({
+        defaultHeight: this.options.collapsedHeight,
+        heightMargin: this.options.heightMargin
+      });
 
-        setBoxHeights(current);
+      setBoxHeights(current);
 
-        var collapsedHeight = current.data('collapsedHeight'),
-            heightMargin = current.data('heightMargin');
+      var collapsedHeight = current.data('collapsedHeight'),
+          heightMargin = current.data('heightMargin');
 
-        if (current.outerHeight(true) <= collapsedHeight + heightMargin) {
-          // The block is shorter than the limit, so there's no need to truncate it.
-          return true;
-        }
-        else {
-          var id = current.attr('id') || uniqueId(),
-              useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
+      if (current.outerHeight(true) <= collapsedHeight + heightMargin) {
+        // The block is shorter than the limit, so there's no need to truncate it.
+        return true;
+      }
+      else {
+        var id = current.attr('id') || uniqueId(),
+            useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
 
-          current.attr({
-            'data-readmore': '',
-            'aria-expanded': false,
-            'id': id
+        current.attr({
+          'data-readmore': '',
+          'aria-expanded': false,
+          'id': id
+        });
+
+        current.after($(useLink)
+          .on('click', function(event) { $this.toggle(this, current[0], event); })
+          .attr({
+            'data-readmore-toggle': '',
+            'aria-controls': id
+          }));
+
+        if (! $this.options.startOpen) {
+          current.css({
+            height: collapsedHeight
           });
-
-          current.after($(useLink)
-            .on('click', function(event) { $this.toggle(this, current[0], event); })
-            .attr({
-              'data-readmore-toggle': '',
-              'aria-controls': id
-            }));
-
-          if (! $this.options.startOpen) {
-            current.css({
-              height: collapsedHeight
-            });
-          }
         }
-      });
-
-      window.addEventListener('resize', function() {
-        resizeBoxes();
-      });
+      }
     },
 
     toggle: function(trigger, element, event) {
