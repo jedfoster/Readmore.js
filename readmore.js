@@ -73,14 +73,7 @@
 
     el.remove();
 
-    var collapsedHeight = element.data('collapsedHeight') || defaultHeight;
-
-    if (! cssMaxHeight) {
-      collapsedHeight = defaultHeight;
-    }
-    else if (cssMaxHeight > collapsedHeight) {
-      collapsedHeight = cssMaxHeight;
-    }
+    var collapsedHeight = cssMaxHeight || element.data('collapsedHeight') || defaultHeight;
 
     // Store our measurements.
     element.data({
