@@ -149,17 +149,16 @@
 
     this.init();
 
-    // Need to resize boxes when the page has fully loaded.
-	if (window.addEventListener) {
-		window.addEventListener('load', resizeBoxes);
-
-		window.addEventListener('resize', resizeBoxes);
-	}
-	else {
-		window.attachEvent('load', resizeBoxes);
-
-		window.attachEvent('resize', resizeBoxes);
-	}
+    // IE8 chokes on `window.addEventListener`, so need to test for support.
+    if (window.addEventListener) {
+      // Need to resize boxes when the page has fully loaded.
+      window.addEventListener('load', resizeBoxes);
+      window.addEventListener('resize', resizeBoxes);
+    }
+    else {
+      window.attachEvent('load', resizeBoxes);
+      window.attachEvent('resize', resizeBoxes);
+    }
   }
 
 
