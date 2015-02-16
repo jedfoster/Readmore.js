@@ -150,9 +150,16 @@
     this.init();
 
     // Need to resize boxes when the page has fully loaded.
-    window.addEventListener('load', resizeBoxes);
+	if (window.addEventListener) {
+		window.addEventListener('load', resizeBoxes);
 
-    window.addEventListener('resize', resizeBoxes);
+		window.addEventListener('resize', resizeBoxes);
+	}
+	else {
+		window.attachEvent('load', resizeBoxes);
+
+		window.attachEvent('resize', resizeBoxes);
+	}
   }
 
 
