@@ -250,13 +250,13 @@
       // Fire beforeToggle callback
       // Since we determined the new "expanded" state above we're now out of sync
       // with our true current state, so we need to flip the value of `expanded`
-      $this.options.beforeToggle(trigger, element, ! expanded);
+      $this.options.beforeToggle(trigger, $element, ! expanded);
 
       $element.css({'height': newHeight});
 
       // Fire afterToggle callback
       $element.on('transitionend', function() {
-        $this.options.afterToggle(trigger, element, expanded);
+        $this.options.afterToggle(trigger, $element, expanded);
 
         $(this).attr({
           'aria-expanded': expanded
