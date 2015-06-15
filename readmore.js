@@ -136,6 +136,7 @@
   }
 
   function Readmore(element, options) {
+
     var $this = this;
 
     this.element = element;
@@ -191,12 +192,20 @@
           'id': id
         });
 
-        current.after($(useLink)
-          .on('click', function(event) { $this.toggle(this, current[0], event); })
-          .attr({
-            'data-readmore-toggle': '',
-            'aria-controls': id
-          }));
+        var actionLink = $(useLink)
+              .on('click', function(event) { $this.toggle(this, current[0], event); })
+              .attr({
+                  'data-readmore-toggle': '',
+                  'aria-controls': id
+              });
+
+        if(this.options.renderTo) {
+         var renderTo = $('#'+this.options.renderTo);
+            renderTo.append(actionLink);
+        }
+        else{
+            current.after(actionLink);
+        }
 
         if (! $this.options.startOpen) {
           current.css({
