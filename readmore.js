@@ -260,6 +260,17 @@
           }));
     },
 
+    recalculateHeight: function() {
+      var current = $(this.element),
+          isExpanded = (current.attr('aria-expanded') === 'true');
+
+      setBoxHeights(current);
+
+      current.css({
+        height: current.data( (isExpanded ? 'expandedHeight' : 'collapsedHeight') )
+      });
+    },
+
     destroy: function() {
       $(this.element).each(function() {
         var current = $(this);
