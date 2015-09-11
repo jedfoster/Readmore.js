@@ -65,7 +65,7 @@
           height: 'auto',
           width: element.outerWidth(),
           maxHeight: 'none',
-          overflow: 'hidden'
+          overflow: 'visible'
         }).insertAfter(element),
         expandedHeight = el.outerHeight(),
         cssMaxHeight = parseInt(el.css({maxHeight: ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10),
