@@ -63,9 +63,9 @@
   function setBoxHeights(element) {
     var el = element.clone().css({
           height: 'auto',
-          width: element.width(),
+          width: element.outerWidth(),
           maxHeight: 'none',
-          overflow: 'hidden'
+          overflow: 'visible'
         }).insertAfter(element),
         expandedHeight = el.outerHeight(),
         cssMaxHeight = parseInt(el.css({maxHeight: ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10),
