@@ -192,7 +192,7 @@
         });
 
         current.after($(useLink)
-          .on('click', function(event) { $this.toggle(this, current[0], event); })
+          .bind('click', function(event) { $this.toggle(this, current[0], event); })
           .attr({
             'data-readmore-toggle': '',
             'aria-controls': id
@@ -244,16 +244,16 @@
       $element.css({'height': newHeight});
 
       // Fire afterToggle callback
-      $element.on('transitionend', function() {
+      $element.bind('transitionend', function() {
         $this.options.afterToggle(trigger, element, expanded);
 
         $(this).attr({
           'aria-expanded': expanded
-        }).off('transitionend');
+        }).unbind('transitionend');
       });
 
       $(trigger).replaceWith($($this.options[newLink])
-          .on('click', function(event) { $this.toggle(this, element, event); })
+          .bind('click', function(event) { $this.toggle(this, element, event); })
           .attr({
             'data-readmore-toggle': '',
             'aria-controls': $element.attr('id')
