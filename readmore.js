@@ -249,7 +249,7 @@
 
         $(this).attr({
           'aria-expanded': expanded
-        }).off('transitionend');
+        }).unbind('transitionend');
       });
 
       $(trigger).replaceWith($($this.options[newLink])
