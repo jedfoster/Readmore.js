@@ -4,7 +4,7 @@ A smooth, responsive jQuery plugin for collapsing and expanding long blocks of t
 
 The markup Readmore.js requires is so simple, you can probably use it with your existing HTML—there's no need for complicated sets of `div`'s or hardcoded classes, just call `.readmore()` on the element containing your block of text and Readmore.js takes care of the rest. Readmore.js plays well in a responsive environment, too.
 
-Readmore.js is tested with—and supported on—all versions of jQuery greater than 1.9.1. All the "good" browsers are supported, as well as IE10+; IE8 & 9 _should_ work, but are not supported and the experience will not be ideal.
+Readmore.js is tested with—and supported on—all versions of jQuery greater than 1.4.4. All the "good" browsers are supported, as well as IE10+; IE8 & 9 _should_ work, but are not supported and the experience will not be ideal.
 
 
 ## Install
