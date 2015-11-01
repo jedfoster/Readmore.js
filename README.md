@@ -9,16 +9,22 @@ Readmore.js is tested with—and supported on—all versions of jQuery greater t
 
 ## Install
 
-Install Readmore.js with Bower:
+Install Readmore.js with npm:
 
 ```
-$ bower install readmore
+$ npm install readmore-js
 ```
 
 Then include it in your HTML:
 
 ```html
-<script src="/bower_components/readmore/readmore.min.js"></script>
+<script src="/node_modules/readmore-js/readmore.min.js"></script>
+```
+
+Or, using Webpack or Browserify
+
+```javascript
+require('readmore-js');
 ```
 
 
