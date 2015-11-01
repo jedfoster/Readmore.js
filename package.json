@@ -2,7 +2,7 @@
   "name": "readmore-js",
   "version": "2.0.4",
   "description": "A lightweight jQuery plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links.",
-  "main": "readmore.min.js",
+  "main": "readmore.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,6 +23,9 @@
     "url": "https://github.com/jedfoster/Readmore.js/issues"
   },
   "homepage": "https://github.com/jedfoster/Readmore.js",
+  "dependencies": {
+    "jquery": "~2.1.4"
+  },
   "devDependencies": {
     "gulp": "^3.8.10",
     "gulp-rename": "^1.2.0",
