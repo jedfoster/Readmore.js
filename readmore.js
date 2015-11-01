@@ -12,16 +12,16 @@
 /* global jQuery */
 
 (function(factory) {
-	if (typeof define === 'function' && define.amd) {
-		// AMD
-		define(['jquery'], factory);
-	} else if (typeof exports === 'object') {
-		// CommonJS
-		module.exports = factory(require('jquery'));
-	} else {
-		// Browser globals
-		factory(jQuery);
-	}
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define(['jquery'], factory);
+  } else if (typeof exports === 'object') {
+    // CommonJS
+    module.exports = factory(require('jquery'));
+  } else {
+    // Browser globals
+    factory(jQuery);
+  }
 }(function($) {
   'use strict';
 
@@ -147,8 +147,6 @@
   }
 
   function Readmore(element, options) {
-    var $this = this;
-
     this.element = element;
 
     this.options = $.extend({}, defaults, options);
@@ -175,8 +173,7 @@
 
   Readmore.prototype = {
     init: function() {
-      var $this = this,
-          current = $(this.element);
+      var current = $(this.element);
 
       current.data({
         defaultHeight: this.options.collapsedHeight,
@@ -194,7 +191,7 @@
       }
       else {
         var id = current.attr('id') || uniqueId(),
-            useLink = $this.options.startOpen ? $this.options.lessLink : $this.options.moreLink;
+            useLink = this.options.startOpen ? this.options.lessLink : this.options.moreLink;
 
         current.attr({
           'data-readmore': '',
@@ -203,13 +200,17 @@
         });
 
         current.after($(useLink)
-          .on('click', function(event) { $this.toggle(this, current[0], event); })
+          .on('click', (function(_this) {
+            return function(event) {
+              _this.toggle(this, current[0], event);
+            };
+          })(this))
           .attr({
             'data-readmore-toggle': '',
             'aria-controls': id
           }));
 
-        if (! $this.options.startOpen) {
+        if (! this.options.startOpen) {
           current.css({
             height: collapsedHeight
           });
@@ -223,15 +224,14 @@
       }
 
       if (! trigger) {
-        trigger = $('[aria-controls="' + this.element.id + '"]')[0];
+        trigger = $('[aria-controls="' + _this.element.id + '"]')[0];
       }
 
       if (! element) {
-        element = this.element;
+        element = _this.element;
       }
 
-      var $this = this,
-          $element = $(element),
+      var $element = $(element),
           newHeight = '',
           newLink = '',
           expanded = false,
@@ -250,25 +250,31 @@
       // Fire beforeToggle callback
       // Since we determined the new "expanded" state above we're now out of sync
       // with our true current state, so we need to flip the value of `expanded`
-      $this.options.beforeToggle(trigger, $element, ! expanded);
+      this.options.beforeToggle(trigger, $element, ! expanded);
 
       $element.css({'height': newHeight});
 
       // Fire afterToggle callback
-      $element.on('transitionend', function() {
-        $this.options.afterToggle(trigger, $element, expanded);
+      $element.on('transitionend', (function(_this) {
+        return function() {
+          _this.options.afterToggle(trigger, $element, expanded);
 
-        $(this).attr({
-          'aria-expanded': expanded
-        }).off('transitionend');
-      });
+          $(this).attr({
+            'aria-expanded': expanded
+          }).off('transitionend');
+        }
+      })(this));
 
-      $(trigger).replaceWith($($this.options[newLink])
-          .on('click', function(event) { $this.toggle(this, element, event); })
-          .attr({
-            'data-readmore-toggle': '',
-            'aria-controls': $element.attr('id')
-          }));
+      $(trigger).replaceWith($(this.options[newLink])
+        .on('click', (function(_this) {
+            return function(event) {
+              _this.toggle(this, element, event);
+            };
+          })(this))
+        .attr({
+          'data-readmore-toggle': '',
+          'aria-controls': $element.attr('id')
+        }));
     },
 
     destroy: function() {
