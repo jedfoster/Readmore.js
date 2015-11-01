@@ -21,7 +21,7 @@ Then include it in your HTML:
 <script src="/node_modules/readmore-js/readmore.min.js"></script>
 ```
 
-Or, using Webpack or Browserify
+Or, using Webpack or Browserify:
 
 ```javascript
 require('readmore-js');
