@@ -195,7 +195,7 @@
 
         current.attr({
           'data-readmore': '',
-          'aria-expanded': $this.options.startOpen,
+          'aria-expanded': this.options.startOpen,
           'id': id
         });
 
