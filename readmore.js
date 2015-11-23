@@ -30,6 +30,7 @@
         speed: 100,
         collapsedHeight: 200,
         heightMargin: 16,
+        insertBefore: false,
         moreLink: '<a href="#">Read More</a>',
         lessLink: '<a href="#">Close</a>',
         embedCSS: true,
@@ -199,16 +200,22 @@
           'id': id
         });
 
-        current.after($(useLink)
-          .on('click', (function(_this) {
-            return function(event) {
-              _this.toggle(this, current[0], event);
-            };
-          })(this))
-          .attr({
-            'data-readmore-toggle': '',
-            'aria-controls': id
-          }));
+        var $useLink = $(useLink)
+            .on('click', (function(_this) {
+              return function(event) {
+                _this.toggle(this, current[0], event);
+              };
+            })(this))
+            .attr({
+              'data-readmore-toggle': '',
+              'aria-controls': id
+            });
+
+        if(this.options.insertBefore) {
+          current.before($useLink);
+        } else {
+          current.after($useLink);
+        }
 
         if (! this.options.startOpen) {
           current.css({

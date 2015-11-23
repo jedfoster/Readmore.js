@@ -1,7 +1,7 @@
 {
   "name": "readmore-js",
   "version": "2.1.0",
-  "description": "A lightweight jQuery plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links.",
+  "description": "A lightweight jQuery plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links. Added new option \"insertBefore\"",
   "main": "readmore.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
