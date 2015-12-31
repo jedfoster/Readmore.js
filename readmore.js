@@ -224,11 +224,11 @@
       }
 
       if (! trigger) {
-        trigger = $('[aria-controls="' + _this.element.id + '"]')[0];
+        trigger = $('[aria-controls="' + this.element.id + '"]')[0];
       }
 
       if (! element) {
-        element = _this.element;
+        element = this.element;
       }
 
       var $element = $(element),
