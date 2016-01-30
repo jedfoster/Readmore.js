@@ -53,7 +53,7 @@ $('article').readmore({
 * `embedCSS: true` insert required CSS dynamically, set this to `false` if you include the necessary CSS in a stylesheet
 * `blockCSS: 'display: block; width: 100%;'` sets the styling of the blocks, ignored if `embedCSS` is `false`
 * `startOpen: false` do not immediately truncate, start in the fully opened position
-* `beforeToggle: function() {}` called after a more or less link is clicked, but *before* the block is collapsed or expanded
+* `beforeToggle: function() {}` called after a more or less link is clicked, but *before* the block is collapsed or expanded. If this callback returns `false` the block won't be displayed.
 * `afterToggle: function() {}` called *after* the block is collapsed or expanded
 
 If the element has a `max-height` CSS property, Readmore.js will use that value rather than the value of the `collapsedHeight` option.
@@ -65,6 +65,8 @@ The callback functions, `beforeToggle` and `afterToggle`, both receive the same 
 * `trigger`: the "Read more" or "Close" element that was clicked
 * `element`: the block that is being collapsed or expanded
 * `expanded`: Boolean; `true` means the block is expanded
+
+`beforeToggle` can return `false` if you want to stop the execution and avoid expanding the block.
 
 #### Callback example:
 
@@ -161,7 +163,7 @@ Then, with a media query you could change the number of lines shown, like so:
 
 Pull requests are always welcome, but not all suggested features will get merged. Feel free to contact me if you have an idea for a feature.
 
-Pull requests should include the minified script and this readme and the demo HTML should be updated with descriptions of your new feature. 
+Pull requests should include the minified script and this readme and the demo HTML should be updated with descriptions of your new feature.
 
 You'll need NPM:
 
@@ -174,4 +176,3 @@ Which will install the necessary development dependencies. Then, to build the mi
 ```
 $ gulp compress
 ```
-

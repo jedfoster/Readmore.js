@@ -250,7 +250,10 @@
       // Fire beforeToggle callback
       // Since we determined the new "expanded" state above we're now out of sync
       // with our true current state, so we need to flip the value of `expanded`
-      this.options.beforeToggle(trigger, $element, ! expanded);
+      var shouldContinue = this.options.beforeToggle(trigger, $element, ! expanded);
+      if(shouldContinue === false){
+          return;
+      }
 
       $element.css({'height': newHeight});
 
@@ -327,4 +330,3 @@
   };
 
 }));
-
