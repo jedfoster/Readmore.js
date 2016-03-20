@@ -46,7 +46,7 @@ $('article').readmore({
 ### The options:
 
 * `speed: 100` in milliseconds
-* `collapsedHeight: 200` in pixels
+* `maxHeight: 200` in pixels
 * `heightMargin: 16` in pixels, avoids collapsing blocks that are only slightly larger than `collapsedHeight`
 * `moreLink: '<a href="#">Read more</a>'`
 * `lessLink: '<a href="#">Close</a>'`
