@@ -107,6 +107,8 @@ $('article:nth-of-type(3)').readmore('toggle');
 
 Readmore.js is designed to use CSS for as much functionality as possible: collapsed height can be set in CSS with the `max-height` property; "collapsing" is achieved by setting `overflow: hidden` on the containing block and changing the `height` property; and, finally, the expanding/collapsing animation is done with CSS3 transitions.
 
+The element where Readmore is applied is wrapped inside a ```<div class="rmjs-container">``` to allow more fexibility when customizing the control.
+
 By default, Readmore.js inserts the following CSS, in addition to some transition-related rules:
 
 ```css

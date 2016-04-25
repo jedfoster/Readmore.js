@@ -173,7 +173,8 @@
 
   Readmore.prototype = {
     init: function() {
-      var current = $(this.element);
+      var host = $('<div>').addClass('rmjs-container');
+      var current = $(this.element).wrap(host);
 
       current.data({
         defaultHeight: this.options.collapsedHeight,
@@ -221,6 +222,7 @@
     toggle: function(trigger, element, event) {
       if (event) {
         event.preventDefault();
+        event.stopPropagation();
       }
 
       if (! trigger) {
@@ -292,6 +294,7 @@
           .next('[data-readmore-toggle]')
           .remove();
 
+        current.unwrap();
         current.removeData();
       });
     }
