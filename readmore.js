@@ -206,7 +206,7 @@
             };
           })(this))
           .attr({
-            'data-readmore-toggle': '',
+            'data-readmore-toggle': id,
             'aria-controls': id
           }));
 
@@ -272,7 +272,7 @@
             };
           })(this))
         .attr({
-          'data-readmore-toggle': '',
+          'data-readmore-toggle': $element.attr('id'),
           'aria-controls': $element.attr('id')
         }));
     },
