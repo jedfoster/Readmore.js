@@ -178,6 +178,6 @@ $ npm install
 Which will install the necessary development dependencies. Then, to build the minified script:
 
 ```
-$ gulp compress
+$ npm run build
 ```
 
