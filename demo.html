@@ -77,18 +77,26 @@
         <li><code>startOpen: false</code> do not immediately truncate, start in the fully opened position</li>
         <li><code>beforeToggle: function() {}</code> called after a more or less link is clicked, but <em>before</em> the block is collapsed or expanded</li>
         <li><code>afterToggle: function() {}</code> called <em>after</em> the block is collapsed or expanded</li>
+        <li><code>blockProcessed: function() {}</code> called once per block during initilization after Readmore.js has processed the block.</li>
       </ul>
 
       <p>If the element has a <code>max-height</code> CSS property, Readmore.js will use that value rather than the value of the <code>collapsedHeight</code> option.</p>
 
       <h3 id="thecallbacks">The callbacks:</h3>
 
-      <p>The callback functions, <code>beforeToggle</code> and <code>afterToggle</code>, both receive the same arguments: <code>trigger</code>, <code>element</code>, and <code>expanded</code>.</p>
+      <p>The <code>beforeToggle</code> and <code>afterToggle</code> callbacks both receive the same arguments: <code>trigger</code>, <code>element</code>, and <code>expanded</code>.</p>
 
       <ul>
         <li><code>trigger</code>: the &#8220;Read more&#8221; or &#8220;Close&#8221; element that was clicked</li>
         <li><code>element</code>: the block that is being collapsed or expanded</li>
         <li><code>expanded</code>: Boolean; <code>true</code> means the block is expanded</li>
+      </ul>
+
+      <p>The <code>blockProcessed</code> callback receives <code>element</code> and <code>collapsable</code>.</p>
+
+      <ul>
+        <li><code>element</code>: the block that has just been processed</li>
+        <li><code>collapsable</code>: Boolean; <code>false</code> means the block was shorter than the specified minimum <code>collapsedHeight</code>—the block will not have a "Read more" link</li>
       </ul>
 
       <h4 id="callbackexample">Callback example:</h4>

@@ -37,8 +37,9 @@
         startOpen: false,
 
         // callbacks
-        beforeToggle: function(){},
-        afterToggle: function(){}
+        blockProcessed: function() {},
+        beforeToggle: function() {},
+        afterToggle: function() {}
       },
       cssEmbedded = {},
       uniqueIdCounter = 0;
@@ -187,6 +188,9 @@
 
       if (current.outerHeight(true) <= collapsedHeight + heightMargin) {
         // The block is shorter than the limit, so there's no need to truncate it.
+        if (this.options.blockProcessed && typeof this.options.blockProcessed === 'function') {
+          this.options.blockProcessed(current, false);
+        }
         return true;
       }
       else {
@@ -214,6 +218,10 @@
           current.css({
             height: collapsedHeight
           });
+        }
+
+        if (this.options.blockProcessed && typeof this.options.blockProcessed === 'function') {
+          this.options.blockProcessed(current, true);
         }
       }
     },
