@@ -1,6 +1,6 @@
 {
-  "name": "Readmore.js",
-  "main": "readmore.min.js",
+  "name": "readmore-js",
+  "main": "readmore.js",
   "version": "2.1.0",
   "homepage": "http://jedfoster.com/Readmore.js/",
   "authors": [
@@ -20,6 +20,10 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
-  ]
+    "tests",
+    "gulpfile.js"
+  ],
+  "dependencies": {
+    "jquery": ">=2.1.4"
+  }
 }
