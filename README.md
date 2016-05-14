@@ -167,7 +167,7 @@ Then, with a media query you could change the number of lines shown, like so:
 
 Pull requests are always welcome, but not all suggested features will get merged. Feel free to contact me if you have an idea for a feature.
 
-Pull requests should include the minified script and this readme and the demo HTML should be updated with descriptions of your new feature. 
+Pull requests should include the minified script and this readme and the demo HTML should be updated with descriptions of your new feature.
 
 You'll need NPM:
 
