@@ -264,12 +264,18 @@
 
       $element.css({'height': newHeight});
 
+      if (!expanded)
+        $element.css('overflow', 'hidden');
+
       // Fire afterToggle callback
       $element.on('transitionend', (function(_this) {
         return function() {
           if (_this.options.afterToggle && typeof _this.options.afterToggle === 'function') {
             _this.options.afterToggle(trigger, $element, expanded);
           }
+
+          if (expanded)
+            $(this).css('overflow', 'visible');
 
           $(this).attr({
             'aria-expanded': expanded
