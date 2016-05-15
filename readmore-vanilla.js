@@ -12,9 +12,7 @@
 (function(root) {
   'use strict';
 
-  var Readmore, cssEmbedded, hasProp, supportedEnv, uniqueIdCounter;
-
-  hasProp = {}.hasOwnProperty;
+  var Readmore, isCssEmbeddedFor, isEnvironmentSupported, resizeBoxes, uniqueIdCounter;
 
   function forEach(array, callback, scope) {
     for (var i = 0; i < array.length; i++) {
@@ -23,7 +21,10 @@
   };
 
   function extend(child, parent) {
-    var args, c1, key, p1;
+    var args, c1, hasProp, key, p1;
+
+    hasProp = {}.hasOwnProperty;
+
     if (arguments.length > 2) {
       args = [];
 
@@ -40,6 +41,7 @@
       child = args.shift();
       parent = args.shift();
     }
+
     for (key in parent) {
       if (hasProp.call(parent, key)) {
         if (typeof parent[key] === 'object') {
@@ -53,9 +55,26 @@
     return child;
   };
 
-  supportedEnv = !!document.querySelectorAll && !!root.addEventListener;
-  uniqueIdCounter = 0;
-  cssEmbedded = {};
+  function debounce(func, wait, immediate) {
+    var timeout;
+
+    return function() {
+      var args, callNow, context, later;
+
+      args = arguments;
+      callNow = immediate && !timeout;
+      context = this;
+      later = function() {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      };
+
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+
+      if (callNow) func.apply(context, args);
+    };
+  }
 
   function uniqueId(prefix) {
     var id;
@@ -66,36 +85,27 @@
   }
 
   function setBoxHeights(element) {
-    var collapsedHeight, cssMaxHeight, defaultHeight, el, elCSS, elRect, elementCSS, elementRect, expandedHeight, width;
+    var clonedElement, cssMaxHeight, defaultHeight, expandedHeight, width;
 
-    elementRect = element.getBoundingClientRect();
-    elementCSS = getComputedStyle(element);
+    clonedElement = element.cloneNode(true);
+    clonedElement.style.height = 'auto';
+    clonedElement.style.width = element.getBoundingClientRect().width;
+    clonedElement.style.overflow = 'hidden';
 
-    el = element.cloneNode(true);
-    el.style.height = 'auto';
-    el.style.height = elementRect.width;
-    el.style.overflow = 'hidden';
+    element.parentNode.insertBefore(clonedElement, element);
 
-    element.parentNode.insertBefore(el, element);
+    clonedElement.style.maxHeight = 'none';
 
-    elCSS = getComputedStyle(el);
-
-    el.style.maxHeight = 'none';
-
-    elRect = el.getBoundingClientRect();
-
-    expandedHeight = parseInt(elRect.height, 10);
-    cssMaxHeight = parseInt(elCSS.maxHeight, 10);
+    expandedHeight = parseInt(clonedElement.getBoundingClientRect().height, 10);
+    cssMaxHeight = parseInt(getComputedStyle(clonedElement).maxHeight, 10);
     defaultHeight = parseInt(element.readmore.defaultHeight, 10);
 
-    element.parentNode.removeChild(el);
-
-    collapsedHeight = cssMaxHeight || element.readmore.collapsedHeight || defaultHeight;
+    element.parentNode.removeChild(clonedElement);
 
     // Store our measurements.
     element.readmore.expandedHeight = expandedHeight;
     element.readmore.maxHeight = cssMaxHeight;
-    element.readmore.collapsedHeight = collapsedHeight;
+    element.readmore.collapsedHeight = cssMaxHeight || element.readmore.collapsedHeight || defaultHeight;
 
     element.style.maxHeight = 'none';
   }
@@ -112,7 +122,7 @@
   function embedCSS(options) {
     var styles;
 
-    if (!cssEmbedded[options.selector]) {
+    if (!isCssEmbeddedFor[options.selector]) {
       styles = ' ';
 
       if (options.embedCSS && options.blockCSS !== '') {
@@ -142,10 +152,36 @@
         d.getElementsByTagName('head')[0].appendChild(css);
       }(document, styles));
 
-      cssEmbedded[options.selector] = true;
+      isCssEmbeddedFor[options.selector] = true;
     }
   }
 
+  function buildToggle(link, element, scope) {
+    var clickHandler, toggle;
+
+    clickHandler = function(event) {
+      this.toggle(event.target, element, event);
+    };
+
+    toggle = createElementFromString(link);
+    toggle.setAttribute('data-readmore-toggle', element.id);
+    toggle.setAttribute('aria-controls', element.id);
+    toggle.addEventListener('click', clickHandler.bind(scope));
+
+    return toggle;
+  }
+
+  isEnvironmentSupported = !!document.querySelectorAll && !!root.addEventListener;
+  uniqueIdCounter = 0;
+  isCssEmbeddedFor = [];
+
+  resizeBoxes = debounce(function() {
+    forEach(document.querySelectorAll('[data-readmore]'), function(i, element) {
+      setBoxHeights(element);
+
+      element.style.height = ((element.getAttribute('aria-expanded') === 'true') ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
+    });
+  }, 100);
 
   Readmore = (function() {
     var defaults;
@@ -167,7 +203,7 @@
     };
 
     function Readmore(selector, options) {
-      if (!supportedEnv) return;
+      if (!isEnvironmentSupported) return;
 
       this.elements = [];
       this.options = extend({}, defaults, options);
@@ -175,8 +211,14 @@
 
       embedCSS(this.options);
 
+      // Need to resize boxes when the page has fully loaded.
+      window.addEventListener('load', resizeBoxes);
+      window.addEventListener('resize', resizeBoxes)
+
       forEach(document.querySelectorAll(selector), function(i, element) {
-        var collapsedHeight, heightMargin, id, toggleLink;
+        var expanded, heightMargin, id, toggleLink;
+
+        expanded = this.options.startOpen;
 
         element.readmore = {
           defaultHeight: this.options.collapsedHeight,
@@ -185,10 +227,9 @@
 
         setBoxHeights(element);
 
-        collapsedHeight = element.readmore.collapsedHeight;
         heightMargin = element.readmore.heightMargin;
 
-        if (element.getBoundingClientRect().height <= collapsedHeight + heightMargin) {
+        if (element.getBoundingClientRect().height <= element.readmore.collapsedHeight + heightMargin) {
           if (this.options.blockProcessed && typeof this.options.blockProcessed === 'function') {
             this.options.blockProcessed(element, false);
           }
@@ -196,25 +237,16 @@
         }
         else {
           id = element.id || uniqueId();
-          toggleLink = createElementFromString(this.options.startOpen ? this.options.lessLink : this.options.moreLink);
 
           element.setAttribute('data-readmore', '');
-          element.setAttribute('aria-expanded', this.options.startOpen);
+          element.setAttribute('aria-expanded', expanded);
           element.id = id;
 
-          toggleLink.setAttribute('data-readmore-toggle', id);
-          toggleLink.setAttribute('aria-controls', id);
-          toggleLink.addEventListener('click', (function(_this) {
-            return function(event) {
-              _this.toggle(this, element, event);
-            }
-          })(this));
+          toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
-          element.parentNode.insertBefore(toggleLink, element.nextSibling);
+          element.parentNode.insertBefore(buildToggle(toggleLink, element, this), element.nextSibling);
 
-          if (!this.options.startOpen) {
-            element.style.height = collapsedHeight + 'px';
-          }
+          element.style.height = (expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
 
           if (this.options.blockProcessed && typeof this.options.blockProcessed === 'function') {
             this.options.blockProcessed(element, true);
@@ -226,7 +258,7 @@
     }
 
     Readmore.prototype.toggle = function(trigger, element, event) {
-      var collapsedHeight, expanded, newHeight, newToggle, transitionendHandler;
+      var expanded, newHeight, toggleLink, transitionendHandler;
 
       if (event) event.preventDefault();
 
@@ -234,17 +266,8 @@
       // trigger = trigger || document.querySelector('[aria-controls="' + this.element.id + '"]');
       // element = element || this.element;
 
-      collapsedHeight = element.readmore.collapsedHeight
-
-      if (element.getBoundingClientRect().height <= collapsedHeight) {
-        newHeight = element.readmore.expandedHeight;
-        newToggle = createElementFromString(this.options.lessLink);
-        expanded = true;
-      }
-      else {
-        newHeight = collapsedHeight;
-        newToggle = createElementFromString(this.options.moreLink);
-      }
+      expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
+      newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
 
       // Fire beforeToggle callback
       // Since we determined the new "expanded" state above we're now out of sync
@@ -255,29 +278,20 @@
 
       element.style.height = newHeight + 'px';
 
-      transitionendHandler = (function(_this) {
-        return function() {
-          if (_this.options.afterToggle && typeof _this.options.afterToggle === 'function') {
-            _this.options.afterToggle(trigger, element, expanded);
-          }
-
-          this.setAttribute('aria-expanded', expanded);
-
-          this.removeEventListener('transitionend', transitionendHandler);
+      transitionendHandler = function(event) {
+        if (this.options.afterToggle && typeof this.options.afterToggle === 'function') {
+          this.options.afterToggle(trigger, element, expanded);
         }
-      })(this);
 
-      element.addEventListener('transitionend', transitionendHandler);
+        event.target.setAttribute('aria-expanded', expanded);
+        event.target.removeEventListener('transitionend', transitionendHandler);
+      };
 
-      newToggle.setAttribute('data-readmore-toggle', element.id);
-      newToggle.setAttribute('aria-controls', element.id);
-      newToggle.addEventListener('click', (function(_this) {
-        return function(event) {
-          _this.toggle(this, element, event);
-        }
-      })(this));
+      element.addEventListener('transitionend', transitionendHandler.bind(this));
 
-      trigger.parentNode.replaceChild(newToggle, trigger);
+      toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
+
+      trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
     };
 
     Readmore.prototype.destroy = function() {}
