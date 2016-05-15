@@ -205,7 +205,6 @@
     function Readmore(selector, options) {
       if (!isEnvironmentSupported) return;
 
-      this.elements = [];
       this.options = extend({}, defaults, options);
       this.options.selector = selector;
 
@@ -252,8 +251,6 @@
             this.options.blockProcessed(element, true);
           }
         }
-
-        this.elements.push(element);
       }, this);
     }
 
