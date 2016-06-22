@@ -310,9 +310,9 @@
   };
 
 
-  $.fn.readmore = function(options) {
+  $.fn.readmore = function(selector, options) {
     var args = arguments,
-        selector = this.selector;
+        options = typeof options === 'object' ? options : selector;
 
     options = options || {};
 

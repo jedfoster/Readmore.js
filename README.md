@@ -31,13 +31,13 @@ require('readmore-js');
 ## Use
 
 ```javascript
-$('article').readmore();
+$('article').readmore('article');
 ```
 
 It's that simple. You can change the speed of the animation, the height of the collapsed block, and the open and close elements.
 
 ```javascript
-$('article').readmore({
+$('article').readmore('article', {
   speed: 75,
   lessLink: '<a href="#">Read less</a>'
 });
@@ -45,6 +45,7 @@ $('article').readmore({
 
 ### The options:
 
+* `selector: undefined` can be set in the options or the intial call
 * `speed: 100` in milliseconds
 * `collapsedHeight: 200` in pixels
 * `heightMargin: 16` in pixels, avoids collapsing blocks that are only slightly larger than `collapsedHeight`
@@ -122,7 +123,7 @@ selector + [data-readmore-toggle], selector[data-readmore] {
 }
 ```
 
-_`selector` would be the element you invoked `readmore()` on, e.g.: `$('selector').readmore()`_
+_`selector` would be the element you invoked `readmore()` on, e.g.: `$('selector').readmore('selector')`_
 
 You can override the base rules when you set up Readmore.js like so:
 
@@ -167,7 +168,7 @@ Then, with a media query you could change the number of lines shown, like so:
 
 Pull requests are always welcome, but not all suggested features will get merged. Feel free to contact me if you have an idea for a feature.
 
-Pull requests should include the minified script and this readme and the demo HTML should be updated with descriptions of your new feature. 
+Pull requests should include the minified script and this readme and the demo HTML should be updated with descriptions of your new feature.
 
 You'll need NPM:
 

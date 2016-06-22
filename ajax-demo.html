@@ -80,7 +80,7 @@
   <script src="readmore.js"></script>
 
   <script>
-    $('article').readmore({speed: 500});
+    $('article').readmore('article', {speed: 500});
 
     var blog = {
       'articles': [
@@ -119,7 +119,7 @@
 
         $('#ajax').removeClass('loading');
 
-        $('#ajax article').readmore({speed: 500});
+        $('#ajax article').readmore('#ajax article', {speed: 500});
       }
     });
   </script>
