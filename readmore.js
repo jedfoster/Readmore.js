@@ -311,8 +311,14 @@
 
 
   $.fn.readmore = function(selector, options) {
-    var args = arguments,
-        options = typeof options === 'object' ? options : selector;
+    var args = arguments;
+    if (!!this.selector && typeof selector === 'object') {
+        var options = selector,
+            selector = this.selector;
+    } else if (typeof selector === 'object') {
+        var options = selector,
+            selector = options.selector;
+    }
 
     options = options || {};
 
