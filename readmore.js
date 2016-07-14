@@ -212,7 +212,14 @@
           .attr({
             'data-readmore-toggle': id,
             'aria-controls': id
-          }));
+          })
+          .css({
+            "padding-left": current.css("padding-left"),
+            "padding-right": current.css("padding-right"),
+            "margin-left": current.css("margin-left"),
+            "margin-right": current.css("margin-right")
+          })
+        );
 
         if (! this.options.startOpen) {
           current.css({
@@ -286,7 +293,13 @@
         .attr({
           'data-readmore-toggle': $element.attr('id'),
           'aria-controls': $element.attr('id')
-        }));
+        }).css({
+          "padding-left": $element.css("padding-left"),
+          "padding-right": $element.css("padding-right"),
+          "margin-left": $element.css("margin-left"),
+          "margin-right": $element.css("margin-right")
+        })
+      );
     },
 
     destroy: function() {
