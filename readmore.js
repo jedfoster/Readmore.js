@@ -245,7 +245,7 @@
           expanded = false,
           collapsedHeight = $element.data('collapsedHeight');
 
-      if ($element.height() <= collapsedHeight) {
+      if ($element[0].getBoundingClientRect().height <= collapsedHeight) {
         newHeight = $element.data('expandedHeight') + 'px';
         newLink = 'lessLink';
         expanded = true;
