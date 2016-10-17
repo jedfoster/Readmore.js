@@ -102,7 +102,8 @@
   var resizeBoxes = debounce(function() {
     $('[data-readmore]').each(function() {
       var current = $(this),
-          isExpanded = (current.attr('aria-expanded') === 'true');
+          //isExpanded = (current.attr('aria-expanded') === 'true');
+          isExpanded = (current.height() > current.data('collapsedHeight'));
 
       setBoxHeights(current);
 
