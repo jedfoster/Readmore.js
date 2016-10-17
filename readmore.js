@@ -100,10 +100,17 @@
   }
 
   var resizeBoxes = debounce(function() {
+    var innerWidth = $('body').data('innerWidth');
+    
+    if (innerWidth != $(window).width()) {
+        $('body').data('innerWidth', $(window).width());
+    } else {
+        return false;
+    }
+    
     $('[data-readmore]').each(function() {
       var current = $(this),
-          //isExpanded = (current.attr('aria-expanded') === 'true');
-          isExpanded = (current.height() > current.data('collapsedHeight'));
+          isExpanded = (current.attr('aria-expanded') === 'true');
 
       setBoxHeights(current);
 
