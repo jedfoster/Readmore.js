@@ -27,6 +27,18 @@ Or, using Webpack or Browserify:
 require('readmore-js');
 ```
 
+Install Readmore.js with Npm:
+
+```
+$ npm i readmore-jed
+```
+
+Then include it in your HTML:
+
+```html
+<script src="/node_modules/readmore-jed/readmore.min.js"></script>
+```
+
 
 ## Use
 
