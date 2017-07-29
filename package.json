@@ -24,9 +24,6 @@
     "url": "https://github.com/jedfoster/Readmore.js/issues"
   },
   "homepage": "https://github.com/jedfoster/Readmore.js",
-  "dependencies": {
-    "jquery": ">2.1.4"
-  },
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-rename": "^1.2.0",
