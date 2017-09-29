@@ -72,6 +72,8 @@ The `blockProcessed` callback receives `element` and `collapsable`.
 * `element`: the block that has just been processed
 * `collapsable`: Boolean; `false` means the block was shorter than the specified minimum `collapsedHeight`--the block will not have a "Read more" link
 
+The `moreLink` and `lessLink` options can also use a callback to dynamically generate the link text. These callbacks receive the `element` argument.
+
 #### Callback example:
 
 Here's an example of how you could use the `afterToggle` callback to scroll back to the top of a block when the "Close" link is clicked.

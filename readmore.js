@@ -197,6 +197,10 @@
         var id = current.attr('id') || uniqueId(),
             useLink = this.options.startOpen ? this.options.lessLink : this.options.moreLink;
 
+        if (typeof useLink === 'function') {
+          useLink = useLink(current);
+        }
+
         current.attr({
           'data-readmore': '',
           'aria-expanded': this.options.startOpen,
@@ -276,6 +280,10 @@
           }).off('transitionend');
         }
       })(this));
+
+      if (typeof this.options[newLink] === 'function') {
+        this.options[newLink] = this.options[newLink]($element);
+      }
 
       $(trigger).replaceWith($(this.options[newLink])
         .on('click', (function(_this) {
