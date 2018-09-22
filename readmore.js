@@ -75,7 +75,7 @@
   function setBoxHeights(element) {
     var el = element.clone().css({
           height: 'auto',
-          width: element.width(),
+          width: element.innerWidth(),
           maxHeight: 'none',
           overflow: 'hidden'
         }).insertAfter(element),
@@ -312,7 +312,7 @@
 
   $.fn.readmore = function(options) {
     var args = arguments,
-        selector = this.selector;
+        selector = this.selector || '';
 
     options = options || {};
 
