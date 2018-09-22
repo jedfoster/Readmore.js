@@ -69,7 +69,7 @@
   function uniqueId(prefix) {
     var id = ++uniqueIdCounter;
 
-    return String(prefix == null ? 'rmjs-' : prefix) + id;
+    return String(prefix === null ? 'rmjs-' : prefix) + id;
   }
 
   function setBoxHeights(element) {
@@ -274,7 +274,7 @@
           $(this).attr({
             'aria-expanded': expanded
           }).off('transitionend');
-        }
+        };
       })(this));
 
       $(trigger).replaceWith($(this.options[newLink])
