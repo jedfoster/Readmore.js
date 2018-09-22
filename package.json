@@ -1,6 +1,6 @@
 {
   "name": "readmore-js",
-  "version": "2.1.0",
+  "version": "2.2.1",
   "description": "A lightweight jQuery plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links.",
   "main": "readmore.js",
   "scripts": {
