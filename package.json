@@ -10,7 +10,7 @@
     "watch": "./node_modules/webpack/bin/webpack.js --watch",
     "compress": "echo \"Error: no compress script\" && exit 1 # ./node_modules/uglify-js/bin/uglifyjs ./build/js/app.js -cmv --screw-ie8 -o ./build/js/app.js",
     "lint": "./node_modules/eslint/bin/eslint.js --cache .",
-    "precommit": "echo \"Warning: no precommit script\" && exit 0 # npm run lint && npm run test"
+    "precommit": "npm run lint #&& npm run test"
   },
   "repository": {
     "type": "git",
