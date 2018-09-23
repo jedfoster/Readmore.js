@@ -59,7 +59,7 @@
 
       <p>It&#8217;s that simple. You can change the speed of the animation, the height of the collapsed block, and the open and close elements.</p>
 
-      <pre><code class="javascript">$(&apos;article&apos;).readmore({
+      <pre><code class="javascript">$(&apos;article&apos;).readmore('article', {
   speed: 75,
   lessLink: &apos;&lt;a href=&quot;#&quot;&gt;Read less&lt;/a&gt;&apos;
 });</code></pre>
@@ -142,11 +142,11 @@
 
       <p>You can override the base rules when you set up Readmore.js like so:</p>
 
-      <pre><code class="javascript">$(&apos;article&apos;).readmore({blockCSS: &apos;display: inline-block; width: 50%;&apos;});</code></pre>
+      <pre><code class="javascript">$(&apos;article&apos;).readmore(&apos;article&apos;, {blockCSS: &apos;display: inline-block; width: 50%;&apos;});</code></pre>
 
       <p>If you want to include the necessary styling in your site&#8217;s stylesheet, you can disable the dynamic embedding by setting <code>embedCSS</code> to <code>false</code>:</p>
 
-      <pre><code class="javascript">$(&apos;article&apos;).readmore({embedCSS: false});</code></pre>
+      <pre><code class="javascript">$(&apos;article&apos;).readmore(&apos;article&apos;, {embedCSS: false});</code></pre>
 
       <h3 id="mediaqueriesandothercsstricks">Media queries and other CSS tricks:</h3>
 
@@ -226,7 +226,7 @@ article {
   <script src="readmore.js"></script>
 
   <script>
-    $('#info').readmore({
+    $('#info').readmore('#info', {
       moreLink: '<a href="#">Usage, examples, and options</a>',
       collapsedHeight: 384,
       afterToggle: function(trigger, element, expanded) {
@@ -236,7 +236,7 @@ article {
       }
     });
 
-    $('article').readmore({speed: 500});
+    $('article').readmore('article', {speed: 500});
   </script>
 </body>
 </html>

@@ -310,9 +310,15 @@
   };
 
 
-  $.fn.readmore = function(options) {
-    var args = arguments,
-        selector = this.selector;
+  $.fn.readmore = function(selector, options) {
+    var args = arguments;
+    if (!!this.selector && typeof selector === 'object') {
+        var options = selector,
+            selector = this.selector;
+    } else if (typeof selector === 'object') {
+        var options = selector,
+            selector = options.selector;
+    }
 
     options = options || {};
 
