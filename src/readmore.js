@@ -233,10 +233,20 @@ class Readmore {
   // Signature when called internally by the toggleLink click handler:
   //   toggle(trigger, element, event)
   //
-  // When called externally by an instance, e.g. readmoreDemo.toggle(document.querySelector('article:nth-of-type(1)')):
-  //   toggle(element)
+  // When called externally by an instance,
+  // e.g. readmoreDemo.toggle(document.querySelector('article:nth-of-type(1)')):
+  //   toggle(elementOrQuerySelector)
   toggle(...args) {
-    const element = args[1] || args.shift();
+    let element = args[1] || args.shift();
+
+    if (typeof element === 'string') {
+      element = document.querySelector(element);
+    }
+
+    if (element === null) {
+      throw new Error('Element MUST be either an HTML node or querySelector string');
+    }
+
     const trigger = args[0] || document.querySelector(`[aria-controls="${element.id}"]`);
     const event = args[2];
 
