@@ -298,5 +298,5 @@
   })();
 
   root.Readmore = Readmore;
-})(this);
+})(global);
 

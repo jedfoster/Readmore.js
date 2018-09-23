@@ -1,11 +1,16 @@
 {
   "name": "readmore-js",
-  "version": "2.1.0",
-  "description": "A lightweight jQuery plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links.",
+  "version": "3.0.0-beta-1",
+  "description": "A lightweight JavaScript plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links.",
   "main": "readmore.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "./node_modules/gulp/bin/gulp.js compress"
+    "build": "./node_modules/webpack/bin/webpack.js && cp src/readmore.js dist/readmore.es6.js",
+    "start": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "test": "NODE_ENV=test ./node_modules/mocha/bin/mocha --compilers js:babel-core/register",
+    "watch": "./node_modules/webpack/bin/webpack.js --watch",
+    "compress": "echo \"Error: no compress script\" && exit 1 # ./node_modules/uglify-js/bin/uglifyjs ./build/js/app.js -cmv --screw-ie8 -o ./build/js/app.js",
+    "lint": "./node_modules/eslint/bin/eslint.js --cache .",
+    "precommit": "echo \"Warning: no precommit script\" && exit 0 # npm run lint && npm run test"
   },
   "repository": {
     "type": "git",
@@ -20,16 +25,29 @@
   ],
   "author": "Jed Foster <jed@jedfoster.com>",
   "license": "MIT",
+  "homepage": "https://github.com/jedfoster/Readmore.js",
   "bugs": {
     "url": "https://github.com/jedfoster/Readmore.js/issues"
   },
-  "homepage": "https://github.com/jedfoster/Readmore.js",
-  "dependencies": {
-    "jquery": ">2.1.4"
+  "babel": {
+    "presets": [
+      "env"
+    ]
   },
   "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-rename": "^1.2.0",
-    "gulp-uglify": "^1.0.2"
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^9.0.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.0",
+    "chai": "^4.1.2",
+    "eslint": "^5.5.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "file-loader": "^1.1.5",
+    "husky": "^0.14.3",
+    "mocha": "^3.5.3",
+    "uglify-js": "^3.2.0",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.9.1"
   }
 }
