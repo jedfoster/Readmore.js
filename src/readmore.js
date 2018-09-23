@@ -24,7 +24,7 @@ function extend(child, parent) {
   if (arguments.length > 2) {
     args = [];
 
-    forEach(arguments, (i, value) => {
+    forEach(arguments, function(i, value) {
       args.push(value);
     });
 
@@ -76,7 +76,7 @@ function debounce(func, wait, immediate) {
 function uniqueId(prefix) {
   const id = ++uniqueIdCounter;
 
-  return String(prefix == null ? 'rmjs-' : prefix) + id;
+  return `${prefix ? prefix : 'rmjs-'}${id}`;
 }
 
 function setBoxHeights(element) {
@@ -161,12 +161,15 @@ function buildToggle(link, element, scope) {
   return toggle;
 }
 
-const isEnvironmentSupported = !!document.querySelectorAll && !!global.addEventListener;
+function isEnvironmentSupported() {
+  return !!document.querySelectorAll && !!window.addEventListener;
+}
+
 const resizeBoxes = debounce(function() {
   forEach(document.querySelectorAll('[data-readmore]'), (i, element) => {
     setBoxHeights(element);
 
-    element.style.height = ((element.getAttribute('aria-expanded') === 'true') ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
+    element.style.height = `${(element.getAttribute('aria-expanded') === 'true') ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
   });
 }, 100);
 const isCssEmbeddedFor = [];
@@ -191,7 +194,7 @@ const defaults = {
 
 class Readmore {
   constructor(selector, options) {
-    if (!isEnvironmentSupported) return;
+    if (!isEnvironmentSupported()) return;
 
     this.options = extend({}, defaults, options);
     this.options.selector = selector;
@@ -202,8 +205,8 @@ class Readmore {
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes)
 
-    forEach(document.querySelectorAll(selector), function(i, element) {
-      var expanded, heightMargin, id, toggleLink;
+    forEach(document.querySelectorAll(selector), (i, element) => {
+      let expanded, heightMargin, id, toggleLink;
 
       expanded = this.options.startOpen;
 
@@ -233,7 +236,7 @@ class Readmore {
 
         element.parentNode.insertBefore(buildToggle(toggleLink, element, this), element.nextSibling);
 
-        element.style.height = (expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
+        element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
 
         if (typeof this.options.blockProcessed === 'function') {
           this.options.blockProcessed(element, true);
@@ -243,7 +246,7 @@ class Readmore {
   }
 
   toggle(trigger, element, event) {
-    var expanded, newHeight, toggleLink, transitionendHandler;
+    let expanded, newHeight, toggleLink, transitionendHandler;
 
     if (event) event.preventDefault();
 
@@ -261,7 +264,7 @@ class Readmore {
       this.options.beforeToggle(trigger, element, !expanded);
     }
 
-    element.style.height = newHeight + 'px';
+    element.style.height = `${newHeight}px`;
 
     transitionendHandler = (event) => {
       // Fire afterToggle callback
