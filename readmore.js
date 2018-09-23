@@ -218,6 +218,10 @@
           current.css({
             height: collapsedHeight
           });
+        } else {
+          current.css({
+            height: current.height()
+          });
         }
 
         if (this.options.blockProcessed && typeof this.options.blockProcessed === 'function') {
