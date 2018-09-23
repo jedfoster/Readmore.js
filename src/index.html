@@ -234,21 +234,16 @@ article {
   <script src="readmore.js"></script>
 
   <script>
-    new Readmore('#info', {
-      moreLink: '<a href="#">Usage, examples, and options</a>',
+    new Readmore('article', {
       collapsedHeight: 384,
-      afterToggle: function(trigger, element, expanded) {
+      speed: 500,
+      afterToggle: function() {
         console.log('afterToggle called', arguments);
-        if(! expanded) { // The "Close" link was clicked
-          $('html, body').animate({scrollTop: element.offset().top}, {duration: 100});
-        }
       },
       beforeToggle: function() {
         console.log('beforeToggle called', arguments);
       }
     });
-
-    new Readmore('article', {speed: 500});
   </script>
 </body>
 </html>

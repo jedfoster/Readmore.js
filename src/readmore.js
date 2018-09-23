@@ -9,7 +9,6 @@
  * Debounce function from http://davidwalsh.name/javascript-debounce-function
  */
 
-
 function forEach(array, callback, scope) {
   let i = 0;
   for (i; i < array.length; i++) {
