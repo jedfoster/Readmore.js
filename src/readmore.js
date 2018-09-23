@@ -231,7 +231,10 @@ class Readmore {
   }
 
   toggle(trigger, element, event) {
-    if (event) event.preventDefault();
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
 
     // this.element only exists for jQuery-ified elements, may not make sense now
     // trigger = trigger || document.querySelector('[aria-controls="' + this.element.id + '"]');
