@@ -113,10 +113,8 @@ function createElementFromString(htmlString) {
 }
 
 function embedCSS(options) {
-  let styles;
-
   if (!isCssEmbeddedFor[options.selector]) {
-    styles = ' ';
+    let styles = ' ';
 
     if (options.embedCSS && options.blockCSS !== '') {
       styles += `${options.selector} + [data-readmore-toggle], ${options.selector}[data-readmore] {
@@ -162,7 +160,8 @@ function buildToggle(link, element, scope) {
 }
 
 function isEnvironmentSupported() {
-  return !!document.querySelectorAll && !!window.addEventListener;
+  return (typeof window !== 'undefined' && typeof document !== 'undefined') &&
+    !!document.querySelectorAll && !!window.addEventListener;
 }
 
 const resizeBoxes = debounce(function() {
@@ -187,9 +186,9 @@ const defaults = {
   startOpen: false,
 
   // callbacks
-  blockProcessed: function() {},
-  beforeToggle: function() {},
-  afterToggle: function() {}
+  blockProcessed: () => {},
+  beforeToggle: () => {},
+  afterToggle: () => {}
 };
 
 class Readmore {
