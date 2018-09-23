@@ -186,7 +186,9 @@
       var collapsedHeight = current.data('collapsedHeight'),
           heightMargin = current.data('heightMargin');
 
-      if (current.outerHeight(true) <= collapsedHeight + heightMargin) {
+      // fix, if text ends <br> when i get bug   if (current.outerHeight(true) <= collapsedHeight + heightMargin) {
+        // The block is shorter than the limit, so there's no need to truncate it.
+      if (current.outerHeight() <= collapsedHeight + heightMargin) {  
         // The block is shorter than the limit, so there's no need to truncate it.
         if (this.options.blockProcessed && typeof this.options.blockProcessed === 'function') {
           this.options.blockProcessed(current, false);
