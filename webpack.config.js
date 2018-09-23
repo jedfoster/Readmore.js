@@ -5,6 +5,9 @@ module.exports = {
   entry: ['./src/readmore.js'],
   output: {
     path: path.join(__dirname, '/dist/'),
+    library: 'Readmore',
+    libraryExport: 'default',
+    libraryTarget: 'window',
     filename: 'readmore.js'
   },
   devServer: {

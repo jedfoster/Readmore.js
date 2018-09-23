@@ -238,9 +238,13 @@ article {
       moreLink: '<a href="#">Usage, examples, and options</a>',
       collapsedHeight: 384,
       afterToggle: function(trigger, element, expanded) {
+        console.log('afterToggle called', arguments);
         if(! expanded) { // The "Close" link was clicked
           $('html, body').animate({scrollTop: element.offset().top}, {duration: 100});
         }
+      },
+      beforeToggle: function() {
+        console.log('beforeToggle called', arguments);
       }
     });
 
