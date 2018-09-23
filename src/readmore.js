@@ -141,12 +141,12 @@ function buildToggle(link, element, scope) {
     this.toggle(event.target, element, event);
   }
 
-  const toggle = createElementFromString(link);
-  toggle.setAttribute('data-readmore-toggle', element.id);
-  toggle.setAttribute('aria-controls', element.id);
-  toggle.addEventListener('click', clickHandler.bind(scope));
+  const toggleLink = createElementFromString(link);
+  toggleLink.setAttribute('data-readmore-toggle', element.id);
+  toggleLink.setAttribute('aria-controls', element.id);
+  toggleLink.addEventListener('click', clickHandler.bind(scope));
 
-  return toggle;
+  return toggleLink;
 }
 
 function isEnvironmentSupported() {
