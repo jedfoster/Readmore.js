@@ -9,28 +9,25 @@
  * Debounce function from http://davidwalsh.name/javascript-debounce-function
  */
 
-function forEach(array, callback, scope) {
-  let i = 0;
-  for (i; i < array.length; i++) {
-    callback.call(scope, i, array[i]);
-  }
-}
+let uniqueIdCounter = 0;
 
-function extend(child, parent) {
-  let args, c1, hasProp, key, p1;
+const isCssEmbeddedFor = [];
 
-  hasProp = {}.hasOwnProperty;
+function extend(...objects) {
+  const hasProp = {}.hasOwnProperty;
+  let child = objects[0];
+  let parent = objects[1];
 
-  if (arguments.length > 2) {
-    args = [];
+  if (objects.length > 2) {
+    const args = [];
 
-    forEach(arguments, function(i, value) {
+    objects.forEach((value) => {
       args.push(value);
     });
 
     while (args.length > 2) {
-      c1 = args.shift();
-      p1 = args.shift();
+      const c1 = args.shift();
+      const p1 = args.shift();
       args.unshift(extend(c1, p1));
     }
 
@@ -38,7 +35,7 @@ function extend(child, parent) {
     parent = args.shift();
   }
 
-  for (key in parent) {
+  Object.keys(parent).forEach((key) => {
     if (hasProp.call(parent, key)) {
       if (typeof parent[key] === 'object') {
         child[key] = child[key] || {};
@@ -47,7 +44,7 @@ function extend(child, parent) {
         child[key] = parent[key];
       }
     }
-  }
+  });
 
   return child;
 }
@@ -55,13 +52,9 @@ function extend(child, parent) {
 function debounce(func, wait, immediate) {
   let timeout;
 
-  return function() {
-    var args, callNow, context, later;
-
-    args = arguments;
-    callNow = immediate && !timeout;
-    // context = this;
-    later = () => {
+  return function debouncedFunc(...args) {
+    const callNow = immediate && !timeout;
+    const later = () => {
       timeout = null;
       if (!immediate) func.apply(this, args);
     };
@@ -73,16 +66,14 @@ function debounce(func, wait, immediate) {
   };
 }
 
-function uniqueId(prefix) {
-  const id = ++uniqueIdCounter;
+function uniqueId(prefix = 'rmjs-') {
+  uniqueIdCounter += 1;
 
-  return `${prefix ? prefix : 'rmjs-'}${id}`;
+  return `${prefix}${uniqueIdCounter}`;
 }
 
 function setBoxHeights(element) {
-  let clonedElement, cssMaxHeight, defaultHeight, expandedHeight, width;
-
-  clonedElement = element.cloneNode(true);
+  const clonedElement = element.cloneNode(true);
   clonedElement.style.height = 'auto';
   clonedElement.style.width = element.getBoundingClientRect().width;
   clonedElement.style.overflow = 'hidden';
@@ -91,9 +82,9 @@ function setBoxHeights(element) {
 
   clonedElement.style.maxHeight = 'none';
 
-  expandedHeight = parseInt(clonedElement.getBoundingClientRect().height, 10);
-  cssMaxHeight = parseInt(getComputedStyle(clonedElement).maxHeight, 10);
-  defaultHeight = parseInt(element.readmore.defaultHeight, 10);
+  const expandedHeight = parseInt(clonedElement.getBoundingClientRect().height, 10);
+  const cssMaxHeight = parseInt(getComputedStyle(clonedElement).maxHeight, 10);
+  const defaultHeight = parseInt(element.readmore.defaultHeight, 10);
 
   element.parentNode.removeChild(clonedElement);
 
@@ -128,28 +119,27 @@ function embedCSS(options) {
       overflow: hidden;
     }`;
 
-    (function(d, u) {
+    (((d, u) => {
       const css = d.createElement('style');
       css.type = 'text/css';
 
       if (css.styleSheet) {
         css.styleSheet.cssText = u;
-      }
-      else {
+      } else {
         css.appendChild(d.createTextNode(u));
       }
 
       d.getElementsByTagName('head')[0].appendChild(css);
-    }(document, styles));
+    })(document, styles));
 
     isCssEmbeddedFor[options.selector] = true;
   }
 }
 
 function buildToggle(link, element, scope) {
-  const clickHandler = function(event) {
+  function clickHandler(event) {
     this.toggle(event.target, element, event);
-  };
+  }
 
   const toggle = createElementFromString(link);
   toggle.setAttribute('data-readmore-toggle', element.id);
@@ -160,20 +150,19 @@ function buildToggle(link, element, scope) {
 }
 
 function isEnvironmentSupported() {
-  return (typeof window !== 'undefined' && typeof document !== 'undefined') &&
-    !!document.querySelectorAll && !!window.addEventListener;
+  return (typeof window !== 'undefined' && typeof document !== 'undefined')
+    && !!document.querySelectorAll && !!window.addEventListener;
 }
 
-const resizeBoxes = debounce(function() {
-  forEach(document.querySelectorAll('[data-readmore]'), (i, element) => {
+const resizeBoxes = debounce(() => {
+  document.querySelectorAll('[data-readmore]').forEach((element) => {
     setBoxHeights(element);
 
-    element.style.height = `${(element.getAttribute('aria-expanded') === 'true') ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
+    const expanded = element.getAttribute('aria-expanded') === 'true';
+
+    element.style.height = `${(expanded) ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
   });
 }, 100);
-const isCssEmbeddedFor = [];
-
-let uniqueIdCounter = 0;
 
 const defaults = {
   speed: 100,
@@ -202,12 +191,10 @@ class Readmore {
 
     // Need to resize boxes when the page has fully loaded.
     window.addEventListener('load', resizeBoxes);
-    window.addEventListener('resize', resizeBoxes)
+    window.addEventListener('resize', resizeBoxes);
 
-    forEach(document.querySelectorAll(selector), (i, element) => {
-      let expanded, heightMargin, id, toggleLink;
-
-      expanded = this.options.startOpen;
+    document.querySelectorAll(selector).forEach((element) => {
+      const expanded = this.options.startOpen;
 
       element.readmore = {
         defaultHeight: this.options.collapsedHeight,
@@ -216,7 +203,7 @@ class Readmore {
 
       setBoxHeights(element);
 
-      heightMargin = element.readmore.heightMargin;
+      const { heightMargin } = element.readmore;
 
       if (element.getBoundingClientRect().height <= element.readmore.collapsedHeight + heightMargin) {
         if (typeof this.options.blockProcessed === 'function') {
@@ -224,37 +211,34 @@ class Readmore {
         }
         return;
       }
-      else {
-        id = element.id || uniqueId();
 
-        element.setAttribute('data-readmore', '');
-        element.setAttribute('aria-expanded', expanded);
-        element.id = id;
+      const id = element.id || uniqueId();
 
-        toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
+      element.setAttribute('data-readmore', '');
+      element.setAttribute('aria-expanded', expanded);
+      element.id = id;
 
-        element.parentNode.insertBefore(buildToggle(toggleLink, element, this), element.nextSibling);
+      const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
-        element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
+      element.parentNode.insertBefore(buildToggle(toggleLink, element, this), element.nextSibling);
 
-        if (typeof this.options.blockProcessed === 'function') {
-          this.options.blockProcessed(element, true);
-        }
+      element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
+
+      if (typeof this.options.blockProcessed === 'function') {
+        this.options.blockProcessed(element, true);
       }
     }, this);
   }
 
   toggle(trigger, element, event) {
-    let expanded, newHeight, toggleLink, transitionendHandler;
-
     if (event) event.preventDefault();
 
     // this.element only exists for jQuery-ified elements, may not make sense now
     // trigger = trigger || document.querySelector('[aria-controls="' + this.element.id + '"]');
     // element = element || this.element;
 
-    expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
-    newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
+    const expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
+    const newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
 
     // Fire beforeToggle callback
     // Since we determined the new "expanded" state above we're now out of sync
@@ -265,25 +249,26 @@ class Readmore {
 
     element.style.height = `${newHeight}px`;
 
-    transitionendHandler = (event) => {
+    const transitionendHandler = (transitionEvent) => {
       // Fire afterToggle callback
       if (typeof this.options.afterToggle === 'function') {
         this.options.afterToggle(trigger, element, expanded);
       }
 
-      event.target.setAttribute('aria-expanded', expanded);
-      event.target.removeEventListener('transitionend', transitionendHandler);
+      transitionEvent.target.setAttribute('aria-expanded', expanded);
+      transitionEvent.target.removeEventListener('transitionend', transitionendHandler);
     };
 
     element.addEventListener('transitionend', transitionendHandler.bind(this));
 
-    toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
+    const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
     trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
   }
 
   destroy() {
     // TBD
+    console.warn(this);
   }
 }
 
