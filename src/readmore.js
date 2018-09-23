@@ -230,15 +230,20 @@ class Readmore {
     }, this);
   }
 
-  toggle(trigger, element, event) {
+  // Signature when called internally by the toggleLink click handler:
+  //   toggle(trigger, element, event)
+  //
+  // When called externally by an instance, e.g. readmoreDemo.toggle(document.querySelector('article:nth-of-type(1)')):
+  //   toggle(element)
+  toggle(...args) {
+    const element = args[1] || args.shift();
+    const trigger = args[0] || document.querySelector(`[aria-controls="${element.id}"]`);
+    const event = args[2];
+
     if (event) {
       event.preventDefault();
       event.stopPropagation();
     }
-
-    // this.element only exists for jQuery-ified elements, may not make sense now
-    // trigger = trigger || document.querySelector('[aria-controls="' + this.element.id + '"]');
-    // element = element || this.element;
 
     const expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
     const newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;

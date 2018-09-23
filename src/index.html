@@ -227,14 +227,14 @@ article {
   <script src="readmore.js"></script>
 
   <script>
-    new Readmore('article', {
+    var demo = new Readmore('article', {
       collapsedHeight: 384,
       speed: 500,
       afterToggle: function() {
-        console.log('afterToggle called', arguments);
+        // console.log('afterToggle called', arguments);
       },
       beforeToggle: function() {
-        console.log('beforeToggle called', arguments);
+        // console.log('beforeToggle called', arguments);
       }
     });
   </script>
