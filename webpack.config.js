@@ -1,4 +1,16 @@
 const path = require('path');
+const webpack = require('webpack');
+const pkg = require('./package.json');
+
+const banner = ` @preserve
+
+Readmore.js plugin
+Author: @jed_foster
+Project home: jedfoster.com/Readmore.js
+Version: ${pkg.version}
+Licensed under the MIT license
+
+Debounce function from davidwalsh.name/javascript-debounce-function`;
 
 module.exports = {
   cache: true,
@@ -37,5 +49,9 @@ module.exports = {
         ]
       }
     ]
-  }
+  },
+  plugins: [
+    // Add banner to built code
+    new webpack.BannerPlugin(banner)
+  ]
 };

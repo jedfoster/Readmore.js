@@ -1,14 +1,3 @@
-/*!
- * @preserve
- *
- * Readmore.js plugin
- * Author: @jed_foster
- * Project home: http://jedfoster.github.io/Readmore.js
- * Licensed under the MIT license
- *
- * Debounce function from http://davidwalsh.name/javascript-debounce-function
- */
-
 let uniqueIdCounter = 0;
 
 const isCssEmbeddedFor = [];
@@ -286,5 +275,7 @@ class Readmore {
     console.warn(this);
   }
 }
+
+Readmore.VERSION = __VERSION__;
 
 export default Readmore;
