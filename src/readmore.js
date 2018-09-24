@@ -73,20 +73,11 @@ function uniqueId(prefix = 'rmjs-') {
 }
 
 function setBoxHeights(element) {
-  const clonedElement = element.cloneNode(true);
-  clonedElement.style.height = 'auto';
-  clonedElement.style.width = element.getBoundingClientRect().width;
-  clonedElement.style.overflow = 'hidden';
+  element.style.height = 'auto';
 
-  element.parentNode.insertBefore(clonedElement, element);
-
-  clonedElement.style.maxHeight = 'none';
-
-  const expandedHeight = parseInt(clonedElement.getBoundingClientRect().height, 10);
-  const cssMaxHeight = parseInt(getComputedStyle(clonedElement).maxHeight, 10);
+  const expandedHeight = parseInt(element.getBoundingClientRect().height, 10);
+  const cssMaxHeight = parseInt(window.getComputedStyle(element).maxHeight, 10);
   const defaultHeight = parseInt(element.readmore.defaultHeight, 10);
-
-  element.parentNode.removeChild(clonedElement);
 
   // Store our measurements.
   element.readmore.expandedHeight = expandedHeight;
@@ -156,11 +147,11 @@ function isEnvironmentSupported() {
 
 const resizeBoxes = debounce(() => {
   document.querySelectorAll('[data-readmore]').forEach((element) => {
-    setBoxHeights(element);
-
     const expanded = element.getAttribute('aria-expanded') === 'true';
 
-    element.style.height = `${(expanded) ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
+    setBoxHeights(element);
+
+    element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
   });
 }, 100);
 
