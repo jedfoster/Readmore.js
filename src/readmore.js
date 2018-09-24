@@ -273,11 +273,17 @@ class Readmore {
         this.options.afterToggle(trigger, element, expanded);
       }
 
-      transitionEvent.target.setAttribute('aria-expanded', expanded);
-      transitionEvent.target.removeEventListener('transitionend', transitionendHandler);
+      transitionEvent.stopPropagation();
+
+      element.setAttribute('aria-expanded', expanded);
+      element.removeEventListener('transitionend', transitionendHandler, false);
     };
 
-    element.addEventListener('transitionend', transitionendHandler.bind(this));
+    element.addEventListener('transitionend', transitionendHandler, false);
+
+    if (this.options.speed < 1) {
+      transitionendHandler.call(this, { target: element });
+    }
 
     const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
