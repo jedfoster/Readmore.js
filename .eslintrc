@@ -1,0 +1,47 @@
+{
+  "extends": "airbnb-base",
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true
+  },
+  "globals": {
+    "describe": true,
+    "it": true,
+    "__VERSION__": true
+  },
+  "rules": {
+    "arrow-parens": "off",
+    "indent": [2, 2, { "SwitchCase": 1, "VariableDeclarator": 1 }],
+    "comma-dangle": [2, "never"],
+    "id-length": [2, {"min": 1, "properties": "never", "exceptions": ["_", "i"]}],
+    "max-len": [2, 130, 2, {
+      "ignoreUrls": true,
+      "ignoreComments": false
+    }],
+    "consistent-return": ["warn", { "treatUndefinedAsUnspecified": false }],
+    "global-require": "off",
+    "linebreak-style": "off",
+    "import/extensions": "off",
+    "import/first": "off",
+    "import/no-dynamic-require": "off",
+    "import/no-unresolved": "off",
+    "import/no-extraneous-dependencies": "off",
+    "no-await-in-loop": "off",
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "no-underscore-dangle": "off",
+    "no-useless-escape": "off",
+    "no-param-reassign": [2, { "props": false }]
+  },
+  "settings": {
+    "import/resolver": {
+      "babel-module": {
+        "root": ["./src"]
+      }
+    }
+  },
+  "parserOptions": {
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  }
+}
