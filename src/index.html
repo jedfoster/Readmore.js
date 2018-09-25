@@ -74,10 +74,13 @@
     var demo = new Readmore('article', {
       collapsedHeight: 384,
       speed: 500,
-      afterToggle: function() {
+      afterToggle: function(trigger, element, expanded) {
+        if(!expanded) { // The "Close" link was clicked
+          window.scrollTo({top: element.offsetTop, behavior: 'smooth'})
+        }
         // console.log('afterToggle called', arguments);
       },
-      beforeToggle: function() {
+      beforeToggle: function(trigger, element, expanded) {
         // console.log('beforeToggle called', arguments);
       }
     });

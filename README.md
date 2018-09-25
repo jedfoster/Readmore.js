@@ -1,10 +1,13 @@
-# Readmore.js
+# Readmore.js -- v3.0.0-alpha
 
-A smooth, responsive jQuery plugin for collapsing and expanding long blocks of text with "Read more" and "Close" links.
+A smooth, responsive JavaScript plugin for collapsing and expanding long blocks of text with "Read more" and "Close" links.
 
-The markup Readmore.js requires is so simple, you can probably use it with your existing HTML—there's no need for complicated sets of `div`'s or hardcoded classes, just call `.readmore()` on the element containing your block of text and Readmore.js takes care of the rest. Readmore.js plays well in a responsive environment, too.
+The markup Readmore.js requires is so simple, you can probably use it with your existing HTML—there's no need for complicated sets of `div`'s or hardcoded classes, just call `new Readmore()` on the element containing your block of text and Readmore.js takes care of the rest. Readmore.js works well on mobile and plays nicely with responsive designs, too.
 
-Readmore.js is tested with—and supported on—all versions of jQuery greater than 1.9.1. All the "good" browsers are supported, as well as IE10+; IE8 & 9 _should_ work, but are not supported and the experience will not be ideal.
+Readmore.js has no external dependencies (no more jQuery—yay!) and works in all the "good" browsers, as well as IE10+; IE9 _should_ work, but is not supported and the experience will not be ideal.
+
+
+**NOTE: This documentation is for the alpha releases of the next version of Readmore.js. As such, this information is subject to frequent changes and may not accurately reflect the current state of the project.**
 
 
 ## Install
@@ -12,13 +15,13 @@ Readmore.js is tested with—and supported on—all versions of jQuery greater t
 Install Readmore.js with npm:
 
 ```
-$ npm install readmore-js
+$ npm install readmore-js@next
 ```
 
 Then include it in your HTML:
 
 ```html
-<script src="/node_modules/readmore-js/readmore.min.js"></script>
+<script src="/node_modules/readmore-js/dist/readmore.js"></script>
 ```
 
 Or, using Webpack or Browserify:
@@ -28,22 +31,22 @@ require('readmore-js');
 ```
 
 
-## Use
+## Usage
 
 ```javascript
-$('article').readmore();
+new Readmore('article');
 ```
 
 It's that simple. You can change the speed of the animation, the height of the collapsed block, and the open and close elements.
 
 ```javascript
-$('article').readmore({
+new Readmore('article', {
   speed: 75,
   lessLink: '<a href="#">Read less</a>'
 });
 ```
 
-### The options:
+## Options
 
 * `speed: 100` in milliseconds
 * `collapsedHeight: 200` in pixels
@@ -53,13 +56,13 @@ $('article').readmore({
 * `embedCSS: true` insert required CSS dynamically, set this to `false` if you include the necessary CSS in a stylesheet
 * `blockCSS: 'display: block; width: 100%;'` sets the styling of the blocks, ignored if `embedCSS` is `false`
 * `startOpen: false` do not immediately truncate, start in the fully opened position
+* `blockProcessed: function() {}` called once per block during initilization after Readmore.js has processed the block.
 * `beforeToggle: function() {}` called after a more or less link is clicked, but *before* the block is collapsed or expanded
 * `afterToggle: function() {}` called *after* the block is collapsed or expanded
-* `blockProcessed: function() {}` called once per block during initilization after Readmore.js has processed the block.
 
 If the element has a `max-height` CSS property, Readmore.js will use that value rather than the value of the `collapsedHeight` option.
 
-### The callbacks:
+### Callbacks
 
 The `beforeToggle` and `afterToggle` callbacks both receive the same arguments: `trigger`, `element`, and `expanded`.
 
@@ -72,41 +75,106 @@ The `blockProcessed` callback receives `element` and `collapsable`.
 * `element`: the block that has just been processed
 * `collapsable`: Boolean; `false` means the block was shorter than the specified minimum `collapsedHeight`--the block will not have a "Read more" link
 
-#### Callback example:
-
 Here's an example of how you could use the `afterToggle` callback to scroll back to the top of a block when the "Close" link is clicked.
 
 ```javascript
-$('article').readmore({
+new Readmore('article', {
   afterToggle: function(trigger, element, expanded) {
-    if(! expanded) { // The "Close" link was clicked
-      $('html, body').animate( { scrollTop: element.offset().top }, {duration: 100 } );
+    if(!expanded) { // The "Close" link was clicked
+      window.scrollTo({top: element.offsetTop, behavior: 'smooth'});
     }
   }
 });
 ```
 
-### Removing Readmore:
+
+## API
+
+The `Readmore` class constructor and all methods accept as arguments, either:
+
+* `selector String` valid CSS selectors; e.g. `'blockquote'`, `'.truncate-block'`, or `'#blog .section'`
+* `Element` a single Element object; e.g. return value of `document.getElementById('blog')`
+* `NodeList` a NodeList collection of Elements; e.g. return value of `document.querySelectorAll('article')`
+
+`toggle()` and `destroy()` are available as both instance and static methods. When either is called as an instance method it will only operate on blocks that are members of that instance.
+
+
+### Constructor
+
+```javascript
+new Readmore(selector String | Element | NodeList);
+```
+
+### toggle
+
+Toggle a block programmatically.
+
+```javascript
+// As instance method
+rmjs.toggle(selector String | Element | NodeList);
+
+// As static method
+Readmore.toggle(selector String | Element | NodeList);
+```
+
+When called as an instance method, `toggle()` will only operate on blocks that are members of that instance.
+
+You can toggle a block from code:
+
+```javascript
+// Store a reference to an instance of Readmore
+var rmjsInstance = new Readmore('article');
+
+rmjsInstance.toggle('article:first-child')
+```
+
+### destroy
+
+Remove Readmore.js functionality from specific blocks or all blocks.
+
+**NOTE:** This API is not final and may change.
+
+```javascript
+// As instance method
+rmjs.destroy(null | selector String | Element | NodeList);
+
+// As static method
+Readmore.destroy(null | selector String | Element | NodeList);
+```
+
+When invoked with `null`, will remove Readmore.js functionality from all blocks.
 
 You can remove the Readmore.js functionality like so:
 
 ```javascript
-$('article').readmore('destroy');
+// Store a reference to an instance of Readmore
+var rmjsInstance = new Readmore('article');
+
+// Now call destroy on the instance
+rmjsInstance.destroy();
 ```
 
 Or, you can be more surgical by specifying a particular element:
 
 ```javascript
-$('article:first').readmore('destroy');
+// Store a reference to an instance of Readmore
+var rmjsInstance = new Readmore('article');
+
+// Now remove Readmore from just the first block
+rmjsInstance.destroy(document.querySelector('article:first-child'));
 ```
 
-### Toggling blocks programmatically:
-
-You can toggle a block from code:
+You can call `destroy` as a static method:
 
 ```javascript
-$('article:nth-of-type(3)').readmore('toggle');
+// Init Readmore, _without_ storing a reference to the instance
+new Readmore('article');
+
+// Now call destroy as a static method, supplying the same selector used to init Readmore
+Readmore.destroy('article');
 ```
+
+If you have multiple instances of Readmore—multiple calls to `new Readmore()`—invoking `destroy` statically _could_ remove functionality from more blocks than intended if you aren't careful with your selector. Passing an Element or NodeList might be safer.
 
 
 ## CSS:
@@ -122,18 +190,18 @@ selector + [data-readmore-toggle], selector[data-readmore] {
 }
 ```
 
-_`selector` would be the element you invoked `readmore()` on, e.g.: `$('selector').readmore()`_
+_`selector` would be the element you invoked `readmore()` on, e.g.: `new Readmore('selector')`_
 
 You can override the base rules when you set up Readmore.js like so:
 
 ```javascript
-$('article').readmore({blockCSS: 'display: inline-block; width: 50%;'});
+new Readmore('article', {blockCSS: 'display: inline-block; width: 50%;'});
 ```
 
 If you want to include the necessary styling in your site's stylesheet, you can disable the dynamic embedding by setting `embedCSS` to `false`:
 
 ```javascript
-$('article').readmore({embedCSS: false});
+new Readmore('article', {embedCSS: false});
 ```
 
 ### Media queries and other CSS tricks:
@@ -180,4 +248,3 @@ Which will install the necessary development dependencies. Then, to build the mi
 ```
 $ npm run build
 ```
-
