@@ -1,3 +1,9 @@
+# [Readmore.js V3 alpha](https://github.com/jedfoster/Readmore.js/tree/version-3.0)
+
+I am deprecating the 2.x version of Readmore.js. A new version is coming soon! [Check it out](https://github.com/jedfoster/Readmore.js/tree/version-3.0) and help me test it!
+
+---
+
 # Readmore.js
 
 A smooth, responsive jQuery plugin for collapsing and expanding long blocks of text with "Read more" and "Close" links.
