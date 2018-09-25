@@ -1,6 +1,6 @@
 {
   "name": "readmore-js",
-  "version": "3.0.0-alpha-1",
+  "version": "3.0.0-alpha-2",
   "description": "A lightweight JavaScript plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links.",
   "main": "readmore.js",
   "files": [
@@ -13,7 +13,8 @@
     "watch": "./node_modules/webpack/bin/webpack.js --watch",
     "compress": "echo \"Error: no compress script\" && exit 1 # ./node_modules/uglify-js/bin/uglifyjs ./build/js/app.js -cmv --screw-ie8 -o ./build/js/app.js",
     "lint": "./node_modules/eslint/bin/eslint.js --cache .",
-    "precommit": "npm run lint #&& npm run test"
+    "precommit": "npm run lint #&& npm run test",
+    "prepublish": "npm run build"
   },
   "repository": {
     "type": "git",
