@@ -96,9 +96,6 @@ The `Readmore` class constructor and all methods accept as arguments, either:
 * `Element` a single Element object; e.g. return value of `document.getElementById('blog')`
 * `NodeList` a NodeList collection of Elements; e.g. return value of `document.querySelectorAll('article')`
 
-`toggle()` and `destroy()` are available as both instance and static methods. When either is called as an instance method it will only operate on blocks that are members of that instance.
-
-
 ### Constructor
 
 ```javascript
@@ -112,20 +109,15 @@ Toggle a block programmatically.
 ```javascript
 // As instance method
 rmjs.toggle(selector String | Element | NodeList);
-
-// As static method
-Readmore.toggle(selector String | Element | NodeList);
 ```
-
-When called as an instance method, `toggle()` will only operate on blocks that are members of that instance.
 
 You can toggle a block from code:
 
 ```javascript
 // Store a reference to an instance of Readmore
-var rmjsInstance = new Readmore('article');
+var rmjs = new Readmore('article');
 
-rmjsInstance.toggle('article:first-child')
+rmjs.toggle('article:first-child')
 ```
 
 ### destroy
@@ -137,9 +129,6 @@ Remove Readmore.js functionality from specific blocks or all blocks.
 ```javascript
 // As instance method
 rmjs.destroy(null | selector String | Element | NodeList);
-
-// As static method
-Readmore.destroy(null | selector String | Element | NodeList);
 ```
 
 When invoked with `null`, will remove Readmore.js functionality from all blocks.
@@ -148,10 +137,10 @@ You can remove the Readmore.js functionality like so:
 
 ```javascript
 // Store a reference to an instance of Readmore
-var rmjsInstance = new Readmore('article');
+var rmjs = new Readmore('article');
 
 // Now call destroy on the instance
-rmjsInstance.destroy();
+rmjs.destroy();
 ```
 
 Or, you can be more surgical by specifying a particular element:
@@ -163,18 +152,6 @@ var rmjsInstance = new Readmore('article');
 // Now remove Readmore from just the first block
 rmjsInstance.destroy(document.querySelector('article:first-child'));
 ```
-
-You can call `destroy` as a static method:
-
-```javascript
-// Init Readmore, _without_ storing a reference to the instance
-new Readmore('article');
-
-// Now call destroy as a static method, supplying the same selector used to init Readmore
-Readmore.destroy('article');
-```
-
-If you have multiple instances of Readmore—multiple calls to `new Readmore()`—invoking `destroy` statically _could_ remove functionality from more blocks than intended if you aren't careful with your selector. Passing an Element or NodeList might be safer.
 
 
 ## CSS:
