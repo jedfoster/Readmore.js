@@ -163,6 +163,8 @@ const defaults = {
 class Readmore {
   constructor(selector, options) {
     if (!isEnvironmentSupported()) return;
+    const selectors = document.querySelectorAll(selector);
+    if (!selectors.length) return;
 
     this.options = extend({}, defaults, options);
     this.options.selector = selector;
@@ -173,7 +175,7 @@ class Readmore {
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    document.querySelectorAll(selector).forEach((element) => {
+    selectors.forEach((element) => {
       const expanded = this.options.startOpen;
 
       element.readmore = {

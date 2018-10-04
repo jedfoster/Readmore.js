@@ -275,6 +275,8 @@ var Readmore = function () {
     _classCallCheck(this, Readmore);
 
     if (!isEnvironmentSupported()) return;
+    var selectors = document.querySelectorAll(selector);
+    if (!selectors.length) return;
 
     this.options = extend({}, defaults, options);
     this.options.selector = selector;
@@ -285,7 +287,7 @@ var Readmore = function () {
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    document.querySelectorAll(selector).forEach(function (element) {
+    selectors.forEach(function (element) {
       var expanded = _this2.options.startOpen;
 
       element.readmore = {
