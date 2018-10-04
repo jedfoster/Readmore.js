@@ -275,8 +275,8 @@ var Readmore = function () {
     _classCallCheck(this, Readmore);
 
     if (!isEnvironmentSupported()) return;
-    var selectors = document.querySelectorAll(selector);
-    if (!selectors.length) return;
+    var elements = document.querySelectorAll(selector);
+    if (!elements.length) return;
 
     this.options = extend({}, defaults, options);
     this.options.selector = selector;
@@ -287,7 +287,7 @@ var Readmore = function () {
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    selectors.forEach(function (element) {
+    elements.forEach(function (element) {
       var expanded = _this2.options.startOpen;
 
       element.readmore = {
@@ -392,7 +392,11 @@ var Readmore = function () {
 
       var toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
-      trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+      if (!toggleLink) {
+        trigger.remove();
+      } else {
+        trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+      }
     }
   }, {
     key: 'destroy',

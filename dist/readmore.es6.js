@@ -163,8 +163,8 @@ const defaults = {
 class Readmore {
   constructor(selector, options) {
     if (!isEnvironmentSupported()) return;
-    const selectors = document.querySelectorAll(selector);
-    if (!selectors.length) return;
+    const elements = document.querySelectorAll(selector);
+    if (!elements.length) return;
 
     this.options = extend({}, defaults, options);
     this.options.selector = selector;
@@ -175,7 +175,7 @@ class Readmore {
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    selectors.forEach((element) => {
+    elements.forEach((element) => {
       const expanded = this.options.startOpen;
 
       element.readmore = {
@@ -269,7 +269,11 @@ class Readmore {
 
     const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
-    trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+    if (!toggleLink) {
+      trigger.remove();
+    } else {
+      trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+    }
   }
 
   destroy() {

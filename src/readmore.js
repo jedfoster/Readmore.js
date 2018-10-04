@@ -269,7 +269,11 @@ class Readmore {
 
     const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
-    trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+    if (!toggleLink) {
+      trigger.remove();
+    } else {
+      trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+    }
   }
 
   destroy() {
