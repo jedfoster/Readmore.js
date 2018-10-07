@@ -66,10 +66,10 @@
     };
   }
 
-  function uniqueId(prefix) {
+  function uniqueId() {
     var id = ++uniqueIdCounter;
 
-    return String(prefix === null ? 'rmjs-' : prefix) + id;
+    return String('rmjs-' + id);
   }
 
   function setBoxHeights(element) {
