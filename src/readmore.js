@@ -2,6 +2,24 @@ let uniqueIdCounter = 0;
 
 const isCssEmbeddedFor = [];
 
+// from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
+(function (arr) {
+  arr.forEach(function (item) {
+    if (item.hasOwnProperty('remove')) {
+      return;
+    }
+    Object.defineProperty(item, 'remove', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: function remove() {
+        if (this.parentNode !== null)
+          this.parentNode.removeChild(this);
+      }
+    });
+  });
+})([Element.prototype, CharacterData.prototype, DocumentType.prototype]);
+
 function extend(...objects) {
   const hasProp = {}.hasOwnProperty;
   let child = objects[0];
@@ -10,8 +28,8 @@ function extend(...objects) {
   if (objects.length > 2) {
     const args = [];
 
-    objects.forEach((value) => {
-      args.push(value);
+    Object.keys(objects).forEach((key) => {
+      args.push(objects[key]);
     });
 
     while (args.length > 2) {
@@ -135,13 +153,15 @@ function isEnvironmentSupported() {
 }
 
 const resizeBoxes = debounce(() => {
-  document.querySelectorAll('[data-readmore]').forEach((element) => {
+  const elements = document.querySelectorAll('[data-readmore]');
+  for(var i = 0; i < elements.length; i++){
+    const element = elements[i];
     const expanded = element.getAttribute('aria-expanded') === 'true';
 
     setBoxHeights(element);
 
     element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
-  });
+  };
 }, 100);
 
 const defaults = {
@@ -175,7 +195,8 @@ class Readmore {
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    elements.forEach((element) => {
+    for(var i = 0; i < elements.length; i++){
+      const element = elements[i];
       const expanded = this.options.startOpen;
 
       element.readmore = {
@@ -209,7 +230,7 @@ class Readmore {
       if (typeof this.options.blockProcessed === 'function') {
         this.options.blockProcessed(element, true);
       }
-    }, this);
+    };
   }
 
   // Signature when called internally by the toggleLink click handler:

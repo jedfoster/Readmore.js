@@ -103,21 +103,37 @@ var uniqueIdCounter = 0;
 
 var isCssEmbeddedFor = [];
 
-function extend() {
-  var hasProp = {}.hasOwnProperty;
+// from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
+(function (arr) {
+  arr.forEach(function (item) {
+    if (item.hasOwnProperty('remove')) {
+      return;
+    }
+    Object.defineProperty(item, 'remove', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: function remove() {
+        if (this.parentNode !== null) this.parentNode.removeChild(this);
+      }
+    });
+  });
+})([Element.prototype, CharacterData.prototype, DocumentType.prototype]);
 
+function extend() {
   for (var _len = arguments.length, objects = Array(_len), _key = 0; _key < _len; _key++) {
     objects[_key] = arguments[_key];
   }
 
+  var hasProp = {}.hasOwnProperty;
   var child = objects[0];
   var parent = objects[1];
 
   if (objects.length > 2) {
     var args = [];
 
-    objects.forEach(function (value) {
-      args.push(value);
+    Object.keys(objects).forEach(function (key) {
+      args.push(objects[key]);
     });
 
     while (args.length > 2) {
@@ -243,13 +259,15 @@ function isEnvironmentSupported() {
 }
 
 var resizeBoxes = debounce(function () {
-  document.querySelectorAll('[data-readmore]').forEach(function (element) {
+  var elements = document.querySelectorAll('[data-readmore]');
+  for (var i = 0; i < elements.length; i++) {
+    var element = elements[i];
     var expanded = element.getAttribute('aria-expanded') === 'true';
 
     setBoxHeights(element);
 
     element.style.height = (expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
-  });
+  };
 }, 100);
 
 var defaults = {
@@ -270,8 +288,6 @@ var defaults = {
 
 var Readmore = function () {
   function Readmore(selector, options) {
-    var _this2 = this;
-
     _classCallCheck(this, Readmore);
 
     if (!isEnvironmentSupported()) return;
@@ -287,12 +303,13 @@ var Readmore = function () {
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    elements.forEach(function (element) {
-      var expanded = _this2.options.startOpen;
+    for (var i = 0; i < elements.length; i++) {
+      var element = elements[i];
+      var expanded = this.options.startOpen;
 
       element.readmore = {
-        defaultHeight: _this2.options.collapsedHeight,
-        heightMargin: _this2.options.heightMargin
+        defaultHeight: this.options.collapsedHeight,
+        heightMargin: this.options.heightMargin
       };
 
       setBoxHeights(element);
@@ -301,8 +318,8 @@ var Readmore = function () {
 
 
       if (element.getBoundingClientRect().height <= element.readmore.collapsedHeight + heightMargin) {
-        if (typeof _this2.options.blockProcessed === 'function') {
-          _this2.options.blockProcessed(element, false);
+        if (typeof this.options.blockProcessed === 'function') {
+          this.options.blockProcessed(element, false);
         }
         return;
       }
@@ -313,16 +330,16 @@ var Readmore = function () {
       element.setAttribute('aria-expanded', expanded);
       element.id = id;
 
-      var toggleLink = expanded ? _this2.options.lessLink : _this2.options.moreLink;
+      var toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
-      element.parentNode.insertBefore(buildToggle(toggleLink, element, _this2), element.nextSibling);
+      element.parentNode.insertBefore(buildToggle(toggleLink, element, this), element.nextSibling);
 
       element.style.height = (expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
 
-      if (typeof _this2.options.blockProcessed === 'function') {
-        _this2.options.blockProcessed(element, true);
+      if (typeof this.options.blockProcessed === 'function') {
+        this.options.blockProcessed(element, true);
       }
-    }, this);
+    };
   }
 
   // Signature when called internally by the toggleLink click handler:
@@ -336,7 +353,7 @@ var Readmore = function () {
   _createClass(Readmore, [{
     key: 'toggle',
     value: function toggle() {
-      var _this3 = this;
+      var _this2 = this;
 
       for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
         args[_key3] = arguments[_key3];
@@ -374,8 +391,8 @@ var Readmore = function () {
 
       var transitionendHandler = function transitionendHandler(transitionEvent) {
         // Fire afterToggle callback
-        if (typeof _this3.options.afterToggle === 'function') {
-          _this3.options.afterToggle(trigger, element, expanded);
+        if (typeof _this2.options.afterToggle === 'function') {
+          _this2.options.afterToggle(trigger, element, expanded);
         }
 
         transitionEvent.stopPropagation();
