@@ -3,9 +3,9 @@ let uniqueIdCounter = 0;
 const isCssEmbeddedFor = [];
 
 // from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
-(function (arr) {
-  arr.forEach(function (item) {
-    if (item.hasOwnProperty('remove')) {
+((function (arr) {
+  arr.forEach((item) => {
+    if (Object.prototype.hasOwnProperty.call(item, 'remove')) {
       return;
     }
     Object.defineProperty(item, 'remove', {
@@ -13,12 +13,13 @@ const isCssEmbeddedFor = [];
       enumerable: true,
       writable: true,
       value: function remove() {
-        if (this.parentNode !== null)
+        if (this.parentNode !== null) {
           this.parentNode.removeChild(this);
+        }
       }
     });
   });
-})([Element.prototype, CharacterData.prototype, DocumentType.prototype]);
+})([Element.prototype, CharacterData.prototype, DocumentType.prototype]));
 
 function extend(...objects) {
   const hasProp = {}.hasOwnProperty;
@@ -156,14 +157,14 @@ function isEnvironmentSupported() {
 
 const resizeBoxes = debounce(() => {
   const elements = document.querySelectorAll('[data-readmore]');
-  for(var i = 0; i < elements.length; i++){
+  for (let i = 0; i < elements.length; i += 1) {
     const element = elements[i];
     const expanded = element.getAttribute('aria-expanded') === 'true';
 
     setBoxHeights(element);
 
     element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
-  };
+  }
 }, 100);
 
 const defaults = {
@@ -197,7 +198,7 @@ class Readmore {
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    for(var i = 0; i < elements.length; i++){
+    for (let i = 0; i < elements.length; i += 1) {
       const element = elements[i];
       const expanded = this.options.startOpen;
 
@@ -232,7 +233,7 @@ class Readmore {
       if (typeof this.options.blockProcessed === 'function') {
         this.options.blockProcessed(element, true);
       }
-    };
+    }
   }
 
   // Signature when called internally by the toggleLink click handler:

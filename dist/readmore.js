@@ -106,7 +106,7 @@ var isCssEmbeddedFor = [];
 // from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
 (function (arr) {
   arr.forEach(function (item) {
-    if (item.hasOwnProperty('remove')) {
+    if (Object.prototype.hasOwnProperty.call(item, 'remove')) {
       return;
     }
     Object.defineProperty(item, 'remove', {
@@ -114,7 +114,9 @@ var isCssEmbeddedFor = [];
       enumerable: true,
       writable: true,
       value: function remove() {
-        if (this.parentNode !== null) this.parentNode.removeChild(this);
+        if (this.parentNode !== null) {
+          this.parentNode.removeChild(this);
+        }
       }
     });
   });
@@ -262,14 +264,14 @@ function isEnvironmentSupported() {
 
 var resizeBoxes = debounce(function () {
   var elements = document.querySelectorAll('[data-readmore]');
-  for (var i = 0; i < elements.length; i++) {
+  for (var i = 0; i < elements.length; i += 1) {
     var element = elements[i];
     var expanded = element.getAttribute('aria-expanded') === 'true';
 
     setBoxHeights(element);
 
     element.style.height = (expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
-  };
+  }
 }, 100);
 
 var defaults = {
@@ -305,7 +307,7 @@ var Readmore = function () {
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    for (var i = 0; i < elements.length; i++) {
+    for (var i = 0; i < elements.length; i += 1) {
       var element = elements[i];
       var expanded = this.options.startOpen;
 
@@ -341,7 +343,7 @@ var Readmore = function () {
       if (typeof this.options.blockProcessed === 'function') {
         this.options.blockProcessed(element, true);
       }
-    };
+    }
   }
 
   // Signature when called internally by the toggleLink click handler:
