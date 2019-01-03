@@ -243,7 +243,7 @@ function embedCSS(options) {
 
 function buildToggle(link, element, scope) {
   function clickHandler(event) {
-    this.toggle(event.target, element, event);
+    this.toggle(element, event);
   }
 
   var toggleLink = createElementFromString(link);
@@ -343,7 +343,7 @@ var Readmore = function () {
   }
 
   // Signature when called internally by the toggleLink click handler:
-  //   toggle(trigger, element, event)
+  //   toggle(element, event)
   //
   // When called externally by an instance,
   // e.g. readmoreDemo.toggle(document.querySelector('article:nth-of-type(1)')):
@@ -355,11 +355,7 @@ var Readmore = function () {
     value: function toggle() {
       var _this2 = this;
 
-      for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-        args[_key3] = arguments[_key3];
-      }
-
-      var element = args[1] || args.shift();
+      var element = arguments.length <= 0 ? undefined : arguments[0];
 
       if (typeof element === 'string') {
         element = document.querySelector(element);
@@ -369,8 +365,8 @@ var Readmore = function () {
         throw new Error('Element MUST be either an HTML node or querySelector string');
       }
 
-      var trigger = args[0] || document.querySelector('[aria-controls="' + element.id + '"]');
-      var event = args[2];
+      var trigger = document.querySelector('[aria-controls="' + element.id + '"]');
+      var event = arguments.length <= 1 ? undefined : arguments[1];
 
       if (event) {
         event.preventDefault();

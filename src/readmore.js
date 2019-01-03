@@ -136,7 +136,7 @@ function embedCSS(options) {
 
 function buildToggle(link, element, scope) {
   function clickHandler(event) {
-    this.toggle(event.target, element, event);
+    this.toggle(element, event);
   }
 
   const toggleLink = createElementFromString(link);
@@ -234,13 +234,13 @@ class Readmore {
   }
 
   // Signature when called internally by the toggleLink click handler:
-  //   toggle(trigger, element, event)
+  //   toggle(element, event)
   //
   // When called externally by an instance,
   // e.g. readmoreDemo.toggle(document.querySelector('article:nth-of-type(1)')):
   //   toggle(elementOrQuerySelector)
   toggle(...args) {
-    let element = args[1] || args.shift();
+    let element = args[0];
 
     if (typeof element === 'string') {
       element = document.querySelector(element);
@@ -250,8 +250,8 @@ class Readmore {
       throw new Error('Element MUST be either an HTML node or querySelector string');
     }
 
-    const trigger = args[0] || document.querySelector(`[aria-controls="${element.id}"]`);
-    const event = args[2];
+    const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
+    const event = args[1];
 
     if (event) {
       event.preventDefault();
