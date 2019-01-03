@@ -42,16 +42,18 @@ function extend(...objects) {
     parent = args.shift();
   }
 
-  Object.keys(parent).forEach((key) => {
-    if (hasProp.call(parent, key)) {
-      if (typeof parent[key] === 'object') {
-        child[key] = child[key] || {};
-        child[key] = extend(child[key], parent[key]);
-      } else {
-        child[key] = parent[key];
+  if (parent) {
+    Object.keys(parent).forEach((key) => {
+      if (hasProp.call(parent, key)) {
+        if (typeof parent[key] === 'object') {
+          child[key] = child[key] || {};
+          child[key] = extend(child[key], parent[key]);
+        } else {
+          child[key] = parent[key];
+        }
       }
-    }
-  });
+    });
+  }
 
   return child;
 }

@@ -146,16 +146,18 @@ function extend() {
     parent = args.shift();
   }
 
-  Object.keys(parent).forEach(function (key) {
-    if (hasProp.call(parent, key)) {
-      if (_typeof(parent[key]) === 'object') {
-        child[key] = child[key] || {};
-        child[key] = extend(child[key], parent[key]);
-      } else {
-        child[key] = parent[key];
+  if (parent) {
+    Object.keys(parent).forEach(function (key) {
+      if (hasProp.call(parent, key)) {
+        if (_typeof(parent[key]) === 'object') {
+          child[key] = child[key] || {};
+          child[key] = extend(child[key], parent[key]);
+        } else {
+          child[key] = parent[key];
+        }
       }
-    }
-  });
+    });
+  }
 
   return child;
 }
