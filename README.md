@@ -81,7 +81,7 @@ Here's an example of how you could use the `afterToggle` callback to scroll back
 new Readmore('article', {
   afterToggle: function(trigger, element, expanded) {
     if(!expanded) { // The "Close" link was clicked
-      window.scrollTo({top: element.offsetTop, behavior: 'smooth'});
+      window.scrollTo({ top: element.offsetTop, behavior: 'smooth' });
     }
   }
 });
@@ -172,13 +172,13 @@ _`selector` would be the element you invoked `readmore()` on, e.g.: `new Readmor
 You can override the base rules when you set up Readmore.js like so:
 
 ```javascript
-new Readmore('article', {blockCSS: 'display: inline-block; width: 50%;'});
+new Readmore('article', { blockCSS: 'display: inline-block; width: 50%;' });
 ```
 
 If you want to include the necessary styling in your site's stylesheet, you can disable the dynamic embedding by setting `embedCSS` to `false`:
 
 ```javascript
-new Readmore('article', {embedCSS: false});
+new Readmore('article', { embedCSS: false });
 ```
 
 ### Media queries and other CSS tricks:
