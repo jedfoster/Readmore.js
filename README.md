@@ -147,10 +147,10 @@ Or, you can be more surgical by specifying a particular element:
 
 ```javascript
 // Store a reference to an instance of Readmore
-var rmjsInstance = new Readmore('article');
+var rmjs = new Readmore('article');
 
 // Now remove Readmore from just the first block
-rmjsInstance.destroy(document.querySelector('article:first-child'));
+rmjs.destroy(document.querySelector('article:first-child'));
 ```
 
 
