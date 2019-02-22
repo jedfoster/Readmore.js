@@ -76,10 +76,10 @@ function debounce(func, wait, immediate) {
   };
 }
 
-function uniqueId(prefix = 'rmjs-') {
+function uniqueId() {
   uniqueIdCounter += 1;
 
-  return `${prefix}${uniqueIdCounter}`;
+  return `rmjs-${uniqueIdCounter}`;
 }
 
 function setBoxHeights(element) {
