@@ -110,18 +110,18 @@ function createElementFromString(htmlString) {
   return div.firstChild;
 }
 
-function embedCSS(options) {
-  if (!isCssEmbeddedFor[options.selector]) {
-    let styles = ' ';
+function embedCSS(selector, options) {
+  if (!isCssEmbeddedFor[selector]) {
+    let styles = '';
 
     if (options.embedCSS && options.blockCSS !== '') {
-      styles += `${options.selector} + [data-readmore-toggle], ${options.selector}[data-readmore] {
+      styles += `${selector} + [data-readmore-toggle], ${selector}[data-readmore] {
         ${options.blockCSS}
       }`;
     }
 
     // Include the transition CSS even if embedCSS is false
-    styles += `${options.selector}[data-readmore] {
+    styles += `${selector}[data-readmore] {
       transition: height ${options.speed}ms;
       overflow: hidden;
     }`;
@@ -139,7 +139,7 @@ function embedCSS(options) {
       d.getElementsByTagName('head')[0].appendChild(css);
     })(document, styles));
 
-    isCssEmbeddedFor[options.selector] = true;
+    isCssEmbeddedFor[selector] = true;
   }
 }
 
@@ -190,21 +190,43 @@ const defaults = {
 };
 
 class Readmore {
-  constructor(selector, options) {
+  constructor(...args) {
     if (!isEnvironmentSupported()) return;
-    const elements = document.querySelectorAll(selector);
+
+    const [selector, options] = args;
+    let elements;
+
+    if (typeof selector === 'string') {
+      elements = document.querySelectorAll(selector);
+    } else if (selector.nodeName) {
+      elements = [selector]; // emulate a NodeList by casting a single Node as an array
+    } else {
+      elements = selector;
+    }
+
+    // After all that, if we _still_ don't have iteratable NodeList, bail out.
     if (!elements.length) return;
 
     this.options = extend({}, defaults, options);
-    this.options.selector = selector;
 
-    embedCSS(this.options);
+    let instanceSelector;
+    if (typeof selector === 'string') {
+      embedCSS(selector, this.options);
+    } else {
+      // Instances need distinct selectors so they don't stomp on each other.
+      instanceSelector = `.${uniqueId()}`;
+      embedCSS(instanceSelector, this.options);
+    }
 
     // Need to resize boxes when the page has fully loaded.
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
     forEach(elements, (element) => {
+      if (instanceSelector) {
+        element.classList.add(instanceSelector.substr(1));
+      }
+
       const expanded = this.options.startOpen;
 
       element.readmore = {
