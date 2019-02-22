@@ -2,6 +2,25 @@ let uniqueIdCounter = 0;
 
 const isCssEmbeddedFor = [];
 
+// from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
+((function (arr) {
+  arr.forEach((item) => {
+    if (Object.prototype.hasOwnProperty.call(item, 'remove')) {
+      return;
+    }
+    Object.defineProperty(item, 'remove', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: function remove() {
+        if (this.parentNode !== null) {
+          this.parentNode.removeChild(this);
+        }
+      }
+    });
+  });
+})([Element.prototype, CharacterData.prototype, DocumentType.prototype]));
+
 function extend(...objects) {
   const hasProp = {}.hasOwnProperty;
   let child = objects[0];
@@ -10,8 +29,8 @@ function extend(...objects) {
   if (objects.length > 2) {
     const args = [];
 
-    objects.forEach((value) => {
-      args.push(value);
+    Object.keys(objects).forEach((key) => {
+      args.push(objects[key]);
     });
 
     while (args.length > 2) {
@@ -24,16 +43,18 @@ function extend(...objects) {
     parent = args.shift();
   }
 
-  Object.keys(parent).forEach((key) => {
-    if (hasProp.call(parent, key)) {
-      if (typeof parent[key] === 'object') {
-        child[key] = child[key] || {};
-        child[key] = extend(child[key], parent[key]);
-      } else {
-        child[key] = parent[key];
+  if (parent) {
+    Object.keys(parent).forEach((key) => {
+      if (hasProp.call(parent, key)) {
+        if (typeof parent[key] === 'object') {
+          child[key] = child[key] || {};
+          child[key] = extend(child[key], parent[key]);
+        } else {
+          child[key] = parent[key];
+        }
       }
-    }
-  });
+    });
+  }
 
   return child;
 }
@@ -118,7 +139,7 @@ function embedCSS(options) {
 
 function buildToggle(link, element, scope) {
   function clickHandler(event) {
-    this.toggle(event.target, element, event);
+    this.toggle(element, event);
   }
 
   const toggleLink = createElementFromString(link);
@@ -135,13 +156,15 @@ function isEnvironmentSupported() {
 }
 
 const resizeBoxes = debounce(() => {
-  document.querySelectorAll('[data-readmore]').forEach((element) => {
+  const elements = document.querySelectorAll('[data-readmore]');
+  for (let i = 0; i < elements.length; i += 1) {
+    const element = elements[i];
     const expanded = element.getAttribute('aria-expanded') === 'true';
 
     setBoxHeights(element);
 
     element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
-  });
+  }
 }, 100);
 
 const defaults = {
@@ -163,6 +186,8 @@ const defaults = {
 class Readmore {
   constructor(selector, options) {
     if (!isEnvironmentSupported()) return;
+    const elements = document.querySelectorAll(selector);
+    if (!elements.length) return;
 
     this.options = extend({}, defaults, options);
     this.options.selector = selector;
@@ -173,7 +198,8 @@ class Readmore {
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    document.querySelectorAll(selector).forEach((element) => {
+    for (let i = 0; i < elements.length; i += 1) {
+      const element = elements[i];
       const expanded = this.options.startOpen;
 
       element.readmore = {
@@ -207,17 +233,17 @@ class Readmore {
       if (typeof this.options.blockProcessed === 'function') {
         this.options.blockProcessed(element, true);
       }
-    }, this);
+    }
   }
 
   // Signature when called internally by the toggleLink click handler:
-  //   toggle(trigger, element, event)
+  //   toggle(element, event)
   //
   // When called externally by an instance,
   // e.g. readmoreDemo.toggle(document.querySelector('article:nth-of-type(1)')):
   //   toggle(elementOrQuerySelector)
   toggle(...args) {
-    let element = args[1] || args.shift();
+    let element = args[0];
 
     if (typeof element === 'string') {
       element = document.querySelector(element);
@@ -227,8 +253,8 @@ class Readmore {
       throw new Error('Element MUST be either an HTML node or querySelector string');
     }
 
-    const trigger = args[0] || document.querySelector(`[aria-controls="${element.id}"]`);
-    const event = args[2];
+    const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
+    const event = args[1];
 
     if (event) {
       event.preventDefault();
@@ -267,7 +293,11 @@ class Readmore {
 
     const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
-    trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+    if (!toggleLink) {
+      trigger.remove();
+    } else {
+      trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+    }
   }
 
   destroy() {

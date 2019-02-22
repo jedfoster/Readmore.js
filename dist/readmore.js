@@ -103,21 +103,39 @@ var uniqueIdCounter = 0;
 
 var isCssEmbeddedFor = [];
 
-function extend() {
-  var hasProp = {}.hasOwnProperty;
+// from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
+(function (arr) {
+  arr.forEach(function (item) {
+    if (Object.prototype.hasOwnProperty.call(item, 'remove')) {
+      return;
+    }
+    Object.defineProperty(item, 'remove', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: function remove() {
+        if (this.parentNode !== null) {
+          this.parentNode.removeChild(this);
+        }
+      }
+    });
+  });
+})([Element.prototype, CharacterData.prototype, DocumentType.prototype]);
 
+function extend() {
   for (var _len = arguments.length, objects = Array(_len), _key = 0; _key < _len; _key++) {
     objects[_key] = arguments[_key];
   }
 
+  var hasProp = {}.hasOwnProperty;
   var child = objects[0];
   var parent = objects[1];
 
   if (objects.length > 2) {
     var args = [];
 
-    objects.forEach(function (value) {
-      args.push(value);
+    Object.keys(objects).forEach(function (key) {
+      args.push(objects[key]);
     });
 
     while (args.length > 2) {
@@ -130,16 +148,18 @@ function extend() {
     parent = args.shift();
   }
 
-  Object.keys(parent).forEach(function (key) {
-    if (hasProp.call(parent, key)) {
-      if (_typeof(parent[key]) === 'object') {
-        child[key] = child[key] || {};
-        child[key] = extend(child[key], parent[key]);
-      } else {
-        child[key] = parent[key];
+  if (parent) {
+    Object.keys(parent).forEach(function (key) {
+      if (hasProp.call(parent, key)) {
+        if (_typeof(parent[key]) === 'object') {
+          child[key] = child[key] || {};
+          child[key] = extend(child[key], parent[key]);
+        } else {
+          child[key] = parent[key];
+        }
       }
-    }
-  });
+    });
+  }
 
   return child;
 }
@@ -227,7 +247,7 @@ function embedCSS(options) {
 
 function buildToggle(link, element, scope) {
   function clickHandler(event) {
-    this.toggle(event.target, element, event);
+    this.toggle(element, event);
   }
 
   var toggleLink = createElementFromString(link);
@@ -243,13 +263,15 @@ function isEnvironmentSupported() {
 }
 
 var resizeBoxes = debounce(function () {
-  document.querySelectorAll('[data-readmore]').forEach(function (element) {
+  var elements = document.querySelectorAll('[data-readmore]');
+  for (var i = 0; i < elements.length; i += 1) {
+    var element = elements[i];
     var expanded = element.getAttribute('aria-expanded') === 'true';
 
     setBoxHeights(element);
 
     element.style.height = (expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
-  });
+  }
 }, 100);
 
 var defaults = {
@@ -270,11 +292,11 @@ var defaults = {
 
 var Readmore = function () {
   function Readmore(selector, options) {
-    var _this2 = this;
-
     _classCallCheck(this, Readmore);
 
     if (!isEnvironmentSupported()) return;
+    var elements = document.querySelectorAll(selector);
+    if (!elements.length) return;
 
     this.options = extend({}, defaults, options);
     this.options.selector = selector;
@@ -285,12 +307,13 @@ var Readmore = function () {
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    document.querySelectorAll(selector).forEach(function (element) {
-      var expanded = _this2.options.startOpen;
+    for (var i = 0; i < elements.length; i += 1) {
+      var element = elements[i];
+      var expanded = this.options.startOpen;
 
       element.readmore = {
-        defaultHeight: _this2.options.collapsedHeight,
-        heightMargin: _this2.options.heightMargin
+        defaultHeight: this.options.collapsedHeight,
+        heightMargin: this.options.heightMargin
       };
 
       setBoxHeights(element);
@@ -299,8 +322,8 @@ var Readmore = function () {
 
 
       if (element.getBoundingClientRect().height <= element.readmore.collapsedHeight + heightMargin) {
-        if (typeof _this2.options.blockProcessed === 'function') {
-          _this2.options.blockProcessed(element, false);
+        if (typeof this.options.blockProcessed === 'function') {
+          this.options.blockProcessed(element, false);
         }
         return;
       }
@@ -311,20 +334,20 @@ var Readmore = function () {
       element.setAttribute('aria-expanded', expanded);
       element.id = id;
 
-      var toggleLink = expanded ? _this2.options.lessLink : _this2.options.moreLink;
+      var toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
-      element.parentNode.insertBefore(buildToggle(toggleLink, element, _this2), element.nextSibling);
+      element.parentNode.insertBefore(buildToggle(toggleLink, element, this), element.nextSibling);
 
       element.style.height = (expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
 
-      if (typeof _this2.options.blockProcessed === 'function') {
-        _this2.options.blockProcessed(element, true);
+      if (typeof this.options.blockProcessed === 'function') {
+        this.options.blockProcessed(element, true);
       }
-    }, this);
+    }
   }
 
   // Signature when called internally by the toggleLink click handler:
-  //   toggle(trigger, element, event)
+  //   toggle(element, event)
   //
   // When called externally by an instance,
   // e.g. readmoreDemo.toggle(document.querySelector('article:nth-of-type(1)')):
@@ -334,13 +357,9 @@ var Readmore = function () {
   _createClass(Readmore, [{
     key: 'toggle',
     value: function toggle() {
-      var _this3 = this;
+      var _this2 = this;
 
-      for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-        args[_key3] = arguments[_key3];
-      }
-
-      var element = args[1] || args.shift();
+      var element = arguments.length <= 0 ? undefined : arguments[0];
 
       if (typeof element === 'string') {
         element = document.querySelector(element);
@@ -350,8 +369,8 @@ var Readmore = function () {
         throw new Error('Element MUST be either an HTML node or querySelector string');
       }
 
-      var trigger = args[0] || document.querySelector('[aria-controls="' + element.id + '"]');
-      var event = args[2];
+      var trigger = document.querySelector('[aria-controls="' + element.id + '"]');
+      var event = arguments.length <= 1 ? undefined : arguments[1];
 
       if (event) {
         event.preventDefault();
@@ -372,8 +391,8 @@ var Readmore = function () {
 
       var transitionendHandler = function transitionendHandler(transitionEvent) {
         // Fire afterToggle callback
-        if (typeof _this3.options.afterToggle === 'function') {
-          _this3.options.afterToggle(trigger, element, expanded);
+        if (typeof _this2.options.afterToggle === 'function') {
+          _this2.options.afterToggle(trigger, element, expanded);
         }
 
         transitionEvent.stopPropagation();
@@ -390,7 +409,11 @@ var Readmore = function () {
 
       var toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
-      trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+      if (!toggleLink) {
+        trigger.remove();
+      } else {
+        trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+      }
     }
   }, {
     key: 'destroy',
