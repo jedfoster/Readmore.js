@@ -314,7 +314,7 @@ class Readmore {
     };
 
     if (typeof el === 'string') {
-      el = document.querySelector(el);
+      el = document.querySelectorAll(el);
     }
 
     if (!el) {
