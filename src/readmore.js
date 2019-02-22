@@ -248,17 +248,57 @@ class Readmore {
   // e.g. readmoreDemo.toggle(document.querySelector('article:nth-of-type(1)')):
   //   toggle(elementOrQuerySelector)
   toggle(...args) {
-    let element = args[0];
+    let el = args[0];
 
-    if (typeof element === 'string') {
-      element = document.querySelector(element);
+    const toggleElement = (element) => {
+      const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
+      const expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
+      const newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
+
+      // Fire beforeToggle callback
+      // Since we determined the new "expanded" state above we're now out of sync
+      // with our true current state, so we need to flip the value of `expanded`
+      if (typeof this.options.beforeToggle === 'function') {
+        this.options.beforeToggle(trigger, element, !expanded);
+      }
+
+      element.style.height = `${newHeight}px`;
+
+      const transitionendHandler = (transitionEvent) => {
+        // Fire afterToggle callback
+        if (typeof this.options.afterToggle === 'function') {
+          this.options.afterToggle(trigger, element, expanded);
+        }
+
+        transitionEvent.stopPropagation();
+
+        element.setAttribute('aria-expanded', expanded);
+        element.removeEventListener('transitionend', transitionendHandler, false);
+      };
+
+      element.addEventListener('transitionend', transitionendHandler, false);
+
+      if (this.options.speed < 1) {
+        transitionendHandler.call(this, { target: element });
+      }
+
+      const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
+
+      if (!toggleLink) {
+        trigger.remove();
+      } else if (trigger && trigger.parentNode) {
+        trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+      }
+    };
+
+    if (typeof el === 'string') {
+      el = document.querySelector(el);
     }
 
-    if (element === null) {
+    if (!el) {
       throw new Error('Element MUST be either an HTML node or querySelector string');
     }
 
-    const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
     const event = args[1];
 
     if (event) {
@@ -266,42 +306,10 @@ class Readmore {
       event.stopPropagation();
     }
 
-    const expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
-    const newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
-
-    // Fire beforeToggle callback
-    // Since we determined the new "expanded" state above we're now out of sync
-    // with our true current state, so we need to flip the value of `expanded`
-    if (typeof this.options.beforeToggle === 'function') {
-      this.options.beforeToggle(trigger, element, !expanded);
-    }
-
-    element.style.height = `${newHeight}px`;
-
-    const transitionendHandler = (transitionEvent) => {
-      // Fire afterToggle callback
-      if (typeof this.options.afterToggle === 'function') {
-        this.options.afterToggle(trigger, element, expanded);
-      }
-
-      transitionEvent.stopPropagation();
-
-      element.setAttribute('aria-expanded', expanded);
-      element.removeEventListener('transitionend', transitionendHandler, false);
-    };
-
-    element.addEventListener('transitionend', transitionendHandler, false);
-
-    if (this.options.speed < 1) {
-      transitionendHandler.call(this, { target: element });
-    }
-
-    const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
-
-    if (!toggleLink) {
-      trigger.remove();
+    if (typeof el === 'object' && !el.nodeName) { // element is likely a NodeList
+      forEach(el, toggleElement);
     } else {
-      trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+      toggleElement(el);
     }
   }
 
