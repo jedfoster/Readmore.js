@@ -21,6 +21,12 @@ const isCssEmbeddedFor = [];
   });
 })([Element.prototype, CharacterData.prototype, DocumentType.prototype]));
 
+function forEach(arr, callback, scope) {
+  for (let i = 0; i < arr.length; i += 1) {
+    callback.call(scope, arr[i], i);
+  }
+}
+
 function extend(...objects) {
   const hasProp = {}.hasOwnProperty;
   let child = objects[0];
@@ -157,14 +163,14 @@ function isEnvironmentSupported() {
 
 const resizeBoxes = debounce(() => {
   const elements = document.querySelectorAll('[data-readmore]');
-  for (let i = 0; i < elements.length; i += 1) {
-    const element = elements[i];
+
+  forEach(elements, (element) => {
     const expanded = element.getAttribute('aria-expanded') === 'true';
 
     setBoxHeights(element);
 
     element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
-  }
+  });
 }, 100);
 
 const defaults = {
@@ -198,8 +204,7 @@ class Readmore {
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    for (let i = 0; i < elements.length; i += 1) {
-      const element = elements[i];
+    forEach(elements, (element) => {
       const expanded = this.options.startOpen;
 
       element.readmore = {
@@ -233,7 +238,7 @@ class Readmore {
       if (typeof this.options.blockProcessed === 'function') {
         this.options.blockProcessed(element, true);
       }
-    }
+    });
   }
 
   // Signature when called internally by the toggleLink click handler:
