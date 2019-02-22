@@ -209,22 +209,23 @@ class Readmore {
 
     this.options = extend({}, defaults, options);
 
-    let instanceSelector;
     if (typeof selector === 'string') {
       embedCSS(selector, this.options);
     } else {
       // Instances need distinct selectors so they don't stomp on each other.
-      instanceSelector = `.${uniqueId()}`;
-      embedCSS(instanceSelector, this.options);
+      this.instanceSelector = `.${uniqueId()}`;
+      embedCSS(this.instanceSelector, this.options);
     }
 
     // Need to resize boxes when the page has fully loaded.
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
+    this.elements = [];
+
     forEach(elements, (element) => {
-      if (instanceSelector) {
-        element.classList.add(instanceSelector.substr(1));
+      if (this.instanceSelector) {
+        element.classList.add(this.instanceSelector.substr(1));
       }
 
       const expanded = this.options.startOpen;
@@ -260,6 +261,8 @@ class Readmore {
       if (typeof this.options.blockProcessed === 'function') {
         this.options.blockProcessed(element, true);
       }
+
+      this.elements.push(element);
     });
   }
 
@@ -335,9 +338,49 @@ class Readmore {
     }
   }
 
-  destroy() {
-    // TBD
-    console.warn(this);
+  destroy(selector) {
+    let elements;
+
+    if (!selector) {
+      elements = this.elements; // eslint-disable-line
+    } else if (typeof selector === 'string') {
+      elements = document.querySelectorAll(selector);
+    } else if (selector.nodeName) {
+      elements = [selector]; // emulate a NodeList by casting a single Node as an array
+    } else {
+      elements = selector;
+    }
+
+    forEach(elements, (element) => {
+      if (this.elements.indexOf(element) === -1) {
+        return;
+      }
+
+      this.elements = this.elements.filter((el) => el !== element);
+
+      if (this.instanceSelector) {
+        element.classList.remove(this.instanceSelector.substr(1));
+      }
+
+      delete element.readmore;
+
+      element.style.height = 'initial';
+      element.style.maxHeight = 'initial';
+
+      element.removeAttribute('data-readmore');
+      element.removeAttribute('aria-expanded');
+
+      const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
+      if (trigger) {
+        trigger.remove();
+      }
+
+      if (element.id.indexOf('rmjs-') !== -1) {
+        element.removeAttribute('id');
+      }
+    });
+
+    delete this;
   }
 }
 

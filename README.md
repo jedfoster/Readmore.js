@@ -124,14 +124,11 @@ rmjs.toggle('article:first-child')
 
 Remove Readmore.js functionality from specific blocks or all blocks.
 
-**NOTE:** This API is not final and may change.
-
 ```javascript
-// As instance method
 rmjs.destroy(null | selector String | Element | NodeList);
 ```
 
-When invoked with `null`, will remove Readmore.js functionality from all blocks.
+When invoked with `null`, will remove Readmore.js functionality from all of the instance's blocks.
 
 You can remove the Readmore.js functionality like so:
 
@@ -151,6 +148,9 @@ var rmjs = new Readmore('article');
 
 // Now remove Readmore from just the first block
 rmjs.destroy(document.querySelector('article:first-child'));
+
+// or
+rmjs.destroy('article:nth-of-type(2)');
 ```
 
 
