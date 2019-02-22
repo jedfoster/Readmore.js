@@ -3,7 +3,7 @@ let uniqueIdCounter = 0;
 const isCssEmbeddedFor = [];
 
 // from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
-((function (arr) {
+((function removePolyfill(arr) {
   arr.forEach((item) => {
     if (Object.prototype.hasOwnProperty.call(item, 'remove')) {
       return;
@@ -20,6 +20,12 @@ const isCssEmbeddedFor = [];
     });
   });
 })([Element.prototype, CharacterData.prototype, DocumentType.prototype]));
+
+function forEach(arr, callback, scope) {
+  for (let i = 0; i < arr.length; i += 1) {
+    callback.call(scope, arr[i], i);
+  }
+}
 
 function extend(...objects) {
   const hasProp = {}.hasOwnProperty;
@@ -76,10 +82,10 @@ function debounce(func, wait, immediate) {
   };
 }
 
-function uniqueId(prefix = 'rmjs-') {
+function uniqueId() {
   uniqueIdCounter += 1;
 
-  return `${prefix}${uniqueIdCounter}`;
+  return `rmjs-${uniqueIdCounter}`;
 }
 
 function setBoxHeights(element) {
@@ -104,18 +110,18 @@ function createElementFromString(htmlString) {
   return div.firstChild;
 }
 
-function embedCSS(options) {
-  if (!isCssEmbeddedFor[options.selector]) {
-    let styles = ' ';
+function embedCSS(selector, options) {
+  if (!isCssEmbeddedFor[selector]) {
+    let styles = '';
 
     if (options.embedCSS && options.blockCSS !== '') {
-      styles += `${options.selector} + [data-readmore-toggle], ${options.selector}[data-readmore] {
+      styles += `${selector} + [data-readmore-toggle], ${selector}[data-readmore] {
         ${options.blockCSS}
       }`;
     }
 
     // Include the transition CSS even if embedCSS is false
-    styles += `${options.selector}[data-readmore] {
+    styles += `${selector}[data-readmore] {
       transition: height ${options.speed}ms;
       overflow: hidden;
     }`;
@@ -133,7 +139,7 @@ function embedCSS(options) {
       d.getElementsByTagName('head')[0].appendChild(css);
     })(document, styles));
 
-    isCssEmbeddedFor[options.selector] = true;
+    isCssEmbeddedFor[selector] = true;
   }
 }
 
@@ -157,14 +163,14 @@ function isEnvironmentSupported() {
 
 const resizeBoxes = debounce(() => {
   const elements = document.querySelectorAll('[data-readmore]');
-  for (let i = 0; i < elements.length; i += 1) {
-    const element = elements[i];
+
+  forEach(elements, (element) => {
     const expanded = element.getAttribute('aria-expanded') === 'true';
 
     setBoxHeights(element);
 
     element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
-  }
+  });
 }, 100);
 
 const defaults = {
@@ -184,22 +190,44 @@ const defaults = {
 };
 
 class Readmore {
-  constructor(selector, options) {
+  constructor(...args) {
     if (!isEnvironmentSupported()) return;
-    const elements = document.querySelectorAll(selector);
+
+    const [selector, options] = args;
+    let elements;
+
+    if (typeof selector === 'string') {
+      elements = document.querySelectorAll(selector);
+    } else if (selector.nodeName) {
+      elements = [selector]; // emulate a NodeList by casting a single Node as an array
+    } else {
+      elements = selector;
+    }
+
+    // After all that, if we _still_ don't have iteratable NodeList, bail out.
     if (!elements.length) return;
 
     this.options = extend({}, defaults, options);
-    this.options.selector = selector;
 
-    embedCSS(this.options);
+    if (typeof selector === 'string') {
+      embedCSS(selector, this.options);
+    } else {
+      // Instances need distinct selectors so they don't stomp on each other.
+      this.instanceSelector = `.${uniqueId()}`;
+      embedCSS(this.instanceSelector, this.options);
+    }
 
     // Need to resize boxes when the page has fully loaded.
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    for (let i = 0; i < elements.length; i += 1) {
-      const element = elements[i];
+    this.elements = [];
+
+    forEach(elements, (element) => {
+      if (this.instanceSelector) {
+        element.classList.add(this.instanceSelector.substr(1));
+      }
+
       const expanded = this.options.startOpen;
 
       element.readmore = {
@@ -233,7 +261,9 @@ class Readmore {
       if (typeof this.options.blockProcessed === 'function') {
         this.options.blockProcessed(element, true);
       }
-    }
+
+      this.elements.push(element);
+    });
   }
 
   // Signature when called internally by the toggleLink click handler:
@@ -243,17 +273,57 @@ class Readmore {
   // e.g. readmoreDemo.toggle(document.querySelector('article:nth-of-type(1)')):
   //   toggle(elementOrQuerySelector)
   toggle(...args) {
-    let element = args[0];
+    let el = args[0];
 
-    if (typeof element === 'string') {
-      element = document.querySelector(element);
+    const toggleElement = (element) => {
+      const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
+      const expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
+      const newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
+
+      // Fire beforeToggle callback
+      // Since we determined the new "expanded" state above we're now out of sync
+      // with our true current state, so we need to flip the value of `expanded`
+      if (typeof this.options.beforeToggle === 'function') {
+        this.options.beforeToggle(trigger, element, !expanded);
+      }
+
+      element.style.height = `${newHeight}px`;
+
+      const transitionendHandler = (transitionEvent) => {
+        // Fire afterToggle callback
+        if (typeof this.options.afterToggle === 'function') {
+          this.options.afterToggle(trigger, element, expanded);
+        }
+
+        transitionEvent.stopPropagation();
+
+        element.setAttribute('aria-expanded', expanded);
+        element.removeEventListener('transitionend', transitionendHandler, false);
+      };
+
+      element.addEventListener('transitionend', transitionendHandler, false);
+
+      if (this.options.speed < 1) {
+        transitionendHandler.call(this, { target: element });
+      }
+
+      const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
+
+      if (!toggleLink) {
+        trigger.remove();
+      } else if (trigger && trigger.parentNode) {
+        trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+      }
+    };
+
+    if (typeof el === 'string') {
+      el = document.querySelectorAll(el);
     }
 
-    if (element === null) {
+    if (!el) {
       throw new Error('Element MUST be either an HTML node or querySelector string');
     }
 
-    const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
     const event = args[1];
 
     if (event) {
@@ -261,48 +331,56 @@ class Readmore {
       event.stopPropagation();
     }
 
-    const expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
-    const newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
-
-    // Fire beforeToggle callback
-    // Since we determined the new "expanded" state above we're now out of sync
-    // with our true current state, so we need to flip the value of `expanded`
-    if (typeof this.options.beforeToggle === 'function') {
-      this.options.beforeToggle(trigger, element, !expanded);
-    }
-
-    element.style.height = `${newHeight}px`;
-
-    const transitionendHandler = (transitionEvent) => {
-      // Fire afterToggle callback
-      if (typeof this.options.afterToggle === 'function') {
-        this.options.afterToggle(trigger, element, expanded);
-      }
-
-      transitionEvent.stopPropagation();
-
-      element.setAttribute('aria-expanded', expanded);
-      element.removeEventListener('transitionend', transitionendHandler, false);
-    };
-
-    element.addEventListener('transitionend', transitionendHandler, false);
-
-    if (this.options.speed < 1) {
-      transitionendHandler.call(this, { target: element });
-    }
-
-    const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
-
-    if (!toggleLink) {
-      trigger.remove();
+    if (typeof el === 'object' && !el.nodeName) { // element is likely a NodeList
+      forEach(el, toggleElement);
     } else {
-      trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+      toggleElement(el);
     }
   }
 
-  destroy() {
-    // TBD
-    console.warn(this);
+  destroy(selector) {
+    let elements;
+
+    if (!selector) {
+      elements = this.elements; // eslint-disable-line
+    } else if (typeof selector === 'string') {
+      elements = document.querySelectorAll(selector);
+    } else if (selector.nodeName) {
+      elements = [selector]; // emulate a NodeList by casting a single Node as an array
+    } else {
+      elements = selector;
+    }
+
+    forEach(elements, (element) => {
+      if (this.elements.indexOf(element) === -1) {
+        return;
+      }
+
+      this.elements = this.elements.filter((el) => el !== element);
+
+      if (this.instanceSelector) {
+        element.classList.remove(this.instanceSelector.substr(1));
+      }
+
+      delete element.readmore;
+
+      element.style.height = 'initial';
+      element.style.maxHeight = 'initial';
+
+      element.removeAttribute('data-readmore');
+      element.removeAttribute('aria-expanded');
+
+      const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
+      if (trigger) {
+        trigger.remove();
+      }
+
+      if (element.id.indexOf('rmjs-') !== -1) {
+        element.removeAttribute('id');
+      }
+    });
+
+    delete this;
   }
 }
 

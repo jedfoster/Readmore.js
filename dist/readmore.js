@@ -4,7 +4,7 @@
  * Readmore.js plugin
  * Author: @jed_foster
  * Project home: jedfoster.com/Readmore.js
- * Version: 3.0.0-alpha-2
+ * Version: 3.0.0-alpha-4
  * Licensed under the MIT license
  * 
  * Debounce function from davidwalsh.name/javascript-debounce-function
@@ -104,7 +104,7 @@ var uniqueIdCounter = 0;
 var isCssEmbeddedFor = [];
 
 // from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
-(function (arr) {
+(function removePolyfill(arr) {
   arr.forEach(function (item) {
     if (Object.prototype.hasOwnProperty.call(item, 'remove')) {
       return;
@@ -121,6 +121,12 @@ var isCssEmbeddedFor = [];
     });
   });
 })([Element.prototype, CharacterData.prototype, DocumentType.prototype]);
+
+function forEach(arr, callback, scope) {
+  for (var i = 0; i < arr.length; i += 1) {
+    callback.call(scope, arr[i], i);
+  }
+}
 
 function extend() {
   for (var _len = arguments.length, objects = Array(_len), _key = 0; _key < _len; _key++) {
@@ -188,11 +194,9 @@ function debounce(func, wait, immediate) {
 }
 
 function uniqueId() {
-  var prefix = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'rmjs-';
-
   uniqueIdCounter += 1;
 
-  return '' + prefix + uniqueIdCounter;
+  return 'rmjs-' + uniqueIdCounter;
 }
 
 function setBoxHeights(element) {
@@ -217,16 +221,16 @@ function createElementFromString(htmlString) {
   return div.firstChild;
 }
 
-function embedCSS(options) {
-  if (!isCssEmbeddedFor[options.selector]) {
-    var styles = ' ';
+function embedCSS(selector, options) {
+  if (!isCssEmbeddedFor[selector]) {
+    var styles = '';
 
     if (options.embedCSS && options.blockCSS !== '') {
-      styles += options.selector + ' + [data-readmore-toggle], ' + options.selector + '[data-readmore] {\n        ' + options.blockCSS + '\n      }';
+      styles += selector + ' + [data-readmore-toggle], ' + selector + '[data-readmore] {\n        ' + options.blockCSS + '\n      }';
     }
 
     // Include the transition CSS even if embedCSS is false
-    styles += options.selector + '[data-readmore] {\n      transition: height ' + options.speed + 'ms;\n      overflow: hidden;\n    }';
+    styles += selector + '[data-readmore] {\n      transition: height ' + options.speed + 'ms;\n      overflow: hidden;\n    }';
 
     (function (d, u) {
       var css = d.createElement('style');
@@ -241,7 +245,7 @@ function embedCSS(options) {
       d.getElementsByTagName('head')[0].appendChild(css);
     })(document, styles);
 
-    isCssEmbeddedFor[options.selector] = true;
+    isCssEmbeddedFor[selector] = true;
   }
 }
 
@@ -264,14 +268,14 @@ function isEnvironmentSupported() {
 
 var resizeBoxes = debounce(function () {
   var elements = document.querySelectorAll('[data-readmore]');
-  for (var i = 0; i < elements.length; i += 1) {
-    var element = elements[i];
+
+  forEach(elements, function (element) {
     var expanded = element.getAttribute('aria-expanded') === 'true';
 
     setBoxHeights(element);
 
     element.style.height = (expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
-  }
+  });
 }, 100);
 
 var defaults = {
@@ -291,29 +295,59 @@ var defaults = {
 };
 
 var Readmore = function () {
-  function Readmore(selector, options) {
+  function Readmore() {
+    var _this2 = this;
+
     _classCallCheck(this, Readmore);
 
     if (!isEnvironmentSupported()) return;
-    var elements = document.querySelectorAll(selector);
+
+    for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      args[_key3] = arguments[_key3];
+    }
+
+    var selector = args[0],
+        options = args[1];
+
+    var elements = void 0;
+
+    if (typeof selector === 'string') {
+      elements = document.querySelectorAll(selector);
+    } else if (selector.nodeName) {
+      elements = [selector]; // emulate a NodeList by casting a single Node as an array
+    } else {
+      elements = selector;
+    }
+
+    // After all that, if we _still_ don't have iteratable NodeList, bail out.
     if (!elements.length) return;
 
     this.options = extend({}, defaults, options);
-    this.options.selector = selector;
 
-    embedCSS(this.options);
+    if (typeof selector === 'string') {
+      embedCSS(selector, this.options);
+    } else {
+      // Instances need distinct selectors so they don't stomp on each other.
+      this.instanceSelector = '.' + uniqueId();
+      embedCSS(this.instanceSelector, this.options);
+    }
 
     // Need to resize boxes when the page has fully loaded.
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
 
-    for (var i = 0; i < elements.length; i += 1) {
-      var element = elements[i];
-      var expanded = this.options.startOpen;
+    this.elements = [];
+
+    forEach(elements, function (element) {
+      if (_this2.instanceSelector) {
+        element.classList.add(_this2.instanceSelector.substr(1));
+      }
+
+      var expanded = _this2.options.startOpen;
 
       element.readmore = {
-        defaultHeight: this.options.collapsedHeight,
-        heightMargin: this.options.heightMargin
+        defaultHeight: _this2.options.collapsedHeight,
+        heightMargin: _this2.options.heightMargin
       };
 
       setBoxHeights(element);
@@ -322,8 +356,8 @@ var Readmore = function () {
 
 
       if (element.getBoundingClientRect().height <= element.readmore.collapsedHeight + heightMargin) {
-        if (typeof this.options.blockProcessed === 'function') {
-          this.options.blockProcessed(element, false);
+        if (typeof _this2.options.blockProcessed === 'function') {
+          _this2.options.blockProcessed(element, false);
         }
         return;
       }
@@ -334,16 +368,18 @@ var Readmore = function () {
       element.setAttribute('aria-expanded', expanded);
       element.id = id;
 
-      var toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
+      var toggleLink = expanded ? _this2.options.lessLink : _this2.options.moreLink;
 
-      element.parentNode.insertBefore(buildToggle(toggleLink, element, this), element.nextSibling);
+      element.parentNode.insertBefore(buildToggle(toggleLink, element, _this2), element.nextSibling);
 
       element.style.height = (expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
 
-      if (typeof this.options.blockProcessed === 'function') {
-        this.options.blockProcessed(element, true);
+      if (typeof _this2.options.blockProcessed === 'function') {
+        _this2.options.blockProcessed(element, true);
       }
-    }
+
+      _this2.elements.push(element);
+    });
   }
 
   // Signature when called internally by the toggleLink click handler:
@@ -357,19 +393,59 @@ var Readmore = function () {
   _createClass(Readmore, [{
     key: 'toggle',
     value: function toggle() {
-      var _this2 = this;
+      var _this3 = this;
 
-      var element = arguments.length <= 0 ? undefined : arguments[0];
+      var el = arguments.length <= 0 ? undefined : arguments[0];
 
-      if (typeof element === 'string') {
-        element = document.querySelector(element);
+      var toggleElement = function toggleElement(element) {
+        var trigger = document.querySelector('[aria-controls="' + element.id + '"]');
+        var expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
+        var newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
+
+        // Fire beforeToggle callback
+        // Since we determined the new "expanded" state above we're now out of sync
+        // with our true current state, so we need to flip the value of `expanded`
+        if (typeof _this3.options.beforeToggle === 'function') {
+          _this3.options.beforeToggle(trigger, element, !expanded);
+        }
+
+        element.style.height = newHeight + 'px';
+
+        var transitionendHandler = function transitionendHandler(transitionEvent) {
+          // Fire afterToggle callback
+          if (typeof _this3.options.afterToggle === 'function') {
+            _this3.options.afterToggle(trigger, element, expanded);
+          }
+
+          transitionEvent.stopPropagation();
+
+          element.setAttribute('aria-expanded', expanded);
+          element.removeEventListener('transitionend', transitionendHandler, false);
+        };
+
+        element.addEventListener('transitionend', transitionendHandler, false);
+
+        if (_this3.options.speed < 1) {
+          transitionendHandler.call(_this3, { target: element });
+        }
+
+        var toggleLink = expanded ? _this3.options.lessLink : _this3.options.moreLink;
+
+        if (!toggleLink) {
+          trigger.remove();
+        } else if (trigger && trigger.parentNode) {
+          trigger.parentNode.replaceChild(buildToggle(toggleLink, element, _this3), trigger);
+        }
+      };
+
+      if (typeof el === 'string') {
+        el = document.querySelectorAll(el);
       }
 
-      if (element === null) {
+      if (!el) {
         throw new Error('Element MUST be either an HTML node or querySelector string');
       }
 
-      var trigger = document.querySelector('[aria-controls="' + element.id + '"]');
       var event = arguments.length <= 1 ? undefined : arguments[1];
 
       if (event) {
@@ -377,56 +453,69 @@ var Readmore = function () {
         event.stopPropagation();
       }
 
-      var expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
-      var newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
-
-      // Fire beforeToggle callback
-      // Since we determined the new "expanded" state above we're now out of sync
-      // with our true current state, so we need to flip the value of `expanded`
-      if (typeof this.options.beforeToggle === 'function') {
-        this.options.beforeToggle(trigger, element, !expanded);
-      }
-
-      element.style.height = newHeight + 'px';
-
-      var transitionendHandler = function transitionendHandler(transitionEvent) {
-        // Fire afterToggle callback
-        if (typeof _this2.options.afterToggle === 'function') {
-          _this2.options.afterToggle(trigger, element, expanded);
-        }
-
-        transitionEvent.stopPropagation();
-
-        element.setAttribute('aria-expanded', expanded);
-        element.removeEventListener('transitionend', transitionendHandler, false);
-      };
-
-      element.addEventListener('transitionend', transitionendHandler, false);
-
-      if (this.options.speed < 1) {
-        transitionendHandler.call(this, { target: element });
-      }
-
-      var toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
-
-      if (!toggleLink) {
-        trigger.remove();
+      if ((typeof el === 'undefined' ? 'undefined' : _typeof(el)) === 'object' && !el.nodeName) {
+        // element is likely a NodeList
+        forEach(el, toggleElement);
       } else {
-        trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+        toggleElement(el);
       }
     }
   }, {
     key: 'destroy',
-    value: function destroy() {
-      // TBD
-      console.warn(this);
+    value: function destroy(selector) {
+      var _this4 = this;
+
+      var elements = void 0;
+
+      if (!selector) {
+        elements = this.elements; // eslint-disable-line
+      } else if (typeof selector === 'string') {
+        elements = document.querySelectorAll(selector);
+      } else if (selector.nodeName) {
+        elements = [selector]; // emulate a NodeList by casting a single Node as an array
+      } else {
+        elements = selector;
+      }
+
+      forEach(elements, function (element) {
+        if (_this4.elements.indexOf(element) === -1) {
+          return;
+        }
+
+        _this4.elements = _this4.elements.filter(function (el) {
+          return el !== element;
+        });
+
+        if (_this4.instanceSelector) {
+          element.classList.remove(_this4.instanceSelector.substr(1));
+        }
+
+        delete element.readmore;
+
+        element.style.height = 'initial';
+        element.style.maxHeight = 'initial';
+
+        element.removeAttribute('data-readmore');
+        element.removeAttribute('aria-expanded');
+
+        var trigger = document.querySelector('[aria-controls="' + element.id + '"]');
+        if (trigger) {
+          trigger.remove();
+        }
+
+        if (element.id.indexOf('rmjs-') !== -1) {
+          element.removeAttribute('id');
+        }
+      });
+
+      delete this;
     }
   }]);
 
   return Readmore;
 }();
 
-Readmore.VERSION = '3.0.0-alpha-2';
+Readmore.VERSION = '3.0.0-alpha-4';
 
 exports.default = Readmore;
 
