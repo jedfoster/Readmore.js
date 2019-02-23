@@ -1,11 +1,12 @@
 {
   "name": "readmore-js",
-  "version": "3.0.0-alpha-5",
+  "version": "3.0.0-alpha-6",
   "description": "A lightweight JavaScript plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links.",
-  "main": "readmore.js",
+  "main": "dist/readmore.js",
   "files": [
     "dist"
   ],
+  "module": "dist/readmore.es6.js",
   "scripts": {
     "build": "rm -rf ./dist/* && ./node_modules/webpack/bin/webpack.js && cp src/readmore.js dist/readmore.es6.js",
     "start": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js",

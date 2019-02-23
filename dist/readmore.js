@@ -4,13 +4,22 @@
  * Readmore.js plugin
  * Author: @jed_foster
  * Project home: jedfoster.com/Readmore.js
- * Version: 3.0.0-alpha-5
+ * Version: 3.0.0-alpha-6
  * Licensed under the MIT license
  * 
  * Debounce function from davidwalsh.name/javascript-debounce-function
  */
-window["Readmore"] =
-/******/ (function(modules) { // webpackBootstrap
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define("Readmore", [], factory);
+	else if(typeof exports === 'object')
+		exports["Readmore"] = factory();
+	else
+		root["Readmore"] = factory();
+})(typeof self !== 'undefined' ? self : this, function() {
+return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -525,10 +534,11 @@ var Readmore = function () {
   return Readmore;
 }();
 
-Readmore.VERSION = '3.0.0-alpha-5';
+Readmore.VERSION = '3.0.0-alpha-6';
 
 exports.default = Readmore;
 
 /***/ })
 /******/ ])["default"];
+});
 //# sourceMappingURL=readmore.js.map

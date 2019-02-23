@@ -19,7 +19,9 @@ module.exports = {
     path: path.join(__dirname, '/dist/'),
     library: 'Readmore',
     libraryExport: 'default',
-    libraryTarget: 'window',
+    // libraryTarget: 'window',
+    libraryTarget: 'umd',
+    umdNamedDefine: true,
     filename: 'readmore.js'
   },
   devServer: {
