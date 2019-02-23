@@ -287,7 +287,12 @@ class Readmore {
       // Since we determined the new "expanded" state above we're now out of sync
       // with our true current state, so we need to flip the value of `expanded`
       if (typeof this.options.beforeToggle === 'function') {
-        this.options.beforeToggle(trigger, element, !expanded);
+        const shouldContinueToggle = this.options.beforeToggle(trigger, element, !expanded);
+
+        // if the beforeToggle callback returns false, stop toggling
+        if (shouldContinueToggle === false) {
+          return;
+        }
       }
 
       element.style.height = `${newHeight}px`;

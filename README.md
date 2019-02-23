@@ -107,6 +107,8 @@ new Readmore('article', {
 });
 ```
 
+If `beforeToggle` returns `false` the toggle action is halted and `afterToggle` will _not_ be executed. This is useful if you want prevent a toggle based on some application logic--the state of another element on the page, current phase of the moon, etc.
+
 
 ## API
 
