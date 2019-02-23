@@ -246,11 +246,9 @@ class Readmore {
         return;
       }
 
-      const id = element.id || uniqueId();
-
       element.setAttribute('data-readmore', '');
       element.setAttribute('aria-expanded', expanded);
-      element.id = id;
+      element.id = element.id || uniqueId();
 
       const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
