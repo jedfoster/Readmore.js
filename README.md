@@ -46,13 +46,14 @@ new Readmore('article', {
 });
 ```
 
+
 ## Options
 
 * `speed: 100` in milliseconds
 * `collapsedHeight: 200` in pixels
 * `heightMargin: 16` in pixels, avoids collapsing blocks that are only slightly larger than `collapsedHeight`
-* `moreLink: '<a href="#">Read more</a>'`
-* `lessLink: '<a href="#">Close</a>'`
+* `moreLink: '<a href="#">Read more</a>'` HTML string for the "more" toggle link; also accepts a callback function that returns an HTML string
+* `lessLink: '<a href="#">Close</a>'` HTML string for the "less" toggle link; also accepts a callback function that returns an HTML string
 * `embedCSS: true` insert required CSS dynamically, set this to `false` if you include the necessary CSS in a stylesheet
 * `blockCSS: 'display: block; width: 100%;'` sets the styling of the blocks, ignored if `embedCSS` is `false`
 * `startOpen: false` do not immediately truncate, start in the fully opened position
@@ -62,7 +63,26 @@ new Readmore('article', {
 
 If the element has a `max-height` CSS property, Readmore.js will use that value rather than the value of the `collapsedHeight` option.
 
+
 ### Callbacks
+
+#### Toggle link callbacks
+
+You can pass a callback function instead of an HTML string for the `moreLink` and `lessLink` options. This is useful if you want alter the content of more/less toggle links on a per block basis. Your callback will receive the current block and _must_ return a string.
+
+Here's how you could use a callback to dynamically generate a `moreLink` containing the headline of a block.
+
+```javscript
+new Readmore('article', {
+  moreLink: function(element) {
+    const headline = element.querySelector('h2').innerText;
+
+    return `<a href="#">Read more about ${headline}</a>`;
+  }
+};
+```
+
+#### Lifecycle callbacks
 
 The `beforeToggle` and `afterToggle` callbacks both receive the same arguments: `trigger`, `element`, and `expanded`.
 

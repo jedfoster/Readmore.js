@@ -148,7 +148,12 @@ function buildToggle(link, element, scope) {
     this.toggle(element, event);
   }
 
-  const toggleLink = createElementFromString(link);
+  let text = link;
+  if (typeof link === 'function') {
+    text = link(element);
+  }
+
+  const toggleLink = createElementFromString(text);
   toggleLink.setAttribute('data-readmore-toggle', element.id);
   toggleLink.setAttribute('aria-controls', element.id);
   toggleLink.addEventListener('click', clickHandler.bind(scope));
