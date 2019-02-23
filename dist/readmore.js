@@ -4,7 +4,7 @@
  * Readmore.js plugin
  * Author: @jed_foster
  * Project home: jedfoster.com/Readmore.js
- * Version: 3.0.0-alpha-4
+ * Version: 3.0.0-alpha-5
  * Licensed under the MIT license
  * 
  * Debounce function from davidwalsh.name/javascript-debounce-function
@@ -254,7 +254,12 @@ function buildToggle(link, element, scope) {
     this.toggle(element, event);
   }
 
-  var toggleLink = createElementFromString(link);
+  var text = link;
+  if (typeof link === 'function') {
+    text = link(element);
+  }
+
+  var toggleLink = createElementFromString(text);
   toggleLink.setAttribute('data-readmore-toggle', element.id);
   toggleLink.setAttribute('aria-controls', element.id);
   toggleLink.addEventListener('click', clickHandler.bind(scope));
@@ -287,6 +292,7 @@ var defaults = {
   embedCSS: true,
   blockCSS: 'display: block; width: 100%;',
   startOpen: false,
+  sourceOrder: 'after',
 
   // callbacks
   blockProcessed: function blockProcessed() {},
@@ -362,15 +368,14 @@ var Readmore = function () {
         return;
       }
 
-      var id = element.id || uniqueId();
-
       element.setAttribute('data-readmore', '');
       element.setAttribute('aria-expanded', expanded);
-      element.id = id;
+      element.id = element.id || uniqueId();
 
       var toggleLink = expanded ? _this2.options.lessLink : _this2.options.moreLink;
+      var toggleElement = buildToggle(toggleLink, element, _this2);
 
-      element.parentNode.insertBefore(buildToggle(toggleLink, element, _this2), element.nextSibling);
+      element.parentNode.insertBefore(toggleElement, _this2.options.sourceOrder === 'before' ? element : element.nextSibling);
 
       element.style.height = (expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
 
@@ -406,7 +411,12 @@ var Readmore = function () {
         // Since we determined the new "expanded" state above we're now out of sync
         // with our true current state, so we need to flip the value of `expanded`
         if (typeof _this3.options.beforeToggle === 'function') {
-          _this3.options.beforeToggle(trigger, element, !expanded);
+          var shouldContinueToggle = _this3.options.beforeToggle(trigger, element, !expanded);
+
+          // if the beforeToggle callback returns false, stop toggling
+          if (shouldContinueToggle === false) {
+            return;
+          }
         }
 
         element.style.height = newHeight + 'px';
@@ -515,7 +525,7 @@ var Readmore = function () {
   return Readmore;
 }();
 
-Readmore.VERSION = '3.0.0-alpha-4';
+Readmore.VERSION = '3.0.0-alpha-5';
 
 exports.default = Readmore;
 

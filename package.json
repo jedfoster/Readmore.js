@@ -1,6 +1,6 @@
 {
   "name": "readmore-js",
-  "version": "3.0.0-alpha-4",
+  "version": "3.0.0-alpha-5",
   "description": "A lightweight JavaScript plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links.",
   "main": "readmore.js",
   "files": [

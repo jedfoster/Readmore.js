@@ -57,7 +57,8 @@ new Readmore('article', {
 * `embedCSS: true` insert required CSS dynamically, set this to `false` if you include the necessary CSS in a stylesheet
 * `blockCSS: 'display: block; width: 100%;'` sets the styling of the blocks, ignored if `embedCSS` is `false`
 * `startOpen: false` do not immediately truncate, start in the fully opened position
-* `blockProcessed: function() {}` called once per block during initilization after Readmore.js has processed the block.
+* `sourceOrder: 'after'` the toggle link is inserted `'before'` or `'after'` the block
+* `blockProcessed: function() {}` called once per block during initilization after Readmore.js has processed the block
 * `beforeToggle: function() {}` called after a more or less link is clicked, but *before* the block is collapsed or expanded
 * `afterToggle: function() {}` called *after* the block is collapsed or expanded
 

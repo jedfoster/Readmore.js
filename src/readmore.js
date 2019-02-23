@@ -187,6 +187,7 @@ const defaults = {
   embedCSS: true,
   blockCSS: 'display: block; width: 100%;',
   startOpen: false,
+  sourceOrder: 'after',
 
   // callbacks
   blockProcessed: () => {},
@@ -256,8 +257,9 @@ class Readmore {
       element.id = element.id || uniqueId();
 
       const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
+      const toggleElement = buildToggle(toggleLink, element, this);
 
-      element.parentNode.insertBefore(buildToggle(toggleLink, element, this), element.nextSibling);
+      element.parentNode.insertBefore(toggleElement, (this.options.sourceOrder === 'before') ? element : element.nextSibling);
 
       element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
 

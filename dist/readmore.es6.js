@@ -148,7 +148,12 @@ function buildToggle(link, element, scope) {
     this.toggle(element, event);
   }
 
-  const toggleLink = createElementFromString(link);
+  let text = link;
+  if (typeof link === 'function') {
+    text = link(element);
+  }
+
+  const toggleLink = createElementFromString(text);
   toggleLink.setAttribute('data-readmore-toggle', element.id);
   toggleLink.setAttribute('aria-controls', element.id);
   toggleLink.addEventListener('click', clickHandler.bind(scope));
@@ -182,6 +187,7 @@ const defaults = {
   embedCSS: true,
   blockCSS: 'display: block; width: 100%;',
   startOpen: false,
+  sourceOrder: 'after',
 
   // callbacks
   blockProcessed: () => {},
@@ -246,15 +252,14 @@ class Readmore {
         return;
       }
 
-      const id = element.id || uniqueId();
-
       element.setAttribute('data-readmore', '');
       element.setAttribute('aria-expanded', expanded);
-      element.id = id;
+      element.id = element.id || uniqueId();
 
       const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
+      const toggleElement = buildToggle(toggleLink, element, this);
 
-      element.parentNode.insertBefore(buildToggle(toggleLink, element, this), element.nextSibling);
+      element.parentNode.insertBefore(toggleElement, (this.options.sourceOrder === 'before') ? element : element.nextSibling);
 
       element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
 
@@ -284,7 +289,12 @@ class Readmore {
       // Since we determined the new "expanded" state above we're now out of sync
       // with our true current state, so we need to flip the value of `expanded`
       if (typeof this.options.beforeToggle === 'function') {
-        this.options.beforeToggle(trigger, element, !expanded);
+        const shouldContinueToggle = this.options.beforeToggle(trigger, element, !expanded);
+
+        // if the beforeToggle callback returns false, stop toggling
+        if (shouldContinueToggle === false) {
+          return;
+        }
       }
 
       element.style.height = `${newHeight}px`;
