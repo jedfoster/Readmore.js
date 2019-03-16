@@ -1,3 +1,14 @@
+/*!
+ * @preserve
+ * 
+ * Readmore.js plugin
+ * Author: @jed_foster
+ * Project home: jedfoster.com/Readmore.js
+ * Version: 3.0.0-beta-1
+ * Licensed under the MIT license
+ * 
+ * Debounce function from davidwalsh.name/javascript-debounce-function
+ */
 let uniqueIdCounter = 0;
 
 const isCssEmbeddedFor = [];
@@ -394,6 +405,6 @@ class Readmore {
   }
 }
 
-Readmore.VERSION = __VERSION__;
+Readmore.VERSION = '3.0.0-beta-1';
 
 export default Readmore;

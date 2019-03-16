@@ -1,13 +1,13 @@
-# Readmore.js -- v3.0.0-alpha
+# Readmore.js -- v3.0.0-beta
 
 A smooth, responsive JavaScript plugin for collapsing and expanding long blocks of text with "Read more" and "Close" links.
 
-The markup Readmore.js requires is so simple, you can probably use it with your existing HTML—there's no need for complicated sets of `div`'s or hardcoded classes, just call `new Readmore()` on the element containing your block of text and Readmore.js takes care of the rest. Readmore.js works well on mobile and plays nicely with responsive designs, too.
+The markup Readmore.js requires is so simple, you can probably use it with your existing HTML—there's no need for complicated sets of `div`s or hardcoded classes, just call `new Readmore()` on the element containing your block of text and Readmore.js takes care of the rest. Readmore.js works well on mobile and plays nicely with responsive designs, too.
 
 Readmore.js has no external dependencies (no more jQuery—yay!) and works in all the "good" browsers, as well as IE10+; IE9 _should_ work, but is not supported and the experience will not be ideal.
 
 
-**NOTE: This documentation is for the alpha releases of the next version of Readmore.js. As such, this information is subject to frequent changes and may not accurately reflect the current state of the project.**
+**NOTE: This documentation is for the beta releases of the next version of Readmore.js.**
 
 
 ## Install

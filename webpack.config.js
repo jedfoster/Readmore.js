@@ -28,6 +28,7 @@ ${content.toString()}`;
 };
 
 module.exports = {
+  mode: 'development',
   cache: true,
   entry: ['./src/readmore.js'],
   output: {

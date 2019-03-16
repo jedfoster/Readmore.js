@@ -4,7 +4,7 @@
  * Readmore.js plugin
  * Author: @jed_foster
  * Project home: jedfoster.com/Readmore.js
- * Version: 3.0.0-alpha-6
+ * Version: 3.0.0-beta-1
  * Licensed under the MIT license
  * 
  * Debounce function from davidwalsh.name/javascript-debounce-function
@@ -18,7 +18,7 @@
 		exports["Readmore"] = factory();
 	else
 		root["Readmore"] = factory();
-})(typeof self !== 'undefined' ? self : this, function() {
+})(window, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -57,12 +57,32 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
+/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
 /******/ 		}
+/******/ 	};
+/******/
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = function(exports) {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/
+/******/ 	// create a fake namespace object
+/******/ 	// mode & 1: value is a module id, require it
+/******/ 	// mode & 2: merge all properties of value into the ns
+/******/ 	// mode & 4: return value when already ns object
+/******/ 	// mode & 8|1: behave like require
+/******/ 	__webpack_require__.t = function(value, mode) {
+/******/ 		if(mode & 1) value = __webpack_require__(value);
+/******/ 		if(mode & 8) return value;
+/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 		var ns = Object.create(null);
+/******/ 		__webpack_require__.r(ns);
+/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 		return ns;
 /******/ 	};
 /******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -80,44 +100,111 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
 /******/
+/******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports, __webpack_require__) {
+/******/ ({
 
-module.exports = __webpack_require__(1);
+/***/ "./node_modules/@babel/runtime/helpers/classCallCheck.js":
+/*!***************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/classCallCheck.js ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
 
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+module.exports = _classCallCheck;
 
 /***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
+
+/***/ "./node_modules/@babel/runtime/helpers/createClass.js":
+/*!************************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/createClass.js ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+module.exports = _createClass;
+
+/***/ }),
+
+/***/ "./node_modules/@babel/runtime/helpers/typeof.js":
+/*!*******************************************************!*\
+  !*** ./node_modules/@babel/runtime/helpers/typeof.js ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
+
+function _typeof(obj) {
+  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
+    module.exports = _typeof = function _typeof(obj) {
+      return _typeof2(obj);
+    };
+  } else {
+    module.exports = _typeof = function _typeof(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
+    };
+  }
+
+  return _typeof(obj);
+}
+
+module.exports = _typeof;
+
+/***/ }),
+
+/***/ "./src/readmore.js":
+/*!*************************!*\
+  !*** ./src/readmore.js ***!
+  \*************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/classCallCheck */ "./node_modules/@babel/runtime/helpers/classCallCheck.js");
+/* harmony import */ var _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @babel/runtime/helpers/createClass */ "./node_modules/@babel/runtime/helpers/createClass.js");
+/* harmony import */ var _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @babel/runtime/helpers/typeof */ "./node_modules/@babel/runtime/helpers/typeof.js");
+/* harmony import */ var _babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_2__);
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var uniqueIdCounter = 0;
+var isCssEmbeddedFor = []; // from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
 
-var isCssEmbeddedFor = [];
-
-// from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
 (function removePolyfill(arr) {
   arr.forEach(function (item) {
     if (Object.prototype.hasOwnProperty.call(item, 'remove')) {
       return;
     }
+
     Object.defineProperty(item, 'remove', {
       configurable: true,
       enumerable: true,
@@ -138,7 +225,7 @@ function forEach(arr, callback, scope) {
 }
 
 function extend() {
-  for (var _len = arguments.length, objects = Array(_len), _key = 0; _key < _len; _key++) {
+  for (var _len = arguments.length, objects = new Array(_len), _key = 0; _key < _len; _key++) {
     objects[_key] = arguments[_key];
   }
 
@@ -148,7 +235,6 @@ function extend() {
 
   if (objects.length > 2) {
     var args = [];
-
     Object.keys(objects).forEach(function (key) {
       args.push(objects[key]);
     });
@@ -166,7 +252,7 @@ function extend() {
   if (parent) {
     Object.keys(parent).forEach(function (key) {
       if (hasProp.call(parent, key)) {
-        if (_typeof(parent[key]) === 'object') {
+        if (_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_2___default()(parent[key]) === 'object') {
           child[key] = child[key] || {};
           child[key] = extend(child[key], parent[key]);
         } else {
@@ -180,16 +266,16 @@ function extend() {
 }
 
 function debounce(func, wait, immediate) {
-  var timeout = void 0;
-
+  var timeout;
   return function debouncedFunc() {
     var _this = this;
 
-    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+    for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
       args[_key2] = arguments[_key2];
     }
 
     var callNow = immediate && !timeout;
+
     var later = function later() {
       timeout = null;
       if (!immediate) func.apply(_this, args);
@@ -197,36 +283,30 @@ function debounce(func, wait, immediate) {
 
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
-
     if (callNow) func.apply(this, args);
   };
 }
 
 function uniqueId() {
   uniqueIdCounter += 1;
-
-  return 'rmjs-' + uniqueIdCounter;
+  return "rmjs-".concat(uniqueIdCounter);
 }
 
 function setBoxHeights(element) {
   element.style.height = 'auto';
-
   var expandedHeight = parseInt(element.getBoundingClientRect().height, 10);
   var cssMaxHeight = parseInt(window.getComputedStyle(element).maxHeight, 10);
-  var defaultHeight = parseInt(element.readmore.defaultHeight, 10);
+  var defaultHeight = parseInt(element.readmore.defaultHeight, 10); // Store our measurements.
 
-  // Store our measurements.
   element.readmore.expandedHeight = expandedHeight;
   element.readmore.maxHeight = cssMaxHeight;
   element.readmore.collapsedHeight = cssMaxHeight || element.readmore.collapsedHeight || defaultHeight;
-
   element.style.maxHeight = 'none';
 }
 
 function createElementFromString(htmlString) {
   var div = document.createElement('div');
   div.innerHTML = htmlString;
-
   return div.firstChild;
 }
 
@@ -235,11 +315,11 @@ function embedCSS(selector, options) {
     var styles = '';
 
     if (options.embedCSS && options.blockCSS !== '') {
-      styles += selector + ' + [data-readmore-toggle], ' + selector + '[data-readmore] {\n        ' + options.blockCSS + '\n      }';
-    }
+      styles += "".concat(selector, " + [data-readmore-toggle], ").concat(selector, "[data-readmore] {\n        ").concat(options.blockCSS, "\n      }");
+    } // Include the transition CSS even if embedCSS is false
 
-    // Include the transition CSS even if embedCSS is false
-    styles += selector + '[data-readmore] {\n      transition: height ' + options.speed + 'ms;\n      overflow: hidden;\n    }';
+
+    styles += "".concat(selector, "[data-readmore] {\n      transition: height ").concat(options.speed, "ms;\n      overflow: hidden;\n    }");
 
     (function (d, u) {
       var css = d.createElement('style');
@@ -264,6 +344,7 @@ function buildToggle(link, element, scope) {
   }
 
   var text = link;
+
   if (typeof link === 'function') {
     text = link(element);
   }
@@ -272,7 +353,6 @@ function buildToggle(link, element, scope) {
   toggleLink.setAttribute('data-readmore-toggle', element.id);
   toggleLink.setAttribute('aria-controls', element.id);
   toggleLink.addEventListener('click', clickHandler.bind(scope));
-
   return toggleLink;
 }
 
@@ -282,16 +362,12 @@ function isEnvironmentSupported() {
 
 var resizeBoxes = debounce(function () {
   var elements = document.querySelectorAll('[data-readmore]');
-
   forEach(elements, function (element) {
     var expanded = element.getAttribute('aria-expanded') === 'true';
-
     setBoxHeights(element);
-
-    element.style.height = (expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
+    element.style.height = "".concat(expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight, "px");
   });
 }, 100);
-
 var defaults = {
   speed: 100,
   collapsedHeight: 200,
@@ -302,29 +378,29 @@ var defaults = {
   blockCSS: 'display: block; width: 100%;',
   startOpen: false,
   sourceOrder: 'after',
-
   // callbacks
   blockProcessed: function blockProcessed() {},
   beforeToggle: function beforeToggle() {},
   afterToggle: function afterToggle() {}
 };
 
-var Readmore = function () {
+var Readmore =
+/*#__PURE__*/
+function () {
   function Readmore() {
     var _this2 = this;
 
-    _classCallCheck(this, Readmore);
+    _babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Readmore);
 
     if (!isEnvironmentSupported()) return;
 
-    for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+    for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
       args[_key3] = arguments[_key3];
     }
 
     var selector = args[0],
         options = args[1];
-
-    var elements = void 0;
+    var elements;
 
     if (typeof selector === 'string') {
       elements = document.querySelectorAll(selector);
@@ -332,61 +408,52 @@ var Readmore = function () {
       elements = [selector]; // emulate a NodeList by casting a single Node as an array
     } else {
       elements = selector;
-    }
+    } // After all that, if we _still_ don't have iteratable NodeList, bail out.
 
-    // After all that, if we _still_ don't have iteratable NodeList, bail out.
+
     if (!elements.length) return;
-
     this.options = extend({}, defaults, options);
 
     if (typeof selector === 'string') {
       embedCSS(selector, this.options);
     } else {
       // Instances need distinct selectors so they don't stomp on each other.
-      this.instanceSelector = '.' + uniqueId();
+      this.instanceSelector = ".".concat(uniqueId());
       embedCSS(this.instanceSelector, this.options);
-    }
+    } // Need to resize boxes when the page has fully loaded.
 
-    // Need to resize boxes when the page has fully loaded.
+
     window.addEventListener('load', resizeBoxes);
     window.addEventListener('resize', resizeBoxes);
-
     this.elements = [];
-
     forEach(elements, function (element) {
       if (_this2.instanceSelector) {
         element.classList.add(_this2.instanceSelector.substr(1));
       }
 
       var expanded = _this2.options.startOpen;
-
       element.readmore = {
         defaultHeight: _this2.options.collapsedHeight,
         heightMargin: _this2.options.heightMargin
       };
-
       setBoxHeights(element);
-
       var heightMargin = element.readmore.heightMargin;
-
 
       if (element.getBoundingClientRect().height <= element.readmore.collapsedHeight + heightMargin) {
         if (typeof _this2.options.blockProcessed === 'function') {
           _this2.options.blockProcessed(element, false);
         }
+
         return;
       }
 
       element.setAttribute('data-readmore', '');
       element.setAttribute('aria-expanded', expanded);
       element.id = element.id || uniqueId();
-
       var toggleLink = expanded ? _this2.options.lessLink : _this2.options.moreLink;
       var toggleElement = buildToggle(toggleLink, element, _this2);
-
       element.parentNode.insertBefore(toggleElement, _this2.options.sourceOrder === 'before' ? element : element.nextSibling);
-
-      element.style.height = (expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight) + 'px';
+      element.style.height = "".concat(expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight, "px");
 
       if (typeof _this2.options.blockProcessed === 'function') {
         _this2.options.blockProcessed(element, true);
@@ -394,9 +461,7 @@ var Readmore = function () {
 
       _this2.elements.push(element);
     });
-  }
-
-  // Signature when called internally by the toggleLink click handler:
+  } // Signature when called internally by the toggleLink click handler:
   //   toggle(element, event)
   //
   // When called externally by an instance,
@@ -404,31 +469,30 @@ var Readmore = function () {
   //   toggle(elementOrQuerySelector)
 
 
-  _createClass(Readmore, [{
-    key: 'toggle',
+  _babel_runtime_helpers_createClass__WEBPACK_IMPORTED_MODULE_1___default()(Readmore, [{
+    key: "toggle",
     value: function toggle() {
       var _this3 = this;
 
       var el = arguments.length <= 0 ? undefined : arguments[0];
 
       var toggleElement = function toggleElement(element) {
-        var trigger = document.querySelector('[aria-controls="' + element.id + '"]');
+        var trigger = document.querySelector("[aria-controls=\"".concat(element.id, "\"]"));
         var expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
-        var newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
-
-        // Fire beforeToggle callback
+        var newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight; // Fire beforeToggle callback
         // Since we determined the new "expanded" state above we're now out of sync
         // with our true current state, so we need to flip the value of `expanded`
-        if (typeof _this3.options.beforeToggle === 'function') {
-          var shouldContinueToggle = _this3.options.beforeToggle(trigger, element, !expanded);
 
-          // if the beforeToggle callback returns false, stop toggling
+        if (typeof _this3.options.beforeToggle === 'function') {
+          var shouldContinueToggle = _this3.options.beforeToggle(trigger, element, !expanded); // if the beforeToggle callback returns false, stop toggling
+
+
           if (shouldContinueToggle === false) {
             return;
           }
         }
 
-        element.style.height = newHeight + 'px';
+        element.style.height = "".concat(newHeight, "px");
 
         var transitionendHandler = function transitionendHandler(transitionEvent) {
           // Fire afterToggle callback
@@ -437,7 +501,6 @@ var Readmore = function () {
           }
 
           transitionEvent.stopPropagation();
-
           element.setAttribute('aria-expanded', expanded);
           element.removeEventListener('transitionend', transitionendHandler, false);
         };
@@ -445,7 +508,9 @@ var Readmore = function () {
         element.addEventListener('transitionend', transitionendHandler, false);
 
         if (_this3.options.speed < 1) {
-          transitionendHandler.call(_this3, { target: element });
+          transitionendHandler.call(_this3, {
+            target: element
+          });
         }
 
         var toggleLink = expanded ? _this3.options.lessLink : _this3.options.moreLink;
@@ -472,7 +537,7 @@ var Readmore = function () {
         event.stopPropagation();
       }
 
-      if ((typeof el === 'undefined' ? 'undefined' : _typeof(el)) === 'object' && !el.nodeName) {
+      if (_babel_runtime_helpers_typeof__WEBPACK_IMPORTED_MODULE_2___default()(el) === 'object' && !el.nodeName) {
         // element is likely a NodeList
         forEach(el, toggleElement);
       } else {
@@ -480,11 +545,11 @@ var Readmore = function () {
       }
     }
   }, {
-    key: 'destroy',
+    key: "destroy",
     value: function destroy(selector) {
       var _this4 = this;
 
-      var elements = void 0;
+      var elements;
 
       if (!selector) {
         elements = this.elements; // eslint-disable-line
@@ -510,14 +575,12 @@ var Readmore = function () {
         }
 
         delete element.readmore;
-
         element.style.height = 'initial';
         element.style.maxHeight = 'initial';
-
         element.removeAttribute('data-readmore');
         element.removeAttribute('aria-expanded');
+        var trigger = document.querySelector("[aria-controls=\"".concat(element.id, "\"]"));
 
-        var trigger = document.querySelector('[aria-controls="' + element.id + '"]');
         if (trigger) {
           trigger.remove();
         }
@@ -526,7 +589,6 @@ var Readmore = function () {
           element.removeAttribute('id');
         }
       });
-
       delete this;
     }
   }]);
@@ -534,11 +596,23 @@ var Readmore = function () {
   return Readmore;
 }();
 
-Readmore.VERSION = '3.0.0-alpha-6';
+Readmore.VERSION = "3.0.0-beta-1";
+/* harmony default export */ __webpack_exports__["default"] = (Readmore);
 
-exports.default = Readmore;
+/***/ }),
+
+/***/ 0:
+/*!*******************************!*\
+  !*** multi ./src/readmore.js ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(/*! ./src/readmore.js */"./src/readmore.js");
+
 
 /***/ })
-/******/ ])["default"];
+
+/******/ })["default"];
 });
 //# sourceMappingURL=readmore.js.map
