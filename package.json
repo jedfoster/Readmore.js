@@ -8,7 +8,7 @@
   ],
   "module": "dist/readmore.es6.js",
   "scripts": {
-    "build": "rm -rf ./dist/* && ./node_modules/webpack/bin/webpack.js && cp src/readmore.js dist/readmore.es6.js",
+    "build": "rm -rf ./dist/* && ./node_modules/webpack/bin/webpack.js",
     "start": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "test": "NODE_ENV=test ./node_modules/mocha/bin/mocha --compilers js:babel-core/register",
     "watch": "./node_modules/webpack/bin/webpack.js --watch",
@@ -44,6 +44,7 @@
     "babel-loader": "^8.0.5",
     "babel-plugin-transform-define": "^1.3.1",
     "chai": "^4.1.2",
+    "copy-webpack-plugin": "^5.0.0",
     "core-js": "^2.6.5",
     "eslint": "^5.5.0",
     "eslint-config-airbnb-base": "^13.1.0",
@@ -53,8 +54,9 @@
     "mocha": "^3.5.3",
     "regenerator-runtime": "^0.13.1",
     "uglify-js": "^3.2.0",
-    "webpack": "^3.6.0",
-    "webpack-dev-server": "^2.9.1"
+    "webpack": "^4.29.5",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.0"
   },
   "dependencies": {
     "@babel/runtime": "^7.3.1"

@@ -1,6 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
+const CopyPlugin = require('copy-webpack-plugin');
 const pkg = require('./package.json');
+const constants = require('./constants.js');
 
 const banner = ` @preserve
 
@@ -11,6 +13,19 @@ Version: ${pkg.version}
 Licensed under the MIT license
 
 Debounce function from davidwalsh.name/javascript-debounce-function`;
+
+const transform = (content) => {
+  let txt = `/*!
+ *${banner.split('\n').join('\n * ')}
+ */
+${content.toString()}`;
+
+  Object.keys(constants).forEach((key) => {
+    txt = txt.toString().replace(key, `'${constants[key]}'`);
+  });
+
+  return Buffer.from(txt);
+};
 
 module.exports = {
   cache: true,
@@ -52,6 +67,13 @@ module.exports = {
   },
   plugins: [
     // Add banner to built code
-    new webpack.BannerPlugin(banner)
+    new webpack.BannerPlugin(banner),
+    new CopyPlugin([
+      {
+        from: 'src/readmore.js',
+        to: 'readmore.es6.js',
+        transform
+      }
+    ])
   ]
 };
