@@ -91,10 +91,10 @@ The `beforeToggle` and `afterToggle` callbacks both receive the same arguments: 
 * `element`: the block that is being collapsed or expanded
 * `expanded`: Boolean; `true` means the block is expanded
 
-The `blockProcessed` callback receives `element` and `collapsable`.
+The `blockProcessed` callback receives `element` and `collapsible`.
 
 * `element`: the block that has just been processed
-* `collapsable`: Boolean; `false` means the block was shorter than the specified minimum `collapsedHeight`--the block will not have a "Read more" link
+* `collapsible`: Boolean; `false` means the block was shorter than the specified minimum `collapsedHeight`--the block will not have a "Read more" link
 
 Here's an example of how you could use the `afterToggle` callback to scroll back to the top of a block when the "Close" link is clicked.
 
