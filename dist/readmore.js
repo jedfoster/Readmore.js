@@ -478,8 +478,7 @@ function () {
 
       var toggleElement = function toggleElement(element) {
         var trigger = document.querySelector("[aria-controls=\"".concat(element.id, "\"]"));
-        var expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
-        var newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight; // Fire beforeToggle callback
+        var expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight; // Fire beforeToggle callback
         // Since we determined the new "expanded" state above we're now out of sync
         // with our true current state, so we need to flip the value of `expanded`
 
@@ -492,6 +491,7 @@ function () {
           }
         }
 
+        var newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
         element.style.height = "".concat(newHeight, "px");
 
         var transitionendHandler = function transitionendHandler(transitionEvent) {
