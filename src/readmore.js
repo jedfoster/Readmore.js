@@ -283,7 +283,6 @@ class Readmore {
     const toggleElement = (element) => {
       const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
       const expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
-      const newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
 
       // Fire beforeToggle callback
       // Since we determined the new "expanded" state above we're now out of sync
@@ -296,6 +295,8 @@ class Readmore {
           return;
         }
       }
+
+      const newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
 
       element.style.height = `${newHeight}px`;
 
