@@ -216,7 +216,8 @@
 
         if (! this.options.startOpen) {
           current.css({
-            height: collapsedHeight
+            height: collapsedHeight,
+            oevrflow: 'hidden'
           });
         }
 
