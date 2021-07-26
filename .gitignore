@@ -5,3 +5,4 @@ coverage
 npm-debug.log
 /dist/ajax.html
 /dist/index.html
+/cypress/videos

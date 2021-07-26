@@ -31,8 +31,6 @@ Feature: Basic Readmore.js usage
 
 */
 
-// const visit = async function(
-
 describe('Basic Readmore.js usage', () => {
   describe('Basic instantiation', () => {
     beforeEach(() => {
@@ -78,8 +76,6 @@ describe('Basic Readmore.js usage', () => {
       cy.viewport('macbook-15');
       cy.visit('/?suite=basic');
       cy.wait(75);
-
-      // cy.get('[data-readmore-toggle="rmjs-1"]').click();
     });
 
     it('collapses all elements taller than 384px', () => {

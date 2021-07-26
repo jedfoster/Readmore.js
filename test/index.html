@@ -98,16 +98,11 @@
       const configs = {
         basic: {
           collapsedHeight: 384,
-          speed: 560,
-          afterToggle: function(trigger, element, expanded) {
-            if(!expanded) { // The "Close" link was clicked
-              window.scrollTo({top: element.offsetTop, behavior: 'smooth'})
-            }
-            // console.log('afterToggle called', arguments);
-          },
-          beforeToggle: function(trigger, element, expanded) {
-            // console.log('beforeToggle called', arguments);
-          }
+          speed: 560
+        },
+        customMoreLessLinks: {
+          moreLink: `<button type="button">Gimme more</button>`,
+          lessLink: `<span>Gimme less</span>`
         }
       };
 
