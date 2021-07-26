@@ -1,14 +1,16 @@
 /*!
  * @preserve
- * 
+ *
  * Readmore.js plugin
- * Author: @jed_foster
+ * Author: Jed Foster
  * Project home: jedfoster.com/Readmore.js
  * Version: 3.0.0-beta-1
+ * Source: github.com/jedfoster/Readmore.js
  * Licensed under the MIT license
- * 
+ *
  * Debounce function from davidwalsh.name/javascript-debounce-function
  */
+
 let uniqueIdCounter = 0;
 
 const isCssEmbeddedFor = [];
@@ -221,7 +223,7 @@ class Readmore {
       elements = selector;
     }
 
-    // After all that, if we _still_ don't have iteratable NodeList, bail out.
+    // After all that, if we _still_ don't have an iteratable NodeList, bail out.
     if (!elements.length) return;
 
     this.options = extend({}, defaults, options);
@@ -405,6 +407,6 @@ class Readmore {
   }
 }
 
-Readmore.VERSION = '3.0.0-beta-1';
+Readmore.VERSION = __VERSION__;
 
 export default Readmore;

@@ -210,7 +210,7 @@ class Readmore {
       elements = selector;
     }
 
-    // After all that, if we _still_ don't have iteratable NodeList, bail out.
+    // After all that, if we _still_ don't have an iteratable NodeList, bail out.
     if (!elements.length) return;
 
     this.options = extend({}, defaults, options);
