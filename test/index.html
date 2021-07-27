@@ -73,7 +73,7 @@
           let param = qs[key];
 
           if (typeof defaultValue === 'boolean' && param.match(/^true|false$/)) {
-              param = param === 'true';
+            param = param === 'true';
           }
 
           return param
@@ -100,9 +100,12 @@
           collapsedHeight: 384,
           speed: 560
         },
-        customMoreLessLinks: {
+        customToggleLinks: {
           moreLink: `<button type="button">Gimme more</button>`,
           lessLink: `<span>Gimme less</span>`
+        },
+        embedCSS: {
+          embedCSS: true
         }
       };
 

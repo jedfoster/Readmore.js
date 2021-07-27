@@ -22,7 +22,7 @@ describe('Customized moreLink and lessLink options', () => {
     beforeEach(() => {
       // cy.viewport(550, 350)
       cy.viewport('macbook-15');
-      cy.visit('/?suite=customMoreLessLinks');
+      cy.visit('/?suite=customToggleLinks');
       cy.wait(75);
     });
 
