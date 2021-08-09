@@ -374,8 +374,8 @@ class Readmore {
 
       delete element.readmore;
 
-      element.style.height = 'initial';
-      element.style.maxHeight = 'initial';
+      element.style.height = '';
+      element.style.maxHeight = '';
 
       element.removeAttribute('data-readmore');
       element.removeAttribute('aria-expanded');
