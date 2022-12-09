@@ -316,6 +316,10 @@
 
     options = options || {};
 
+    if (typeof selector === 'undefined' && typeof options === 'object') {
+      selector = options.selector;
+    }
+
     if (typeof options === 'object') {
       return this.each(function() {
         if ($.data(this, 'plugin_' + readmore)) {
