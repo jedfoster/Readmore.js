@@ -56,6 +56,7 @@ $('article').readmore({
 * `heightMargin: 16` in pixels, avoids collapsing blocks that are only slightly larger than `collapsedHeight`
 * `moreLink: '<a href="#">Read more</a>'`
 * `lessLink: '<a href="#">Close</a>'`
+* `selector: undefined` specify the element to which Readmore.js will be applied. This is required for all versions of jQuery greater than or equal to 3.0.0.
 * `embedCSS: true` insert required CSS dynamically, set this to `false` if you include the necessary CSS in a stylesheet
 * `blockCSS: 'display: block; width: 100%;'` sets the styling of the blocks, ignored if `embedCSS` is `false`
 * `startOpen: false` do not immediately truncate, start in the fully opened position
