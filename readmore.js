@@ -69,7 +69,7 @@
   function uniqueId(prefix) {
     var id = ++uniqueIdCounter;
 
-    return String(prefix === null ? 'rmjs-' : prefix) + id;
+    return String(prefix == null ? 'rmjs-' : prefix) + id;
   }
 
   function setBoxHeights(element) {
@@ -102,7 +102,7 @@
   var resizeBoxes = debounce(function() {
     $('[data-readmore]').each(function() {
       var current = $(this),
-          isExpanded = (current.attr('aria-expanded') === 'true');
+          isExpanded = (current.attr('data-expanded') === 'true');
 
       setBoxHeights(current);
 
@@ -199,7 +199,7 @@
 
         current.attr({
           'data-readmore': '',
-          'aria-expanded': this.options.startOpen,
+          'data-expanded': this.options.startOpen,
           'id': id
         });
 
@@ -211,6 +211,7 @@
           })(this))
           .attr({
             'data-readmore-toggle': id,
+            'aria-expanded': this.options.startOpen,
             'aria-controls': id
           }));
 
@@ -271,9 +272,11 @@
             _this.options.afterToggle(trigger, $element, expanded);
           }
 
-          $(this).attr({
+          $(this).next('[data-readmore-toggle]').attr({
             'aria-expanded': expanded
-          }).off('transitionend');
+          });
+          
+          $(this).attr('data-expanded', expanded).off('transitionend');
         };
       })(this));
 
@@ -285,6 +288,7 @@
           })(this))
         .attr({
           'data-readmore-toggle': $element.attr('id'),
+          'aria-expanded': $element.attr('data-expanded'),
           'aria-controls': $element.attr('id')
         }));
     },
@@ -294,8 +298,7 @@
         var current = $(this);
 
         current.attr({
-          'data-readmore': null,
-          'aria-expanded': null
+          'data-readmore': null
         })
           .css({
             maxHeight: '',
