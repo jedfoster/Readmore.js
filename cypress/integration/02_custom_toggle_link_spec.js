@@ -23,7 +23,7 @@ describe('Customized moreLink and lessLink options', () => {
       // cy.viewport(550, 350)
       cy.viewport('macbook-15');
       cy.visit('/?suite=customToggleLinks');
-      cy.wait(75);
+      cy.window().should('have.property', 'Readmore');
     });
 
     it('displays a custom `moreLink`', () => {

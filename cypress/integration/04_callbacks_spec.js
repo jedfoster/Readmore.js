@@ -1,3 +1,4 @@
+/* globals cy, beforeEach */
 /*
 
 Feature: Advanced Readmore.js usage
@@ -55,3 +56,89 @@ Feature: Advanced Readmore.js usage
     Then the first toggle link is the result of of the 'lessLink' callback
 
 */
+
+describe('Advanced Readmore.js usage - Callbacks', () => {
+  describe('`embedCSS: false` option', () => {
+    beforeEach(() => {
+      // cy.viewport(550, 350)
+      cy.viewport('macbook-15');
+      // cy.wait(75);
+    });
+
+    it('calls blockProcessed callback', () => {
+      const mockFunc = cy.spy().as('blockProcessed');
+      cy.on('window:before:load', (win) => Object.defineProperty(win, 'mockFunc', { get: () => mockFunc }));
+      cy.visit('/?suite=blockProcessed');
+
+      cy.get('@blockProcessed').should('be.called');
+      cy.get('@blockProcessed').should(($foo) => {
+        cy.log($foo);
+        console.log($foo);
+
+        return true;
+      });
+
+      // expect(1).to.equal(2);
+      // cy.get('@blockProcessed').should('be.calledWithMatch', cy.should('match.instanceOf', Node));
+
+      cy.log(cy.get('@blockProcessed'));
+
+      // cy.visit('/?suite=blockProcessed').then((win) => {
+      //   // need an object and a method name
+      //   const spy = cy.spy(win.demo.options, 'blockProcessed').as('track');
+      //   cy.get('@track').should('be.called')
+      //   // expect(spy).to.be.called;
+      // })
+    });
+  });
+
+  // describe('`blockCSS` option', () => {
+  //   beforeEach(() => {
+  //     // cy.viewport(550, 350)
+  //     cy.viewport('macbook-15');
+  //     cy.visit('/?suite=blockCSS');
+  //     cy.wait(75);
+  //   });
+
+  //   it('applies custom block styles to Readmore blocks', () => {
+  //     cy.get('#rmjs-2')
+  //       .should('have.css', 'background-color')
+  //       // getComputedStyle returns colors in rgb, regardless of original form
+  //       .and('eq', 'rgb(255, 0, 0)');
+  //   });
+  // });
+
+  // describe('`startOpen` option', () => {
+  //   beforeEach(() => {
+  //     // cy.viewport(550, 350)
+  //     cy.viewport('macbook-15');
+  //     cy.visit('/?suite=startOpen');
+  //     cy.wait(75);
+  //   });
+
+  //   it('leaves all articles expanded', () => {
+  //     cy.get('article:nth-of-type(2)').should('have.attr', 'aria-expanded');
+  //     cy.get('[data-readmore-toggle="rmjs-1"]').should('contain', 'Close');
+  //   });
+  // });
+
+  // describe('`sourceOrder: "before"` option', () => {
+  //   beforeEach(() => {
+  //     // cy.viewport(550, 350)
+  //     cy.viewport('macbook-15');
+  //     cy.visit('/?suite=sourceOrder');
+  //     cy.wait(75);
+  //   });
+
+  //   it(`inserts the toggle before it's corresponding block`, () => {
+  //     cy.get('[data-readmore-toggle="rmjs-1"]')
+  //       .parent()
+  //       .children('*:nth-child(1)')
+  //       .should('have.attr', 'data-readmore-toggle', 'rmjs-1');
+  //     cy.get('[data-readmore-toggle="rmjs-1"]')
+  //       .parent()
+  //       .children('*:nth-child(4)')
+  //       .should('contain', 'Portland Leggings');
+  //   });
+  // });
+});

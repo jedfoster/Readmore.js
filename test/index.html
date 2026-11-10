@@ -95,6 +95,8 @@
         document.getElementsByTagName('head')[0].appendChild(css);
       }
 
+      window.mockFunc = () => {};
+
       const configs = {
         basic: {
           collapsedHeight: 384,
@@ -105,7 +107,19 @@
           lessLink: `<span>Gimme less</span>`
         },
         embedCSS: {
-          embedCSS: true
+          embedCSS: false
+        },
+        blockCSS: {
+          blockCSS: 'background-color: #f00;'
+        },
+        startOpen: {
+          startOpen: true
+        },
+        sourceOrder: {
+          sourceOrder: 'before'
+        },
+        blockProcessed: {
+          blockProcessed: window.mockFunc
         }
       };
 
@@ -115,7 +129,8 @@
         insertCSS('article { max-height: 300px; }');
       }
 
-      const demo = new Readmore('article', suite && configs[suite] ? configs[suite] : {});
+      const demo = new Readmore('article', suite && configs[suite] ? configs[suite] : null);
+      window.demo = demo;
     };
 
     window.foo();
