@@ -1,36 +1,19 @@
 /*!
  * @preserve
- * 
+ *
  * Readmore.js plugin
- * Author: @jed_foster
+ * Author: Jed Foster
  * Project home: jedfoster.com/Readmore.js
  * Version: 3.0.0-beta-1
+ * Source: github.com/jedfoster/Readmore.js
  * Licensed under the MIT license
- * 
+ *
  * Debounce function from davidwalsh.name/javascript-debounce-function
  */
+
 let uniqueIdCounter = 0;
 
 const isCssEmbeddedFor = [];
-
-// from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
-((function removePolyfill(arr) {
-  arr.forEach((item) => {
-    if (Object.prototype.hasOwnProperty.call(item, 'remove')) {
-      return;
-    }
-    Object.defineProperty(item, 'remove', {
-      configurable: true,
-      enumerable: true,
-      writable: true,
-      value: function remove() {
-        if (this.parentNode !== null) {
-          this.parentNode.removeChild(this);
-        }
-      }
-    });
-  });
-})([Element.prototype, CharacterData.prototype, DocumentType.prototype]));
 
 function forEach(arr, callback, scope) {
   for (let i = 0; i < arr.length; i += 1) {
@@ -80,16 +63,13 @@ function debounce(func, wait, immediate) {
   let timeout;
 
   return function debouncedFunc(...args) {
-    const callNow = immediate && !timeout;
     const later = () => {
       timeout = null;
-      if (!immediate) func.apply(this, args);
+      func.apply(this, args);
     };
 
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
-
-    if (callNow) func.apply(this, args);
   };
 }
 
@@ -405,6 +385,6 @@ class Readmore {
   }
 }
 
-Readmore.VERSION = '3.0.0-beta-1';
+Readmore.VERSION = "3.0.0-beta-1";
 
-export default Readmore;
+export { Readmore as default };

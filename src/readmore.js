@@ -2,25 +2,6 @@ let uniqueIdCounter = 0;
 
 const isCssEmbeddedFor = [];
 
-// from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
-((function removePolyfill(arr) {
-  arr.forEach((item) => {
-    if (Object.prototype.hasOwnProperty.call(item, 'remove')) {
-      return;
-    }
-    Object.defineProperty(item, 'remove', {
-      configurable: true,
-      enumerable: true,
-      writable: true,
-      value: function remove() {
-        if (this.parentNode !== null) {
-          this.parentNode.removeChild(this);
-        }
-      }
-    });
-  });
-})([Element.prototype, CharacterData.prototype, DocumentType.prototype]));
-
 function forEach(arr, callback, scope) {
   for (let i = 0; i < arr.length; i += 1) {
     callback.call(scope, arr[i], i);
