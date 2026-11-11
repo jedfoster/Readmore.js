@@ -32,6 +32,13 @@
     "no-useless-escape": "off",
     "no-param-reassign": [2, { "props": false }]
   },
+  "overrides": [
+    {
+      "files": ["e2e/**/*.js", "playwright.config.mjs"],
+      "env": { "node": true },
+      "parserOptions": { "sourceType": "module" }
+    }
+  ],
   "settings": {
     "import/resolver": {
       "babel-module": {
