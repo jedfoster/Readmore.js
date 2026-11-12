@@ -16,6 +16,8 @@
     "watch:html": "nodemon --watch src -e html -x \"npm run build:html\"",
     "serve": "http-server -p 9000 dist/",
     "start": "npm-run-all -p watch serve",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "node --test --experimental-test-coverage --test-coverage-include=\"src/logic.js\" --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-functions=100 \"test/**/*.test.js\"",
     "test:e2e": "npm run build && playwright test",
     "test:e2e:ui": "playwright test --ui",
     "lint": "eslint --cache .",

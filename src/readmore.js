@@ -1,4 +1,4 @@
-let uniqueIdCounter = 0;
+import { debounce, shouldFold, targetHeight, uniqueId } from './logic.js';
 
 const isCssEmbeddedFor = [];
 
@@ -45,33 +45,6 @@ function extend(...objects) {
   }
 
   return child;
-}
-
-function debounce(func, wait, immediate) {
-  let timeout;
-
-  return function debouncedFunc(...args) {
-    const callNow = immediate && !timeout;
-    const later = () => {
-      timeout = null;
-      if (!immediate) {
-        func.apply(this, args);
-      }
-    };
-
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-
-    if (callNow) {
-      func.apply(this, args);
-    }
-  };
-}
-
-function uniqueId() {
-  uniqueIdCounter += 1;
-
-  return `rmjs-${uniqueIdCounter}`;
 }
 
 function setBoxHeights(element) {
@@ -165,7 +138,7 @@ const resizeBoxes = debounce(() => {
 
     setBoxHeights(element);
 
-    element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
+    element.style.height = `${targetHeight({ expanded, ...element.readmore })}px`;
   });
 }, 100);
 
@@ -240,7 +213,7 @@ class Readmore {
 
       const { heightMargin } = element.readmore;
 
-      if (element.getBoundingClientRect().height <= element.readmore.collapsedHeight + heightMargin) {
+      if (!shouldFold(element.getBoundingClientRect().height, element.readmore.collapsedHeight, heightMargin)) {
         if (typeof this.options.blockProcessed === 'function') {
           this.options.blockProcessed(element, false);
         }
@@ -257,7 +230,7 @@ class Readmore {
 
       element.parentNode.insertBefore(toggleElement, this.options.sourceOrder === 'before' ? element : element.nextSibling);
 
-      element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
+      element.style.height = `${targetHeight({ expanded, ...element.readmore })}px`;
 
       if (typeof this.options.blockProcessed === 'function') {
         this.options.blockProcessed(element, true);
@@ -279,7 +252,7 @@ class Readmore {
     const toggleElement = (element) => {
       const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
       const expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
-      const newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
+      const newHeight = targetHeight({ expanded, ...element.readmore });
 
       // Fire beforeToggle callback
       // Since we determined the new "expanded" state above we're now out of sync

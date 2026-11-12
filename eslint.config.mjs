@@ -35,7 +35,7 @@ export default [
     },
   },
   {
-    files: ['e2e/**/*.js'],
+    files: ['e2e/**/*.js', 'test/**/*.js'],
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
   {
