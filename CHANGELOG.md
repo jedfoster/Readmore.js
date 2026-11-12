@@ -1,3 +1,9 @@
+# 3.0.1
+
+## Fixes
+
+- The README no longer tells you to install the beta from the `next` tag, and its examples and contributing steps match 3.0
+
 # 3.0.0
 
 ## New features

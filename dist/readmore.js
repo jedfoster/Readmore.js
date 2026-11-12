@@ -4,7 +4,7 @@
  * Readmore.js plugin
  * Author: Jed Foster
  * Project home: jedfoster.com/Readmore.js
- * Version: 3.0.0
+ * Version: 3.0.1
  * Source: github.com/jedfoster/Readmore.js
  * Licensed under the MIT license
  *
@@ -545,7 +545,7 @@
     }
   }
 
-  Readmore.VERSION = "3.0.0";
+  Readmore.VERSION = "3.0.1";
 
   return Readmore;
 
