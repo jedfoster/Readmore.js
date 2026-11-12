@@ -153,6 +153,8 @@ test.describe('destroy()', () => {
 
     const article = page.locator('article').first();
 
+    // Let the debounced re-measure after `load` pass first, or it can land between the click and destroy() and fire afterToggle.
+    await page.waitForTimeout(300);
     await page.locator('[data-readmore-toggle]').first().click();
     await page.evaluate(() => window.demo.destroy());
     await page.waitForTimeout(800);

@@ -224,6 +224,9 @@ function remeasure(element) {
   setBoxHeights(element);
 
   element.style.height = `${targetHeight(element.readmore)}px`;
+
+  // Setting a height mid-transition cancels it, so no transitionend will arrive for the pending toggle.
+  element.readmore.transitionendHandler?.({ target: element });
 }
 
 const resizeBoxes = debounce(() => {
@@ -413,6 +416,8 @@ class Readmore {
       }
 
       const transitionendHandler = (transitionEvent) => {
+        element.readmore.transitionendHandler = null;
+
         // Fire afterToggle callback
         if (typeof this.options.afterToggle === 'function') {
           this.options.afterToggle(trigger, element, expanded);

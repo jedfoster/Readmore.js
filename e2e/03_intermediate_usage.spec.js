@@ -55,6 +55,12 @@ Feature: Intermediate Readmore.js usage
     Then the first article's height follows the function's new return value
     And toggling a block open does not re-measure it partway through the animation
 
+  ✔︎ Scenario: A width change interrupts the open animation
+    Given a Readmore.js instance with an 'afterToggle' callback, inside a container whose width a button toggles
+    When the user opens a block and the container width changes before the animation ends
+    Then 'afterToggle' fires once, with the block expanded
+    And the block ends at its new expanded height
+
 */
 import { expect, test, visit } from './fixtures.js';
 import { iphone6, macbook15 } from './viewports.js';
@@ -302,6 +308,24 @@ test.describe('Intermediate Readmore.js usage', () => {
       }
 
       await expect.poll(() => blockHeight(page)).toBeCloseTo(result.expandedHeight, 0);
+    });
+
+    test('fires `afterToggle` once when a width change interrupts the open animation', async ({ page }) => {
+      await page.waitForTimeout(300);
+
+      await page.evaluate(() => {
+        document.querySelector('[data-readmore-toggle="rmjs-1"]').click();
+        document.getElementById('width-button').click();
+      });
+
+      await expect.poll(() => page.evaluate(() => window.afterToggleCalls.length)).toBe(1);
+      await page.waitForTimeout(800);
+
+      expect(await page.evaluate(() => window.afterToggleCalls)).toEqual([{ id: 'rmjs-1', expanded: true }]);
+
+      const expandedHeight = await page.locator('#rmjs-1').evaluate((el) => el.readmore.expandedHeight);
+
+      await expect.poll(() => blockHeight(page)).toBeCloseTo(expandedHeight, 0);
     });
   });
 });

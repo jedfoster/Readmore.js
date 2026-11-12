@@ -144,6 +144,7 @@
         },
         containerResize: {
           speed: 560,
+          afterToggle: (trigger, element, expanded) => window.afterToggleCalls.push({ id: element.id, expanded }),
           collapsedHeight: (el) => el.querySelector('p').getBoundingClientRect().bottom - el.getBoundingClientRect().top
         },
         blockProcessed: {
