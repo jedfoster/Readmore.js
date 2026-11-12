@@ -122,10 +122,16 @@
   }
 
   function setBoxHeights(element) {
+    const { overflow } = element.style;
+
     element.style.height = 'auto';
     element.style.maxHeight = 'none';
+    // A folded block's overflow: hidden keeps its children's margins inside it, so it's measured that way.
+    element.style.overflow = 'hidden';
 
-    const expandedHeight = parseInt(element.getBoundingClientRect().height, 10);
+    const expandedHeight = Math.ceil(element.getBoundingClientRect().height);
+
+    element.style.overflow = overflow;
 
     // Restoring the author's own inline value (if any) lets it and the stylesheet's max-height (and its media queries) show through again.
     element.style.maxHeight = element.readmore.inlineMaxHeight;

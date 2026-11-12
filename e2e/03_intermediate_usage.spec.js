@@ -30,6 +30,12 @@ Feature: Intermediate Readmore.js usage
     And the user clicks its "Read more" link
     Then the block expands to its full content height, not 300px
 
+  ✔︎ Scenario: Expanding a block created after the page loads
+    Given an 'article' whose first and last children have margins
+    When Readmore.js is instantiated on it after the page loads
+    And the user clicks its "Read more" link
+    Then the block expands to show all of its content, margins included
+
   ✔︎ Scenario: 'collapsedHeight' option as a function
     Given a Readmore.js instance configured with a 'collapsedHeight' function
     When Readmore.js is instantiated on 'article' elements
@@ -263,6 +269,28 @@ test.describe('Intermediate Readmore.js usage', () => {
       await page.setViewportSize(iphone6);
 
       await expect.poll(() => page.locator('#rmjs-1').evaluate((el) => el.getBoundingClientRect().height)).toBe(150);
+    });
+  });
+
+  test.describe('block created after the page loads', () => {
+    test('expands to show all of its content, including its children’s margins', async ({ page }) => {
+      await visit(page);
+      // Past the debounced re-measure that follows `load`, which would otherwise measure the block again.
+      await page.waitForTimeout(300);
+
+      await page.evaluate(() => {
+        const clone = document.querySelector('article').cloneNode(true);
+
+        clone.removeAttribute('data-readmore');
+        clone.removeAttribute('style');
+        clone.id = 'late';
+        document.getElementById('demo').appendChild(clone);
+        new window.Readmore(clone, { speed: 0 });
+      });
+
+      await page.locator('[data-readmore-toggle="late"]').click();
+
+      expect(await page.locator('#late').evaluate((el) => el.scrollHeight - el.clientHeight)).toBe(0);
     });
   });
 
