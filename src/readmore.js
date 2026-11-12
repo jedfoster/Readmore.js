@@ -1,7 +1,7 @@
 import { debounce, resolveCollapsedHeight, shouldFold, targetHeight, transitionFor, uniqueId, widthOf } from './logic.js';
 
 const embeddedStyles = new Map();
-let liveBlocks = 0;
+const liveBlocks = new Set();
 
 function forEach(arr, callback, scope) {
   for (let i = 0; i < arr.length; i += 1) {
@@ -56,6 +56,11 @@ function setBoxHeights(element) {
 
   element.style.height = 'auto';
   element.style.maxHeight = 'none';
+  // Whether to fold is decided on the block as it looks unfolded, with its children's margins collapsing through it.
+  element.style.overflow = '';
+
+  const naturalHeight = element.getBoundingClientRect().height;
+
   // A folded block's overflow: hidden keeps its children's margins inside it, so it's measured that way.
   element.style.overflow = 'hidden';
 
@@ -71,6 +76,7 @@ function setBoxHeights(element) {
   element.style.maxHeight = 'none';
 
   // Store our measurements.
+  element.readmore.naturalHeight = naturalHeight;
   element.readmore.expandedHeight = expandedHeight;
   element.readmore.maxHeight = cssMaxHeight;
   element.readmore.collapsedHeight = resolveCollapsedHeight({
@@ -162,21 +168,69 @@ function isEnvironmentSupported() {
   );
 }
 
+function fold(element) {
+  const { readmore } = element;
+  const { options } = readmore.instance;
+
+  element.setAttribute('data-readmore', '');
+  element.style.overflow = 'hidden';
+  applyTransition(element, options.speed);
+  element.id = element.id || uniqueId();
+
+  const toggleLink = readmore.expanded ? options.lessLink : options.moreLink;
+
+  // With no lessLink, an expanded block's toggle went away when it opened, so it doesn't come back.
+  if (toggleLink) {
+    readmore.toggle = buildToggle(toggleLink, element, readmore.instance);
+    element.parentNode.insertBefore(readmore.toggle, options.sourceOrder === 'before' ? element : element.nextSibling);
+  }
+
+  readmore.folded = true;
+}
+
+function unfold(element) {
+  const { readmore } = element;
+
+  element.removeAttribute('data-readmore');
+  element.style.overflow = '';
+  element.style.transition = '';
+  readmore.toggle?.remove();
+  readmore.toggle = null;
+  readmore.folded = false;
+}
+
 function remeasure(element) {
   if (!element.readmore) {
     return;
   }
 
+  // A hidden block (in an inactive tab, say) measures 0. Its width changes when it's shown, which re-measures it.
+  if (element.getClientRects().length === 0) {
+    element.readmore.width = 0;
+
+    return;
+  }
+
   setBoxHeights(element);
 
-  element.style.height = `${targetHeight(element.readmore)}px`;
+  const { readmore } = element;
+
+  if (shouldFold(readmore.naturalHeight, readmore.collapsedHeight, readmore.heightMargin)) {
+    if (!readmore.folded) {
+      fold(element);
+    }
+
+    element.style.height = `${targetHeight(readmore)}px`;
+  } else if (readmore.folded) {
+    unfold(element);
+  }
 
   // Setting a height mid-transition cancels it, so no transitionend will arrive for the pending toggle.
-  element.readmore.transitionendHandler?.({ target: element });
+  readmore.transitionendHandler?.({ target: element });
 }
 
 const resizeBoxes = debounce(() => {
-  forEach(document.querySelectorAll('[data-readmore]'), remeasure);
+  liveBlocks.forEach(remeasure);
 }, 100);
 
 const pendingRemeasure = new Set();
@@ -281,50 +335,28 @@ class Readmore {
         element.classList.add(this.instanceSelector.substr(1));
       }
 
-      const expanded = this.options.startOpen;
-
       element.readmore = {
-        expanded,
+        instance: this,
+        expanded: this.options.startOpen,
+        folded: false,
         inlineMaxHeight: element.style.maxHeight,
         collapsedHeightOption: this.options.collapsedHeight,
         heightMargin: this.options.heightMargin,
       };
 
-      setBoxHeights(element);
+      remeasure(element);
 
-      const { heightMargin } = element.readmore;
-
-      if (!shouldFold(element.getBoundingClientRect().height, element.readmore.collapsedHeight, heightMargin)) {
-        if (typeof this.options.blockProcessed === 'function') {
-          this.options.blockProcessed(element, false);
-        }
-
-        return;
-      }
-
-      element.setAttribute('data-readmore', '');
-      element.style.overflow = 'hidden';
-      applyTransition(element, this.options.speed);
-      element.id = element.id || uniqueId();
-
-      const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
-      const toggleElement = buildToggle(toggleLink, element, this);
-
-      element.parentNode.insertBefore(toggleElement, this.options.sourceOrder === 'before' ? element : element.nextSibling);
-      element.readmore.toggle = toggleElement;
-
-      element.style.height = `${targetHeight(element.readmore)}px`;
-
+      // Every block is watched, folded or not, so one that outgrows the fold (or stops needing it) is caught.
       if (resizeObserver) {
         resizeObserver.observe(element);
       }
 
       if (typeof this.options.blockProcessed === 'function') {
-        this.options.blockProcessed(element, true);
+        this.options.blockProcessed(element, element.readmore.folded);
       }
 
       this.elements.push(element);
-      liveBlocks += 1;
+      liveBlocks.add(element);
     });
   }
 
@@ -338,6 +370,10 @@ class Readmore {
     let el = args[0];
 
     const toggleElement = (element) => {
+      if (!element.readmore?.folded) {
+        return;
+      }
+
       // Held on the block, not looked up in the document, which can't see into a shadow root.
       const trigger = element.readmore.toggle;
       const expanded = !element.readmore.expanded;
@@ -438,7 +474,7 @@ class Readmore {
         element.classList.remove(this.instanceSelector.substr(1));
       }
 
-      liveBlocks -= 1;
+      liveBlocks.delete(element);
 
       if (element.readmore.transitionendHandler) {
         element.removeEventListener('transitionend', element.readmore.transitionendHandler, false);
@@ -469,7 +505,7 @@ class Readmore {
       this.styleSelector = null;
     }
 
-    if (liveBlocks === 0) {
+    if (liveBlocks.size === 0) {
       window.removeEventListener('load', resizeBoxes);
       window.removeEventListener('resize', resizeBoxes);
     }

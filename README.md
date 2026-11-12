@@ -58,13 +58,13 @@ new Readmore('article', {
 * `blockCSS: 'display: block; width: 100%;'` sets the styling of the blocks, ignored if `embedCSS` is `false`
 * `startOpen: false` do not immediately truncate, start in the fully opened position
 * `sourceOrder: 'after'` the toggle link is inserted `'before'` or `'after'` the block
-* `blockProcessed: function() {}` called once per block during initialization after Readmore.js has processed the block
+* `blockProcessed: function() {}` called once per block during initialization after Readmore.js has processed the block, but not when a later re-measure folds or unfolds it
 * `beforeToggle: function() {}` called after a more or less link is clicked, but *before* the block is collapsed or expanded
 * `afterToggle: function() {}` called *after* the block is collapsed or expanded
 
 If the element has a `max-height` CSS property, Readmore.js will use that value rather than the value of a numeric `collapsedHeight` option. The `max-height` is read again each time the block is re-measured, so a value that changes with a media query follows the viewport.
 
-Readmore.js re-measures a block whenever its width changes and once the page has loaded, so the fold follows text that re-wraps.
+Readmore.js re-measures a block whenever its width changes and once the page has loaded, so the fold follows text that re-wraps. When re-wrapped text grows past `collapsedHeight` the block gets folded, and when it no longer needs folding it loses its toggle. A block that's hidden when Readmore.js starts (in an inactive tab, say) is folded once it's shown.
 
 
 ### Callbacks
@@ -98,7 +98,7 @@ With `speed: 0`, or when the visitor prefers reduced motion, `afterToggle` fires
 The `blockProcessed` callback receives `element` and `collapsible`.
 
 * `element`: the block that has just been processed
-* `collapsible`: Boolean; `false` means the block was shorter than the specified minimum `collapsedHeight`, so it will not have a "Read more" link
+* `collapsible`: Boolean; `false` means the block was shorter than the specified minimum `collapsedHeight` (or hidden), so it has no "Read more" link for now
 
 Here's an example of how you could use the `afterToggle` callback to scroll back to the top of a block when the "Close" link is clicked.
 
