@@ -136,7 +136,7 @@
 
     div.innerHTML = htmlString;
 
-    return div.firstChild;
+    return div.firstElementChild;
   }
 
   function embedCSS(selector, options) {
