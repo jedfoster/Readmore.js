@@ -21,6 +21,18 @@ test('resolveCollapsedHeight calls a function option with the element', () => {
   assert.equal(resolveCollapsedHeight({ option: (el) => (el === element ? 120 : 0), element, cssMaxHeight: 300 }), 120);
 });
 
+test('resolveCollapsedHeight coerces a numeric string from a function option', () => {
+  assert.equal(resolveCollapsedHeight({ option: () => '150', element: {}, cssMaxHeight: 300 }), 150);
+});
+
+test('resolveCollapsedHeight falls through to the CSS max-height when a function returns NaN', () => {
+  assert.equal(resolveCollapsedHeight({ option: () => NaN, element: {}, cssMaxHeight: 300 }), 300);
+});
+
+test('resolveCollapsedHeight falls through to the CSS max-height when a function returns undefined', () => {
+  assert.equal(resolveCollapsedHeight({ option: () => undefined, element: {}, cssMaxHeight: 300 }), 300);
+});
+
 test('resolveCollapsedHeight prefers the CSS max-height over a numeric option', () => {
   assert.equal(resolveCollapsedHeight({ option: 200, element: {}, cssMaxHeight: 300 }), 300);
 });

@@ -45,7 +45,11 @@ function targetHeight({ expanded, expandedHeight, collapsedHeight }) {
 
 function resolveCollapsedHeight({ option, element, cssMaxHeight }) {
   if (typeof option === 'function') {
-    return option(element);
+    const fromFunction = Number(option(element));
+
+    if (Number.isFinite(fromFunction)) {
+      return fromFunction;
+    }
   }
 
   if (Number.isFinite(cssMaxHeight)) {
