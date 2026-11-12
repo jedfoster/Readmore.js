@@ -1,3 +1,24 @@
+# 3.1.0
+
+## New features
+
+- A block is folded or unfolded again whenever it's re-measured. One whose text re-wraps past `collapsedHeight` gets a toggle, and one that no longer needs folding loses it (#248)
+- A block that's hidden when Readmore starts, in an inactive tab say, is folded once it's shown (#262)
+- A `collapsedHeight` function can return `Infinity` to leave a block unfolded, above a breakpoint for example (#255)
+
+## Fixes
+
+- The toggle of a block inside a shadow root now switches between "Read more" and "Close". The embedded `<style>` can't reach a shadow root, so put the `blockCSS` rules in its own styles
+- A block created after the page loads expands all the way. It used to stop short by its children's margins
+- A block still re-measures when its width changes before the browser's first resize report arrives (WebKit)
+- `destroy()` also cleans up blocks that were too short to fold
+
+## Potentially breaking changes
+
+- `blockProcessed` still runs once per block, at setup. A block that's hidden then reports `collapsible: false`, and a later re-measure that folds or unfolds a block doesn't call it again.
+- Every block is watched for width changes, not only folded ones.
+- `toggle()` on a block that isn't folded does nothing. It used to collapse the block, or throw for a destroyed one.
+
 # 3.0.1
 
 ## Fixes
