@@ -15,8 +15,7 @@ Feature: Customized moreLink and lessLink options
     Then the first "less" link should match 'lessLink'
 
 */
-
-import { test, expect, visit } from './fixtures.js';
+import { expect, test, visit } from './fixtures.js';
 import { macbook15 } from './viewports.js';
 
 test.describe('Customized moreLink and lessLink options', () => {

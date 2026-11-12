@@ -18,7 +18,7 @@ export const test = base.extend({
 
     expect(pageErrors, 'uncaught page errors').toEqual([]);
     expect(windowErrors, 'window error events').toEqual([]);
-  }
+  },
 });
 
 export { expect };

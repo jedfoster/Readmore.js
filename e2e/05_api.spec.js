@@ -34,8 +34,7 @@ Feature: Readmore.js API
     Then Readmore.js functionality is removed from all blocks in the instance
 
 */
-
-import { test, expect, visit } from './fixtures.js';
+import { expect, test, visit } from './fixtures.js';
 
 test('exposes the package version', async ({ page }) => {
   await visit(page);

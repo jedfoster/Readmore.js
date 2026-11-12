@@ -55,8 +55,7 @@ Feature: Advanced Readmore.js usage
     Then the first toggle link is the result of of the 'lessLink' callback
 
 */
-
-import { test, expect, visit } from './fixtures.js';
+import { expect, test, visit } from './fixtures.js';
 import { macbook15 } from './viewports.js';
 
 test.describe('Advanced Readmore.js usage - Callbacks', () => {
@@ -71,7 +70,7 @@ test.describe('Advanced Readmore.js usage - Callbacks', () => {
       expect(calls).toEqual([
         { tagName: 'ARTICLE', heading: 'Artisanal Narwahls', collapsible: true },
         { tagName: 'ARTICLE', heading: 'Portland Leggings', collapsible: true },
-        { tagName: 'ARTICLE', heading: 'This section is shorter than the Readmore minimum', collapsible: false }
+        { tagName: 'ARTICLE', heading: 'This section is shorter than the Readmore minimum', collapsible: false },
       ]);
     });
   });

@@ -7,16 +7,16 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL: 'http://localhost:4444/e2e/',
-    trace: 'on-first-retry'
+    trace: 'on-first-retry',
   },
   webServer: {
     command: 'npx http-server ./ -p 4444 -c-1 --silent',
     url: 'http://localhost:4444/e2e/index.html',
-    reuseExistingServer: !process.env.CI
+    reuseExistingServer: !process.env.CI,
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } }
-  ]
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+  ],
 });

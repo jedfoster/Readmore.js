@@ -29,8 +29,7 @@ Feature: Basic Readmore.js usage
     And `article[data-readmore]` elements should have a 'transition: height ${speed}s' CSS property
 
 */
-
-import { test, expect, visit } from './fixtures.js';
+import { expect, test, visit } from './fixtures.js';
 import { macbook15 } from './viewports.js';
 
 test.describe('Basic Readmore.js usage', () => {

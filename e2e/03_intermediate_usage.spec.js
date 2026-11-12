@@ -25,8 +25,7 @@ Feature: Intermediate Readmore.js usage
     Then the next sibling of the first "Read more" link is the first article
 
 */
-
-import { test, expect, visit } from './fixtures.js';
+import { expect, test, visit } from './fixtures.js';
 import { macbook15 } from './viewports.js';
 
 test.describe('Intermediate Readmore.js usage', () => {
@@ -38,8 +37,8 @@ test.describe('Intermediate Readmore.js usage', () => {
     });
 
     test('does not insert CSS block', async ({ page }) => {
-      const css = await page.evaluate(
-        () => [...document.querySelectorAll('head style')].map((node) => node.textContent).join('\n')
+      const css = await page.evaluate(() =>
+        [...document.querySelectorAll('head style')].map((node) => node.textContent).join('\n'),
       );
 
       expect(css).not.toContain('article + [data-readmore-toggle]');

@@ -36,6 +36,7 @@ function extend(...objects) {
     while (args.length > 2) {
       const c1 = args.shift();
       const p1 = args.shift();
+
       args.unshift(extend(c1, p1));
     }
 
@@ -65,7 +66,9 @@ function debounce(func, wait, immediate) {
   return function debouncedFunc(...args) {
     const later = () => {
       timeout = null;
-      func.apply(this, args);
+      {
+        func.apply(this, args);
+      }
     };
 
     clearTimeout(timeout);
@@ -96,6 +99,7 @@ function setBoxHeights(element) {
 
 function createElementFromString(htmlString) {
   const div = document.createElement('div');
+
   div.innerHTML = htmlString;
 
   return div.firstChild;
@@ -117,8 +121,9 @@ function embedCSS(selector, options) {
       overflow: hidden;
     }`;
 
-    (((d, u) => {
+    ((d, u) => {
       const css = d.createElement('style');
+
       css.type = 'text/css';
 
       if (css.styleSheet) {
@@ -128,7 +133,7 @@ function embedCSS(selector, options) {
       }
 
       d.getElementsByTagName('head')[0].appendChild(css);
-    })(document, styles));
+    })(document, styles);
 
     isCssEmbeddedFor[selector] = true;
   }
@@ -140,11 +145,13 @@ function buildToggle(link, element, scope) {
   }
 
   let text = link;
+
   if (typeof link === 'function') {
     text = link(element);
   }
 
   const toggleLink = createElementFromString(text);
+
   toggleLink.setAttribute('data-readmore-toggle', element.id);
   toggleLink.setAttribute('aria-controls', element.id);
   toggleLink.addEventListener('click', clickHandler.bind(scope));
@@ -153,8 +160,9 @@ function buildToggle(link, element, scope) {
 }
 
 function isEnvironmentSupported() {
-  return (typeof window !== 'undefined' && typeof document !== 'undefined')
-    && !!document.querySelectorAll && !!window.addEventListener;
+  return (
+    typeof window !== 'undefined' && typeof document !== 'undefined' && !!document.querySelectorAll && !!window.addEventListener
+  );
 }
 
 const resizeBoxes = debounce(() => {
@@ -183,12 +191,14 @@ const defaults = {
   // callbacks
   blockProcessed: () => {},
   beforeToggle: () => {},
-  afterToggle: () => {}
+  afterToggle: () => {},
 };
 
 class Readmore {
   constructor(...args) {
-    if (!isEnvironmentSupported()) return;
+    if (!isEnvironmentSupported()) {
+      return;
+    }
 
     const [selector, options] = args;
     let elements;
@@ -202,7 +212,9 @@ class Readmore {
     }
 
     // After all that, if we _still_ don't have iteratable NodeList, bail out.
-    if (!elements.length) return;
+    if (!elements.length) {
+      return;
+    }
 
     this.options = extend({}, defaults, options);
 
@@ -229,7 +241,7 @@ class Readmore {
 
       element.readmore = {
         defaultHeight: this.options.collapsedHeight,
-        heightMargin: this.options.heightMargin
+        heightMargin: this.options.heightMargin,
       };
 
       setBoxHeights(element);
@@ -240,6 +252,7 @@ class Readmore {
         if (typeof this.options.blockProcessed === 'function') {
           this.options.blockProcessed(element, false);
         }
+
         return;
       }
 
@@ -250,7 +263,7 @@ class Readmore {
       const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
       const toggleElement = buildToggle(toggleLink, element, this);
 
-      element.parentNode.insertBefore(toggleElement, (this.options.sourceOrder === 'before') ? element : element.nextSibling);
+      element.parentNode.insertBefore(toggleElement, this.options.sourceOrder === 'before' ? element : element.nextSibling);
 
       element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
 
@@ -332,7 +345,8 @@ class Readmore {
       event.stopPropagation();
     }
 
-    if (typeof el === 'object' && !el.nodeName) { // element is likely a NodeList
+    if (typeof el === 'object' && !el.nodeName) {
+      // element is likely a NodeList
       forEach(el, toggleElement);
     } else {
       toggleElement(el);
@@ -343,7 +357,7 @@ class Readmore {
     let elements;
 
     if (!selector) {
-      elements = this.elements; // eslint-disable-line
+      elements = this.elements;
     } else if (typeof selector === 'string') {
       elements = document.querySelectorAll(selector);
     } else if (selector.nodeName) {
@@ -372,6 +386,7 @@ class Readmore {
       element.removeAttribute('aria-expanded');
 
       const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
+
       if (trigger) {
         trigger.remove();
       }

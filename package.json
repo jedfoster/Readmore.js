@@ -18,7 +18,7 @@
     "start": "npm-run-all -p watch serve",
     "test:e2e": "npm run build && playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "lint": "./node_modules/eslint/bin/eslint.js --cache .",
+    "lint": "eslint --cache .",
     "precommit": "npm run lint #&& npm run test",
     "prepublishOnly": "npm run build"
   },
@@ -40,17 +40,21 @@
     "url": "https://github.com/jedfoster/Readmore.js/issues"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.65.0",
     "@rollup/plugin-replace": "^6.0.3",
-    "babel-eslint": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "cpy-cli": "^7.0.0",
-    "eslint": "^5.5.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.14.0",
     "http-server": "^14.1.1",
-    "husky": "^0.14.3",
     "nodemon": "^3.1.0",
     "npm-run-all2": "^9.0.0",
+    "prettier": "^3.10.0",
+    "prettier-plugin-brace-style": "^0.10.4",
+    "prettier-plugin-curly": "^0.4.2",
     "rollup": "^4.0.0"
   },
   "devEngines": {

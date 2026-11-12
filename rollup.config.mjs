@@ -1,5 +1,5 @@
-import { createRequire } from 'node:module';
 import replace from '@rollup/plugin-replace';
+import { createRequire } from 'node:module';
 
 const { version } = createRequire(import.meta.url)('./package.json');
 
@@ -20,8 +20,8 @@ const banner = `/*!
 const plugins = [
   replace({
     preventAssignment: true,
-    values: { __VERSION__: JSON.stringify(version) }
-  })
+    values: { __VERSION__: JSON.stringify(version) },
+  }),
 ];
 
 export default [
@@ -32,17 +32,17 @@ export default [
       format: 'umd',
       name: 'Readmore',
       banner,
-      sourcemap: true
+      sourcemap: true,
     },
-    plugins
+    plugins,
   },
   {
     input: 'src/readmore.js',
     output: {
       file: 'dist/readmore.es6.js',
       format: 'es',
-      banner
+      banner,
     },
-    plugins
-  }
+    plugins,
+  },
 ];
