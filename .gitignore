@@ -3,3 +3,7 @@ node_modules
 bower_components
 coverage
 npm-debug.log
+test-results/
+playwright-report/
+/dist/ajax.html
+/dist/index.html

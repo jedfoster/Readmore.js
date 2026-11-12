@@ -4,7 +4,7 @@ A smooth, responsive JavaScript plugin for collapsing and expanding long blocks 
 
 The markup Readmore.js requires is so simple, you can probably use it with your existing HTML—there's no need for complicated sets of `div`s or hardcoded classes, just call `new Readmore()` on the element containing your block of text and Readmore.js takes care of the rest. Readmore.js works well on mobile and plays nicely with responsive designs, too.
 
-Readmore.js has no external dependencies (no more jQuery—yay!) and works in all the "good" browsers, as well as IE10+; IE9 _should_ work, but is not supported and the experience will not be ideal.
+Readmore.js has no external dependencies (no more jQuery—yay!) and works in evergreen browsers (current Chrome, Firefox, Safari and Edge). Internet Explorer is not supported.
 
 
 **NOTE: This documentation is for the beta releases of the next version of Readmore.js.**
@@ -49,12 +49,12 @@ new Readmore('article', {
 
 ## Options
 
-* `speed: 100` in milliseconds
-* `collapsedHeight: 200` in pixels
+* `speed: 100` in milliseconds. The animation is turned off for visitors who prefer reduced motion (`prefers-reduced-motion: reduce`), checked on every toggle
+* `collapsedHeight: 200` in pixels; also accepts a function that receives the block and returns a height in pixels. It's called when the block is set up and whenever it's re-measured. A function wins over a CSS `max-height`, which wins over a number
 * `heightMargin: 16` in pixels, avoids collapsing blocks that are only slightly larger than `collapsedHeight`
 * `moreLink: '<a href="#">Read more</a>'` HTML string for the "more" toggle link; also accepts a callback function that returns an HTML string
 * `lessLink: '<a href="#">Close</a>'` HTML string for the "less" toggle link; also accepts a callback function that returns an HTML string
-* `embedCSS: true` insert required CSS dynamically, set this to `false` if you include the necessary CSS in a stylesheet
+* `embedCSS: true` insert the `blockCSS` rule dynamically, set this to `false` to style blocks in your own stylesheet instead
 * `blockCSS: 'display: block; width: 100%;'` sets the styling of the blocks, ignored if `embedCSS` is `false`
 * `startOpen: false` do not immediately truncate, start in the fully opened position
 * `sourceOrder: 'after'` the toggle link is inserted `'before'` or `'after'` the block
@@ -62,7 +62,7 @@ new Readmore('article', {
 * `beforeToggle: function() {}` called after a more or less link is clicked, but *before* the block is collapsed or expanded
 * `afterToggle: function() {}` called *after* the block is collapsed or expanded
 
-If the element has a `max-height` CSS property, Readmore.js will use that value rather than the value of the `collapsedHeight` option.
+If the element has a `max-height` CSS property, Readmore.js will use that value rather than the value of a numeric `collapsedHeight` option. The `max-height` is read again each time the block is re-measured, so a value that changes with a media query follows the viewport.
 
 
 ### Callbacks
@@ -179,9 +179,9 @@ rmjs.destroy('article:nth-of-type(2)');
 
 ## CSS:
 
-Readmore.js is designed to use CSS for as much functionality as possible: collapsed height can be set in CSS with the `max-height` property; "collapsing" is achieved by setting `overflow: hidden` on the containing block and changing the `height` property; and, finally, the expanding/collapsing animation is done with CSS3 transitions.
+Readmore.js needs no stylesheet. The collapsed height comes from the `max-height` property or the `collapsedHeight` option, and each block gets `overflow: hidden` and a `height` transition (from `speed`) as inline styles.
 
-By default, Readmore.js inserts the following CSS, in addition to some transition-related rules:
+By default, Readmore.js also inserts the following CSS, which comes from the `blockCSS` option:
 
 ```css
 selector + [data-readmore-toggle], selector[data-readmore] {
@@ -198,11 +198,13 @@ You can override the base rules when you set up Readmore.js like so:
 new Readmore('article', { blockCSS: 'display: inline-block; width: 50%;' });
 ```
 
-If you want to include the necessary styling in your site's stylesheet, you can disable the dynamic embedding by setting `embedCSS` to `false`:
+If you'd rather put that styling in your site's stylesheet, set `embedCSS` to `false` and Readmore.js won't add a `<style>` element at all:
 
 ```javascript
 new Readmore('article', { embedCSS: false });
 ```
+
+Because the transition is inline, a site's own `transition` rule on `[data-readmore]` needs `!important` to win.
 
 ### Media queries and other CSS tricks:
 

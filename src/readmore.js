@@ -1,25 +1,7 @@
-let uniqueIdCounter = 0;
+import { debounce, resolveCollapsedHeight, shouldFold, targetHeight, transitionFor, uniqueId, widthOf } from './logic.js';
 
-const isCssEmbeddedFor = [];
-
-// from:https://github.com/jserz/js_piece/blob/master/DOM/ChildNode/remove()/remove().md
-((function removePolyfill(arr) {
-  arr.forEach((item) => {
-    if (Object.prototype.hasOwnProperty.call(item, 'remove')) {
-      return;
-    }
-    Object.defineProperty(item, 'remove', {
-      configurable: true,
-      enumerable: true,
-      writable: true,
-      value: function remove() {
-        if (this.parentNode !== null) {
-          this.parentNode.removeChild(this);
-        }
-      }
-    });
-  });
-})([Element.prototype, CharacterData.prototype, DocumentType.prototype]));
+const embeddedStyles = new Map();
+let liveBlocks = 0;
 
 function forEach(arr, callback, scope) {
   for (let i = 0; i < arr.length; i += 1) {
@@ -42,6 +24,7 @@ function extend(...objects) {
     while (args.length > 2) {
       const c1 = args.shift();
       const p1 = args.shift();
+
       args.unshift(extend(c1, p1));
     }
 
@@ -65,81 +48,81 @@ function extend(...objects) {
   return child;
 }
 
-function debounce(func, wait, immediate) {
-  let timeout;
-
-  return function debouncedFunc(...args) {
-    const callNow = immediate && !timeout;
-    const later = () => {
-      timeout = null;
-      if (!immediate) func.apply(this, args);
-    };
-
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-
-    if (callNow) func.apply(this, args);
-  };
-}
-
-function uniqueId() {
-  uniqueIdCounter += 1;
-
-  return `rmjs-${uniqueIdCounter}`;
-}
-
 function setBoxHeights(element) {
   element.style.height = 'auto';
+  element.style.maxHeight = 'none';
 
   const expandedHeight = parseInt(element.getBoundingClientRect().height, 10);
+
+  // Restoring the author's own inline value (if any) lets it and the stylesheet's max-height (and its media queries) show through again.
+  element.style.maxHeight = element.readmore.inlineMaxHeight;
+
   const cssMaxHeight = parseInt(window.getComputedStyle(element).maxHeight, 10);
-  const defaultHeight = parseInt(element.readmore.defaultHeight, 10);
+
+  element.style.maxHeight = 'none';
 
   // Store our measurements.
   element.readmore.expandedHeight = expandedHeight;
   element.readmore.maxHeight = cssMaxHeight;
-  element.readmore.collapsedHeight = cssMaxHeight || element.readmore.collapsedHeight || defaultHeight;
-
-  element.style.maxHeight = 'none';
+  element.readmore.collapsedHeight = resolveCollapsedHeight({
+    option: element.readmore.collapsedHeightOption,
+    element,
+    cssMaxHeight,
+  });
 }
 
 function createElementFromString(htmlString) {
   const div = document.createElement('div');
+
   div.innerHTML = htmlString;
 
-  return div.firstChild;
+  return div.firstElementChild;
 }
 
+const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+function applyTransition(element, speed) {
+  element.style.transition = transitionFor(speed, prefersReducedMotion());
+}
+
+// Instances sharing a selector string share one tag, so it goes when the last of them is emptied.
 function embedCSS(selector, options) {
-  if (!isCssEmbeddedFor[selector]) {
-    let styles = '';
+  if (!options.embedCSS || options.blockCSS === '') {
+    return false;
+  }
 
-    if (options.embedCSS && options.blockCSS !== '') {
-      styles += `${selector} + [data-readmore-toggle], ${selector}[data-readmore] {
+  if (embeddedStyles.has(selector)) {
+    embeddedStyles.get(selector).users += 1;
+
+    return true;
+  }
+
+  const css = document.createElement('style');
+
+  css.appendChild(
+    document.createTextNode(`${selector} + [data-readmore-toggle], ${selector}[data-readmore] {
         ${options.blockCSS}
-      }`;
-    }
+      }`),
+  );
+  document.head.appendChild(css);
 
-    // Include the transition CSS even if embedCSS is false
-    styles += `${selector}[data-readmore] {
-      transition: height ${options.speed}ms;
-      overflow: hidden;
-    }`;
+  embeddedStyles.set(selector, { css, users: 1 });
 
-    (((d, u) => {
-      const css = d.createElement('style');
-      css.type = 'text/css';
+  return true;
+}
 
-      if (css.styleSheet) {
-        css.styleSheet.cssText = u;
-      } else {
-        css.appendChild(d.createTextNode(u));
-      }
+function releaseCSS(selector) {
+  const entry = embeddedStyles.get(selector);
 
-      d.getElementsByTagName('head')[0].appendChild(css);
-    })(document, styles));
+  if (!entry) {
+    return;
+  }
 
-    isCssEmbeddedFor[selector] = true;
+  entry.users -= 1;
+
+  if (entry.users === 0) {
+    entry.css.remove();
+    embeddedStyles.delete(selector);
   }
 }
 
@@ -149,34 +132,82 @@ function buildToggle(link, element, scope) {
   }
 
   let text = link;
+
   if (typeof link === 'function') {
     text = link(element);
   }
 
   const toggleLink = createElementFromString(text);
+
   toggleLink.setAttribute('data-readmore-toggle', element.id);
   toggleLink.setAttribute('aria-controls', element.id);
+  toggleLink.setAttribute('aria-expanded', element.readmore.expanded);
   toggleLink.addEventListener('click', clickHandler.bind(scope));
 
   return toggleLink;
 }
 
 function isEnvironmentSupported() {
-  return (typeof window !== 'undefined' && typeof document !== 'undefined')
-    && !!document.querySelectorAll && !!window.addEventListener;
+  return (
+    typeof window !== 'undefined' && typeof document !== 'undefined' && !!document.querySelectorAll && !!window.addEventListener
+  );
+}
+
+function remeasure(element) {
+  if (!element.readmore) {
+    return;
+  }
+
+  setBoxHeights(element);
+
+  element.style.height = `${targetHeight(element.readmore)}px`;
+
+  // Setting a height mid-transition cancels it, so no transitionend will arrive for the pending toggle.
+  element.readmore.transitionendHandler?.({ target: element });
 }
 
 const resizeBoxes = debounce(() => {
-  const elements = document.querySelectorAll('[data-readmore]');
-
-  forEach(elements, (element) => {
-    const expanded = element.getAttribute('aria-expanded') === 'true';
-
-    setBoxHeights(element);
-
-    element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
-  });
+  forEach(document.querySelectorAll('[data-readmore]'), remeasure);
 }, 100);
+
+const pendingRemeasure = new Set();
+let remeasureFrame = null;
+
+function flushRemeasure() {
+  const elements = Array.from(pendingRemeasure);
+
+  pendingRemeasure.clear();
+  remeasureFrame = null;
+  elements.forEach(remeasure);
+}
+
+// Re-measuring inside the callback would resize observed blocks mid-delivery, which raises a loop error.
+const resizeObserver =
+  typeof ResizeObserver === 'undefined'
+    ? null
+    : new ResizeObserver((entries) => {
+        entries.forEach((entry) => {
+          const { readmore } = entry.target;
+          const width = widthOf(entry);
+
+          if (!readmore) {
+            return;
+          }
+
+          const seeded = readmore.width !== undefined;
+          const changed = readmore.width !== width;
+
+          readmore.width = width;
+
+          if (seeded && changed) {
+            pendingRemeasure.add(entry.target);
+          }
+        });
+
+        if (pendingRemeasure.size > 0 && remeasureFrame === null) {
+          remeasureFrame = requestAnimationFrame(flushRemeasure);
+        }
+      });
 
 const defaults = {
   speed: 100,
@@ -192,12 +223,14 @@ const defaults = {
   // callbacks
   blockProcessed: () => {},
   beforeToggle: () => {},
-  afterToggle: () => {}
+  afterToggle: () => {},
 };
 
 class Readmore {
   constructor(...args) {
-    if (!isEnvironmentSupported()) return;
+    if (!isEnvironmentSupported()) {
+      return;
+    }
 
     const [selector, options] = args;
     let elements;
@@ -211,21 +244,30 @@ class Readmore {
     }
 
     // After all that, if we _still_ don't have iteratable NodeList, bail out.
-    if (!elements.length) return;
+    if (!elements.length) {
+      return;
+    }
 
     this.options = extend({}, defaults, options);
 
-    if (typeof selector === 'string') {
-      embedCSS(selector, this.options);
-    } else {
+    let styleSelector = selector;
+
+    if (typeof selector !== 'string') {
       // Instances need distinct selectors so they don't stomp on each other.
       this.instanceSelector = `.${uniqueId()}`;
-      embedCSS(this.instanceSelector, this.options);
+      styleSelector = this.instanceSelector;
+    }
+
+    if (embedCSS(styleSelector, this.options)) {
+      this.styleSelector = styleSelector;
     }
 
     // Need to resize boxes when the page has fully loaded.
     window.addEventListener('load', resizeBoxes);
-    window.addEventListener('resize', resizeBoxes);
+
+    if (!resizeObserver) {
+      window.addEventListener('resize', resizeBoxes);
+    }
 
     this.elements = [];
 
@@ -237,37 +279,46 @@ class Readmore {
       const expanded = this.options.startOpen;
 
       element.readmore = {
-        defaultHeight: this.options.collapsedHeight,
-        heightMargin: this.options.heightMargin
+        expanded,
+        inlineMaxHeight: element.style.maxHeight,
+        collapsedHeightOption: this.options.collapsedHeight,
+        heightMargin: this.options.heightMargin,
       };
 
       setBoxHeights(element);
 
       const { heightMargin } = element.readmore;
 
-      if (element.getBoundingClientRect().height <= element.readmore.collapsedHeight + heightMargin) {
+      if (!shouldFold(element.getBoundingClientRect().height, element.readmore.collapsedHeight, heightMargin)) {
         if (typeof this.options.blockProcessed === 'function') {
           this.options.blockProcessed(element, false);
         }
+
         return;
       }
 
       element.setAttribute('data-readmore', '');
-      element.setAttribute('aria-expanded', expanded);
+      element.style.overflow = 'hidden';
+      applyTransition(element, this.options.speed);
       element.id = element.id || uniqueId();
 
       const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
       const toggleElement = buildToggle(toggleLink, element, this);
 
-      element.parentNode.insertBefore(toggleElement, (this.options.sourceOrder === 'before') ? element : element.nextSibling);
+      element.parentNode.insertBefore(toggleElement, this.options.sourceOrder === 'before' ? element : element.nextSibling);
 
-      element.style.height = `${expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight}px`;
+      element.style.height = `${targetHeight(element.readmore)}px`;
+
+      if (resizeObserver) {
+        resizeObserver.observe(element);
+      }
 
       if (typeof this.options.blockProcessed === 'function') {
         this.options.blockProcessed(element, true);
       }
 
       this.elements.push(element);
+      liveBlocks += 1;
     });
   }
 
@@ -282,12 +333,9 @@ class Readmore {
 
     const toggleElement = (element) => {
       const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
-      const expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
-      const newHeight = expanded ? element.readmore.expandedHeight : element.readmore.collapsedHeight;
+      const expanded = !element.readmore.expanded;
 
-      // Fire beforeToggle callback
-      // Since we determined the new "expanded" state above we're now out of sync
-      // with our true current state, so we need to flip the value of `expanded`
+      // beforeToggle receives the current (pre-toggle) state
       if (typeof this.options.beforeToggle === 'function') {
         const shouldContinueToggle = this.options.beforeToggle(trigger, element, !expanded);
 
@@ -297,23 +345,31 @@ class Readmore {
         }
       }
 
-      element.style.height = `${newHeight}px`;
+      element.readmore.expanded = expanded;
+      applyTransition(element, this.options.speed);
+      element.style.height = `${targetHeight(element.readmore)}px`;
+
+      if (element.readmore.transitionendHandler) {
+        element.removeEventListener('transitionend', element.readmore.transitionendHandler, false);
+      }
 
       const transitionendHandler = (transitionEvent) => {
+        element.readmore.transitionendHandler = null;
+
         // Fire afterToggle callback
         if (typeof this.options.afterToggle === 'function') {
           this.options.afterToggle(trigger, element, expanded);
         }
 
-        transitionEvent.stopPropagation();
+        transitionEvent.stopPropagation?.();
 
-        element.setAttribute('aria-expanded', expanded);
         element.removeEventListener('transitionend', transitionendHandler, false);
       };
 
+      element.readmore.transitionendHandler = transitionendHandler;
       element.addEventListener('transitionend', transitionendHandler, false);
 
-      if (this.options.speed < 1) {
+      if (this.options.speed < 1 || prefersReducedMotion()) {
         transitionendHandler.call(this, { target: element });
       }
 
@@ -341,7 +397,8 @@ class Readmore {
       event.stopPropagation();
     }
 
-    if (typeof el === 'object' && !el.nodeName) { // element is likely a NodeList
+    if (typeof el === 'object' && !el.nodeName) {
+      // element is likely a NodeList
       forEach(el, toggleElement);
     } else {
       toggleElement(el);
@@ -352,7 +409,7 @@ class Readmore {
     let elements;
 
     if (!selector) {
-      elements = this.elements; // eslint-disable-line
+      elements = this.elements;
     } else if (typeof selector === 'string') {
       elements = document.querySelectorAll(selector);
     } else if (selector.nodeName) {
@@ -372,15 +429,28 @@ class Readmore {
         element.classList.remove(this.instanceSelector.substr(1));
       }
 
+      liveBlocks -= 1;
+
+      if (element.readmore.transitionendHandler) {
+        element.removeEventListener('transitionend', element.readmore.transitionendHandler, false);
+      }
+
+      if (resizeObserver) {
+        resizeObserver.unobserve(element);
+      }
+
+      element.style.height = '';
+      element.style.maxHeight = element.readmore.inlineMaxHeight;
+
       delete element.readmore;
 
-      element.style.height = 'initial';
-      element.style.maxHeight = 'initial';
+      element.style.overflow = '';
+      element.style.transition = '';
 
       element.removeAttribute('data-readmore');
-      element.removeAttribute('aria-expanded');
 
       const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
+
       if (trigger) {
         trigger.remove();
       }
@@ -390,7 +460,15 @@ class Readmore {
       }
     });
 
-    delete this;
+    if (this.elements.length === 0 && this.styleSelector) {
+      releaseCSS(this.styleSelector);
+      this.styleSelector = null;
+    }
+
+    if (liveBlocks === 0) {
+      window.removeEventListener('load', resizeBoxes);
+      window.removeEventListener('resize', resizeBoxes);
+    }
   }
 }
 
