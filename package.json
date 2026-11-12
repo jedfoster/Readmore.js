@@ -4,7 +4,8 @@
   "description": "A lightweight JavaScript plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links.",
   "main": "dist/readmore.js",
   "files": [
-    "dist"
+    "dist/*.js",
+    "dist/*.js.map"
   ],
   "module": "dist/readmore.es6.js",
   "scripts": {
@@ -26,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jedfoster/Readmore.js.git"
+    "url": "git+https://github.com/jedfoster/Readmore.js.git"
   },
   "keywords": [
     "css",
