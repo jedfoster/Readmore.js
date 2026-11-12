@@ -212,6 +212,8 @@ new Readmore('article', { embedCSS: false });
 
 Because the transition is inline, a site's own `transition` rule on `[data-readmore]` needs `!important` to win.
 
+The `<style>` goes in the document's `<head>`, so it can't reach blocks inside a shadow root. Put the `blockCSS` rules in the shadow root's own styles instead.
+
 ### Media queries and other CSS tricks
 
 If you wanted to set a `max-height` based on lines, you could do so in CSS with something like:

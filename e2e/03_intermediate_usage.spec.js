@@ -66,6 +66,12 @@ Feature: Intermediate Readmore.js usage
     Then 'afterToggle' fires once, with the block expanded
     And the block ends at its new expanded height
 
+  ✔︎ Scenario: A block inside a shadow root
+    Given an 'article' inside an open shadow root
+    When Readmore.js is instantiated on it
+    And the user clicks its "Read more" link
+    Then the toggle becomes a "Close" link, with 'aria-expanded' set to 'true'
+
 */
 import { expect, test, visit } from './fixtures.js';
 import { iphone6, macbook15 } from './viewports.js';
@@ -274,6 +280,32 @@ test.describe('Intermediate Readmore.js usage', () => {
       });
 
       await expect(page.locator('#inline-max')).toHaveCSS('height', '120px');
+    });
+  });
+
+  test.describe('shadow root', () => {
+    test('swaps the toggle of a block inside a shadow root', async ({ page }) => {
+      await visit(page);
+
+      await page.evaluate(() => {
+        const host = document.createElement('div');
+        const clone = document.querySelector('article').cloneNode(true);
+
+        clone.removeAttribute('id');
+        clone.removeAttribute('data-readmore');
+        clone.removeAttribute('style');
+        host.id = 'shadow-host';
+        host.attachShadow({ mode: 'open' }).appendChild(clone);
+        document.getElementById('demo').appendChild(host);
+        new window.Readmore(clone, { speed: 0 });
+      });
+
+      const toggle = page.locator('#shadow-host [data-readmore-toggle]');
+
+      await expect(toggle).toHaveText('Read More');
+      await toggle.click();
+      await expect(toggle).toHaveText('Close');
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     });
   });
 

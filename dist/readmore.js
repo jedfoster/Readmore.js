@@ -379,6 +379,7 @@
         const toggleElement = buildToggle(toggleLink, element, this);
 
         element.parentNode.insertBefore(toggleElement, this.options.sourceOrder === 'before' ? element : element.nextSibling);
+        element.readmore.toggle = toggleElement;
 
         element.style.height = `${targetHeight(element.readmore)}px`;
 
@@ -405,7 +406,8 @@
       let el = args[0];
 
       const toggleElement = (element) => {
-        const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
+        // Held on the block, not looked up in the document, which can't see into a shadow root.
+        const trigger = element.readmore.toggle;
         const expanded = !element.readmore.expanded;
 
         // beforeToggle receives the current (pre-toggle) state
@@ -449,9 +451,11 @@
         const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
         if (!toggleLink) {
-          trigger.remove();
+          trigger?.remove();
+          element.readmore.toggle = null;
         } else if (trigger && trigger.parentNode) {
-          trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+          element.readmore.toggle = buildToggle(toggleLink, element, this);
+          trigger.parentNode.replaceChild(element.readmore.toggle, trigger);
         }
       };
 
@@ -514,6 +518,7 @@
 
         element.style.height = '';
         element.style.maxHeight = element.readmore.inlineMaxHeight;
+        element.readmore.toggle?.remove();
 
         delete element.readmore;
 
@@ -521,12 +526,6 @@
         element.style.transition = '';
 
         element.removeAttribute('data-readmore');
-
-        const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
-
-        if (trigger) {
-          trigger.remove();
-        }
 
         if (element.id.indexOf('rmjs-') !== -1) {
           element.removeAttribute('id');
