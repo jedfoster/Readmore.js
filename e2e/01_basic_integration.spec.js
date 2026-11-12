@@ -42,11 +42,11 @@ test.describe('Basic Readmore.js usage', () => {
     });
 
     test('collapses all elements taller than 200px', async ({ page }) => {
-      await expect(page.locator('#rmjs-1')).toHaveAttribute('aria-expanded', 'true');
+      await expect(page.locator('[aria-controls="rmjs-1"]')).toHaveAttribute('aria-expanded', 'true');
     });
 
     test('leaves elements shorter than 200px untouched', async ({ page }) => {
-      await expect(page.locator('article:nth-of-type(3)')).not.toHaveAttribute('aria-expanded', /.*/);
+      await expect(page.locator('article:nth-of-type(3) + [data-readmore-toggle]')).toHaveCount(0);
     });
   });
 
@@ -57,11 +57,11 @@ test.describe('Basic Readmore.js usage', () => {
     });
 
     test('collapses all elements taller than 300px', async ({ page }) => {
-      await expect(page.locator('#rmjs-1')).toHaveAttribute('aria-expanded', 'true');
+      await expect(page.locator('[aria-controls="rmjs-1"]')).toHaveAttribute('aria-expanded', 'true');
     });
 
     test('leaves elements shorter than 300px untouched', async ({ page }) => {
-      await expect(page.locator('article:nth-of-type(3)')).not.toHaveAttribute('aria-expanded', /.*/);
+      await expect(page.locator('article:nth-of-type(3) + [data-readmore-toggle]')).toHaveCount(0);
     });
   });
 
@@ -71,7 +71,7 @@ test.describe('Basic Readmore.js usage', () => {
     });
 
     test('collapses all elements taller than 384px', async ({ page }) => {
-      await expect(page.locator('#rmjs-1')).toHaveAttribute('aria-expanded', 'false');
+      await expect(page.locator('[aria-controls="rmjs-1"]')).toHaveAttribute('aria-expanded', 'false');
       await expect(page.locator('#rmjs-1')).toHaveCSS('height', '384px');
     });
 
@@ -80,8 +80,25 @@ test.describe('Basic Readmore.js usage', () => {
       await expect(page.locator('#rmjs-2')).toHaveCSS('transition', /^height .*\.56s/);
     });
 
+    test('the new toggle says expanded right after the click, before the transition ends', async ({ page }) => {
+      const toggle = page.locator('[aria-controls="rmjs-1"]');
+
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+      const result = await page.evaluate(() => {
+        document.querySelector('[aria-controls="rmjs-1"]').click();
+
+        return {
+          ariaExpanded: document.querySelector('[aria-controls="rmjs-1"]').getAttribute('aria-expanded'),
+          expanded: document.querySelector('#rmjs-1').readmore.expanded,
+        };
+      });
+
+      expect(result).toEqual({ ariaExpanded: 'true', expanded: true });
+    });
+
     test('leaves elements shorter than 384px untouched', async ({ page }) => {
-      await expect(page.locator('article:nth-of-type(3)')).not.toHaveAttribute('aria-expanded', /.*/);
+      await expect(page.locator('article:nth-of-type(3) + [data-readmore-toggle]')).toHaveCount(0);
     });
   });
 });

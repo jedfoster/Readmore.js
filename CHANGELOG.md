@@ -1,3 +1,11 @@
+# 3.0.0
+
+## Potentially breaking changes
+
+- jQuery is no longer required. Readmore is plain JavaScript.
+- IE10 and IE11 are no longer supported.
+- `aria-expanded` is now on the toggle, not the block.
+
 # 2.0.0
 
 ## New features

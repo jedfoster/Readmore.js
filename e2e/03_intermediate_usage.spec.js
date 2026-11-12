@@ -80,7 +80,7 @@ test.describe('Intermediate Readmore.js usage', () => {
     });
 
     test('leaves all articles expanded', async ({ page }) => {
-      await expect(page.locator('article:nth-of-type(2)')).toHaveAttribute('aria-expanded', /.*/);
+      await expect(page.locator('[aria-controls="rmjs-1"]')).toHaveAttribute('aria-expanded', 'true');
       await expect(page.locator('[data-readmore-toggle="rmjs-1"]')).toContainText('Close');
     });
   });

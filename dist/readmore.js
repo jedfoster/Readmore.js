@@ -188,6 +188,7 @@
 
     toggleLink.setAttribute('data-readmore-toggle', element.id);
     toggleLink.setAttribute('aria-controls', element.id);
+    toggleLink.setAttribute('aria-expanded', element.readmore.expanded);
     toggleLink.addEventListener('click', clickHandler.bind(scope));
 
     return toggleLink;
@@ -203,11 +204,9 @@
     const elements = document.querySelectorAll('[data-readmore]');
 
     forEach(elements, (element) => {
-      const expanded = element.getAttribute('aria-expanded') === 'true';
-
       setBoxHeights(element);
 
-      element.style.height = `${targetHeight({ expanded, ...element.readmore })}px`;
+      element.style.height = `${targetHeight(element.readmore)}px`;
     });
   }, 100);
 
@@ -274,6 +273,7 @@
         const expanded = this.options.startOpen;
 
         element.readmore = {
+          expanded,
           collapsedHeightOption: this.options.collapsedHeight,
           heightMargin: this.options.heightMargin,
         };
@@ -291,7 +291,6 @@
         }
 
         element.setAttribute('data-readmore', '');
-        element.setAttribute('aria-expanded', expanded);
         element.id = element.id || uniqueId();
 
         const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
@@ -299,7 +298,7 @@
 
         element.parentNode.insertBefore(toggleElement, this.options.sourceOrder === 'before' ? element : element.nextSibling);
 
-        element.style.height = `${targetHeight({ expanded, ...element.readmore })}px`;
+        element.style.height = `${targetHeight(element.readmore)}px`;
 
         if (typeof this.options.blockProcessed === 'function') {
           this.options.blockProcessed(element, true);
@@ -320,12 +319,9 @@
 
       const toggleElement = (element) => {
         const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
-        const expanded = element.getBoundingClientRect().height <= element.readmore.collapsedHeight;
-        const newHeight = targetHeight({ expanded, ...element.readmore });
+        const expanded = !element.readmore.expanded;
 
-        // Fire beforeToggle callback
-        // Since we determined the new "expanded" state above we're now out of sync
-        // with our true current state, so we need to flip the value of `expanded`
+        // beforeToggle receives the current (pre-toggle) state
         if (typeof this.options.beforeToggle === 'function') {
           const shouldContinueToggle = this.options.beforeToggle(trigger, element, !expanded);
 
@@ -335,7 +331,8 @@
           }
         }
 
-        element.style.height = `${newHeight}px`;
+        element.readmore.expanded = expanded;
+        element.style.height = `${targetHeight(element.readmore)}px`;
 
         const transitionendHandler = (transitionEvent) => {
           // Fire afterToggle callback
@@ -345,7 +342,6 @@
 
           transitionEvent.stopPropagation();
 
-          element.setAttribute('aria-expanded', expanded);
           element.removeEventListener('transitionend', transitionendHandler, false);
         };
 
@@ -417,7 +413,6 @@
         element.style.maxHeight = 'initial';
 
         element.removeAttribute('data-readmore');
-        element.removeAttribute('aria-expanded');
 
         const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
 
