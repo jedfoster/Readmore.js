@@ -1,4 +1,4 @@
-# Readmore.js -- v3.0.0-beta
+# Readmore.js
 
 A smooth, responsive JavaScript plugin for collapsing and expanding long blocks of text with "Read more" and "Close" links.
 
