@@ -64,6 +64,7 @@ function widthOf(entry) {
 }
 
 const embeddedStyles = new Map();
+let liveBlocks = 0;
 
 function forEach(arr, callback, scope) {
   for (let i = 0; i < arr.length; i += 1) {
@@ -145,9 +146,16 @@ function applyTransition(element, speed) {
   element.style.transition = transitionFor(speed);
 }
 
+// Instances sharing a selector string share one tag, so it goes when the last of them is emptied.
 function embedCSS(selector, options) {
-  if (embeddedStyles.has(selector) || !options.embedCSS || options.blockCSS === '') {
-    return;
+  if (!options.embedCSS || options.blockCSS === '') {
+    return false;
+  }
+
+  if (embeddedStyles.has(selector)) {
+    embeddedStyles.get(selector).users += 1;
+
+    return true;
   }
 
   const css = document.createElement('style');
@@ -159,7 +167,24 @@ function embedCSS(selector, options) {
   );
   document.head.appendChild(css);
 
-  embeddedStyles.set(selector, css);
+  embeddedStyles.set(selector, { css, users: 1 });
+
+  return true;
+}
+
+function releaseCSS(selector) {
+  const entry = embeddedStyles.get(selector);
+
+  if (!entry) {
+    return;
+  }
+
+  entry.users -= 1;
+
+  if (entry.users === 0) {
+    entry.css.remove();
+    embeddedStyles.delete(selector);
+  }
 }
 
 function buildToggle(link, element, scope) {
@@ -283,12 +308,16 @@ class Readmore {
 
     this.options = extend({}, defaults, options);
 
-    if (typeof selector === 'string') {
-      embedCSS(selector, this.options);
-    } else {
+    let styleSelector = selector;
+
+    if (typeof selector !== 'string') {
       // Instances need distinct selectors so they don't stomp on each other.
       this.instanceSelector = `.${uniqueId()}`;
-      embedCSS(this.instanceSelector, this.options);
+      styleSelector = this.instanceSelector;
+    }
+
+    if (embedCSS(styleSelector, this.options)) {
+      this.styleSelector = styleSelector;
     }
 
     // Need to resize boxes when the page has fully loaded.
@@ -346,6 +375,7 @@ class Readmore {
       }
 
       this.elements.push(element);
+      liveBlocks += 1;
     });
   }
 
@@ -375,6 +405,10 @@ class Readmore {
       element.readmore.expanded = expanded;
       element.style.height = `${targetHeight(element.readmore)}px`;
 
+      if (element.readmore.transitionendHandler) {
+        element.removeEventListener('transitionend', element.readmore.transitionendHandler, false);
+      }
+
       const transitionendHandler = (transitionEvent) => {
         // Fire afterToggle callback
         if (typeof this.options.afterToggle === 'function') {
@@ -386,6 +420,7 @@ class Readmore {
         element.removeEventListener('transitionend', transitionendHandler, false);
       };
 
+      element.readmore.transitionendHandler = transitionendHandler;
       element.addEventListener('transitionend', transitionendHandler, false);
 
       if (this.options.speed < 1) {
@@ -448,9 +483,19 @@ class Readmore {
         element.classList.remove(this.instanceSelector.substr(1));
       }
 
+      liveBlocks -= 1;
+
+      if (element.readmore.transitionendHandler) {
+        element.removeEventListener('transitionend', element.readmore.transitionendHandler, false);
+      }
+
+      if (resizeObserver) {
+        resizeObserver.unobserve(element);
+      }
+
       delete element.readmore;
 
-      element.style.height = 'initial';
+      element.style.height = '';
       element.style.maxHeight = 'initial';
       element.style.overflow = '';
       element.style.transition = '';
@@ -468,7 +513,15 @@ class Readmore {
       }
     });
 
-    delete this;
+    if (this.elements.length === 0 && this.styleSelector) {
+      releaseCSS(this.styleSelector);
+      this.styleSelector = null;
+    }
+
+    if (liveBlocks === 0) {
+      window.removeEventListener('load', resizeBoxes);
+      window.removeEventListener('resize', resizeBoxes);
+    }
   }
 }
 
