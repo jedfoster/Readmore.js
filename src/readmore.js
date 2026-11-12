@@ -352,7 +352,7 @@ class Readmore {
           this.options.afterToggle(trigger, element, expanded);
         }
 
-        transitionEvent.stopPropagation();
+        transitionEvent.stopPropagation?.();
 
         element.removeEventListener('transitionend', transitionendHandler, false);
       };

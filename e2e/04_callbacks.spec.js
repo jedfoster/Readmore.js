@@ -34,6 +34,13 @@ Feature: Advanced Readmore.js usage
     And receives the 'article' element
     And receives 'false' for 'expanded' argument
 
+  Scenario: 'afterToggle' callback with a 'speed' of 0
+    Given a Readmore.js instance configured with a 'speed' of 0 and a 'afterToggle' callback
+    When the user clicks the first "Read more" link
+    Then the 'article' element expands
+    And 'afterToggle' is invoked
+    And no page error is raised
+
   Scenario: 'beforeToggle' callback returns 'false'
     Given a Readmore.js instance configured with a 'beforeToggle' callback
     And Readmore.js is instantiated on 'article' elements
@@ -72,6 +79,16 @@ test.describe('Advanced Readmore.js usage - Callbacks', () => {
         { tagName: 'ARTICLE', heading: 'Portland Leggings', collapsible: true },
         { tagName: 'ARTICLE', heading: 'This section is shorter than the Readmore minimum', collapsible: false },
       ]);
+    });
+  });
+
+  test.describe('`afterToggle` callback with `speed: 0`', () => {
+    test('fires on expand without raising a page error', async ({ page }) => {
+      await visit(page, 'speedZero');
+      await page.locator('[data-readmore-toggle="rmjs-1"]').click();
+
+      expect(await page.evaluate(() => window.afterToggleCalls)).toEqual([{ id: 'rmjs-1', expanded: true }]);
+      await expect(page.locator('[data-readmore-toggle="rmjs-1"]')).toHaveAttribute('aria-expanded', 'true');
     });
   });
 });

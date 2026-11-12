@@ -104,6 +104,8 @@
         });
       };
 
+      window.afterToggleCalls = [];
+
       const configs = {
         basic: {
           collapsedHeight: 384,
@@ -131,6 +133,10 @@
         },
         collapsedHeightCallback: {
           collapsedHeight: (el) => el.querySelector('p').getBoundingClientRect().bottom - el.getBoundingClientRect().top
+        },
+        speedZero: {
+          speed: 0,
+          afterToggle: (trigger, element, expanded) => window.afterToggleCalls.push({ id: element.id, expanded })
         },
         containerResize: {
           speed: 560,
