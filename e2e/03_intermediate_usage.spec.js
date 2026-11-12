@@ -24,6 +24,12 @@ Feature: Intermediate Readmore.js usage
     When Readmore.js is instantiated on 'article' elements
     Then the next sibling of the first "Read more" link is the first article
 
+  ✔︎ Scenario: Expanding a block created under a CSS 'max-height'
+    Given the page CSS specifies a max-height of 300px for 'article' elements
+    When Readmore.js is instantiated on a new long 'article' after the page loads
+    And the user clicks its "Read more" link
+    Then the block expands to its full content height, not 300px
+
 */
 import { expect, test, visit } from './fixtures.js';
 import { macbook15 } from './viewports.js';
@@ -77,6 +83,45 @@ test.describe('Intermediate Readmore.js usage', () => {
 
       await expect(siblings.nth(0)).toHaveAttribute('data-readmore-toggle', 'rmjs-1');
       await expect(siblings.nth(3)).toContainText('Portland Leggings');
+    });
+  });
+
+  test.describe('block created under a CSS `max-height`', () => {
+    test.beforeEach(async ({ page }) => {
+      await visit(page, 'max-height');
+    });
+
+    test('expands to its full content height', async ({ page }) => {
+      // The debounced re-measure that follows `load` would also measure the new block, hiding the bug.
+      await page.waitForTimeout(300);
+
+      // Keeps the block's width, and so its wrapping, from changing when the new block makes the page scroll.
+      await page.addStyleTag({ content: 'html { overflow-y: scroll; }' });
+
+      const { id, contentHeight } = await page.evaluate(() => {
+        const article = document.createElement('article');
+
+        article.innerHTML = document.querySelector('article').innerHTML;
+        document.querySelector('#demo').appendChild(article);
+
+        article.style.maxHeight = 'none';
+
+        const contentHeight = article.getBoundingClientRect().height;
+
+        article.style.maxHeight = '';
+        new window.Readmore(article);
+
+        return { id: article.id, contentHeight };
+      });
+
+      await page.locator(`[data-readmore-toggle="${id}"]`).click();
+
+      const block = page.locator(`#${id}`);
+
+      expect(contentHeight).toBeGreaterThan(300);
+      await expect
+        .poll(() => block.evaluate((node) => node.getBoundingClientRect().height))
+        .toBeGreaterThanOrEqual(contentHeight - 1);
     });
   });
 });

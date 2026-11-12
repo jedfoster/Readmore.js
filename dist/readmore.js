@@ -99,16 +99,17 @@
   function setBoxHeights(element) {
     element.style.height = 'auto';
 
-    const expandedHeight = parseInt(element.getBoundingClientRect().height, 10);
     const cssMaxHeight = parseInt(window.getComputedStyle(element).maxHeight, 10);
+
+    element.style.maxHeight = 'none';
+
+    const expandedHeight = parseInt(element.getBoundingClientRect().height, 10);
     const defaultHeight = parseInt(element.readmore.defaultHeight, 10);
 
     // Store our measurements.
     element.readmore.expandedHeight = expandedHeight;
     element.readmore.maxHeight = cssMaxHeight;
     element.readmore.collapsedHeight = cssMaxHeight || element.readmore.collapsedHeight || defaultHeight;
-
-    element.style.maxHeight = 'none';
   }
 
   function createElementFromString(htmlString) {
