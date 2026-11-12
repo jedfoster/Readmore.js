@@ -39,7 +39,7 @@ import { iphone6, macbook15 } from './viewports.js';
 
 test('exposes the package version', async ({ page }) => {
   await visit(page);
-  expect(await page.evaluate(() => window.Readmore.VERSION)).toBe('3.0.0-beta-1');
+  expect(await page.evaluate(() => window.Readmore.VERSION)).toBe('3.0.0');
 });
 
 const readmoreStyles = (page) =>
