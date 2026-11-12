@@ -173,7 +173,7 @@ Or, you can be more surgical by specifying a particular element:
 // Store a reference to an instance of Readmore
 var rmjs = new Readmore('article');
 
-// Now remove Readmore from just the first block
+// Now remove Readmore.js from just the first block
 rmjs.destroy(document.querySelector('article:first-child'));
 
 // or
