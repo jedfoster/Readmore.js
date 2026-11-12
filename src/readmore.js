@@ -1,4 +1,14 @@
-import { debounce, resolveCollapsedHeight, shouldFold, targetHeight, transitionFor, uniqueId, widthOf } from './logic.js';
+import {
+  debounce,
+  isFoldLoop,
+  recordFlip,
+  resolveCollapsedHeight,
+  shouldFold,
+  targetHeight,
+  transitionFor,
+  uniqueId,
+  widthOf,
+} from './logic.js';
 
 const embeddedStyles = new Map();
 const liveBlocks = new Set();
@@ -215,14 +225,22 @@ function remeasure(element) {
 
   const { readmore } = element;
 
-  if (shouldFold(readmore.naturalHeight, readmore.collapsedHeight, readmore.heightMargin)) {
-    if (!readmore.folded) {
+  const folds =
+    shouldFold(readmore.naturalHeight, readmore.collapsedHeight, readmore.heightMargin) &&
+    (readmore.folded || !isFoldLoop(readmore.flips, readmore.width, performance.now()));
+
+  if (folds !== readmore.folded) {
+    if (folds) {
       fold(element);
+    } else {
+      unfold(element);
     }
 
+    readmore.flips = recordFlip(readmore.flips, readmore.width, folds, performance.now());
+  }
+
+  if (folds) {
     element.style.height = `${targetHeight(readmore)}px`;
-  } else if (readmore.folded) {
-    unfold(element);
   }
 
   // Setting a height mid-transition cancels it, so no transitionend will arrive for the pending toggle.
@@ -339,6 +357,7 @@ class Readmore {
         instance: this,
         expanded: this.options.startOpen,
         folded: false,
+        flips: [],
         inlineMaxHeight: element.style.maxHeight,
         collapsedHeightOption: this.options.collapsedHeight,
         heightMargin: this.options.heightMargin,

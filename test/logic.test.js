@@ -1,7 +1,17 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, mock, test } from 'node:test';
 
-import { debounce, resolveCollapsedHeight, shouldFold, targetHeight, transitionFor, uniqueId, widthOf } from '../src/logic.js';
+import {
+  debounce,
+  isFoldLoop,
+  recordFlip,
+  resolveCollapsedHeight,
+  shouldFold,
+  targetHeight,
+  transitionFor,
+  uniqueId,
+  widthOf,
+} from '../src/logic.js';
 
 test('shouldFold folds a block taller than the collapsed height plus margin', () => {
   assert.equal(shouldFold(400, 200, 16), true);
@@ -46,6 +56,46 @@ test('resolveCollapsedHeight prefers the CSS max-height over a numeric option', 
 
 test('resolveCollapsedHeight falls back to the option when the CSS max-height is NaN', () => {
   assert.equal(resolveCollapsedHeight({ option: '200', element: {}, cssMaxHeight: NaN }), 200);
+});
+
+const foldThenUnfold = [
+  { width: 500, folded: true, time: 1000 },
+  { width: 515, folded: false, time: 1020 },
+];
+
+test('isFoldLoop is false until the block has flipped twice', () => {
+  assert.equal(isFoldLoop([], 500, 1040), false);
+  assert.equal(isFoldLoop([{ width: 500, folded: true, time: 1000 }], 500, 1040), false);
+});
+
+test('isFoldLoop catches a fold, right after an unfold, at the width the block folded at before', () => {
+  assert.equal(isFoldLoop(foldThenUnfold, 500, 1040), true);
+});
+
+test('isFoldLoop lets a block fold at a new width', () => {
+  assert.equal(isFoldLoop(foldThenUnfold, 480, 1040), false);
+});
+
+test('isFoldLoop lets a block fold at the same width once the unfold is a while ago', () => {
+  assert.equal(isFoldLoop(foldThenUnfold, 500, 1520), false);
+});
+
+test('isFoldLoop lets a block fold again when two flips ago was an unfold', () => {
+  const unfoldThenFold = [
+    { width: 500, folded: false, time: 1000 },
+    { width: 480, folded: true, time: 1020 },
+  ];
+
+  assert.equal(isFoldLoop(unfoldThenFold, 500, 1040), false);
+});
+
+test('recordFlip keeps only the last two flips', () => {
+  const flips = recordFlip(recordFlip(recordFlip([], 1, true, 10), 2, false, 20), 3, true, 30);
+
+  assert.deepEqual(flips, [
+    { width: 2, folded: false, time: 20 },
+    { width: 3, folded: true, time: 30 },
+  ]);
 });
 
 test('targetHeight returns the expanded height when expanded', () => {

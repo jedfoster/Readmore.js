@@ -45,6 +45,19 @@
     return height > collapsedHeight + heightMargin;
   }
 
+  // That loop flips a block every frame or two; a person resizing the window back to the same width takes far longer.
+  const loopWindow = 500;
+
+  // Folding a block can take the page's scrollbar away, which widens the block and can unfold it, which brings the scrollbar back.
+  // A block about to fold, right after unfolding, at the width it folded at the flip before is in that loop, so it stays unfolded.
+  function isFoldLoop(flips, width, time) {
+    return flips.length === 2 && flips[0].folded && flips[0].width === width && time - flips[1].time < loopWindow;
+  }
+
+  function recordFlip(flips, width, folded, time) {
+    return [...flips, { width, folded, time }].slice(-2);
+  }
+
   function targetHeight({ expanded, expandedHeight, collapsedHeight }) {
     return expanded ? expandedHeight : collapsedHeight;
   }
@@ -289,14 +302,22 @@
 
     const { readmore } = element;
 
-    if (shouldFold(readmore.naturalHeight, readmore.collapsedHeight, readmore.heightMargin)) {
-      if (!readmore.folded) {
+    const folds =
+      shouldFold(readmore.naturalHeight, readmore.collapsedHeight, readmore.heightMargin) &&
+      (readmore.folded || !isFoldLoop(readmore.flips, readmore.width, performance.now()));
+
+    if (folds !== readmore.folded) {
+      if (folds) {
         fold(element);
+      } else {
+        unfold(element);
       }
 
+      readmore.flips = recordFlip(readmore.flips, readmore.width, folds, performance.now());
+    }
+
+    if (folds) {
       element.style.height = `${targetHeight(readmore)}px`;
-    } else if (readmore.folded) {
-      unfold(element);
     }
 
     // Setting a height mid-transition cancels it, so no transitionend will arrive for the pending toggle.
@@ -413,6 +434,7 @@
           instance: this,
           expanded: this.options.startOpen,
           folded: false,
+          flips: [],
           inlineMaxHeight: element.style.maxHeight,
           collapsedHeightOption: this.options.collapsedHeight,
           heightMargin: this.options.heightMargin,

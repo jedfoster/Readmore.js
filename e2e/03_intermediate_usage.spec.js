@@ -84,6 +84,12 @@ Feature: Intermediate Readmore.js usage
     Then the block folds and gets a "Read more" link
     And when the container widens again, the block unfolds and loses its link
 
+  ✔︎ Scenario: Folding takes away the page's scrollbar
+    Given an 'article' that folds at one width and fits at a slightly wider one
+    And a container that widens while the block is folded, as when a page scrollbar goes away
+    When the container narrows enough to fold the block
+    Then the block folds, unfolds once, and stays unfolded
+
   ✔︎ Scenario: A 'collapsedHeight' function that returns Infinity
     Given an 'article' whose 'collapsedHeight' function returns Infinity above 600px wide, and 100 below
     When its container narrows below 600px
@@ -408,6 +414,31 @@ test.describe('Intermediate Readmore.js usage', () => {
       expect(await block(page).evaluate((el) => el.style.height)).toBe('auto');
     });
 
+    test('settles unfolded when folding widens the block enough to unfold it', async ({ page }) => {
+      await visit(page);
+      await addBlock(page, { fitWidth: 600 });
+
+      // Stands in for a page scrollbar that goes away while the block is folded, which widens it.
+      await page.evaluate(() => {
+        const el = document.getElementById('refold');
+        const wrapper = document.getElementById('refold-wrapper');
+
+        window.foldChanges = 0;
+        new MutationObserver(() => {
+          window.foldChanges += 1;
+          wrapper.style.width = el.hasAttribute('data-readmore') ? '600px' : '500px';
+        }).observe(el, { attributes: true, attributeFilter: ['data-readmore'] });
+      });
+
+      await setWrapper(page, { style: { width: '500px' } });
+      await expect.poll(() => page.evaluate(() => window.foldChanges)).toBe(2);
+      await page.waitForTimeout(500);
+
+      expect(await page.evaluate(() => window.foldChanges)).toBe(2);
+      await expect(block(page)).not.toHaveAttribute('data-readmore');
+      await expect(toggle(page)).toHaveCount(0);
+    });
+
     test('leaves a block unfolded while a `collapsedHeight` function returns Infinity', async ({ page }) => {
       await visit(page);
       await addBlock(page, { unfoldAbove: 600 });
@@ -434,7 +465,7 @@ test.describe('Intermediate Readmore.js usage', () => {
       await setWrapper(page, { style: { width: '900px' } });
       await expect(block(page)).not.toHaveAttribute('data-readmore');
 
-      await setWrapper(page, { style: { width: '300px' } });
+      await setWrapper(page, { style: { width: '320px' } });
       await expect(block(page)).toHaveAttribute('data-readmore', '');
       await expect(toggle(page)).toHaveCount(0);
       expect(await block(page).evaluate((el) => el.readmore.expanded)).toBe(true);

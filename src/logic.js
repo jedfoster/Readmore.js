@@ -31,6 +31,19 @@ export function shouldFold(height, collapsedHeight, heightMargin) {
   return height > collapsedHeight + heightMargin;
 }
 
+// That loop flips a block every frame or two; a person resizing the window back to the same width takes far longer.
+const loopWindow = 500;
+
+// Folding a block can take the page's scrollbar away, which widens the block and can unfold it, which brings the scrollbar back.
+// A block about to fold, right after unfolding, at the width it folded at the flip before is in that loop, so it stays unfolded.
+export function isFoldLoop(flips, width, time) {
+  return flips.length === 2 && flips[0].folded && flips[0].width === width && time - flips[1].time < loopWindow;
+}
+
+export function recordFlip(flips, width, folded, time) {
+  return [...flips, { width, folded, time }].slice(-2);
+}
+
 export function targetHeight({ expanded, expandedHeight, collapsedHeight }) {
   return expanded ? expandedHeight : collapsedHeight;
 }
