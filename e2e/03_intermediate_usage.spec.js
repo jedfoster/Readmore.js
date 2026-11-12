@@ -30,6 +30,12 @@ Feature: Intermediate Readmore.js usage
     And the user clicks its "Read more" link
     Then the block expands to its full content height, not 300px
 
+  ✔︎ Scenario: Expanding a block created after the page loads
+    Given an 'article' whose first and last children have margins
+    When Readmore.js is instantiated on it after the page loads
+    And the user clicks its "Read more" link
+    Then the block expands to show all of its content, margins included
+
   ✔︎ Scenario: 'collapsedHeight' option as a function
     Given a Readmore.js instance configured with a 'collapsedHeight' function
     When Readmore.js is instantiated on 'article' elements
@@ -65,6 +71,36 @@ Feature: Intermediate Readmore.js usage
     When the user opens a block and the container width changes before the animation ends
     Then 'afterToggle' fires once, with the block expanded
     And the block ends at its new expanded height
+
+  ✔︎ Scenario: A block hidden at setup
+    Given an 'article' inside a hidden container
+    When Readmore.js is instantiated on it
+    Then it has no toggle, and toggling it does nothing
+    And when the container is shown, the block folds and gets a "Read more" link
+
+  ✔︎ Scenario: A block that stops needing the fold
+    Given an 'article' that only needs folding below a certain width
+    When its container narrows past that width
+    Then the block folds and gets a "Read more" link
+    And when the container widens again, the block unfolds and loses its link
+
+  ✔︎ Scenario: Folding takes away the page's scrollbar
+    Given an 'article' that folds at one width and fits at a slightly wider one
+    And a container that widens while the block is folded, as when a page scrollbar goes away
+    When the container narrows enough to fold the block
+    Then the block folds, unfolds once, and stays unfolded
+
+  ✔︎ Scenario: A 'collapsedHeight' function that returns Infinity
+    Given an 'article' whose 'collapsedHeight' function returns Infinity above 600px wide, and 100 below
+    When its container narrows below 600px
+    Then the block folds to 100px and gets a "Read more" link
+    And when the container widens again, the block unfolds and loses its link
+
+  ✔︎ Scenario: A block inside a shadow root
+    Given an 'article' inside an open shadow root
+    When Readmore.js is instantiated on it
+    And the user clicks its "Read more" link
+    Then the toggle becomes a "Close" link, with 'aria-expanded' set to 'true'
 
 */
 import { expect, test, visit } from './fixtures.js';
@@ -260,6 +296,28 @@ test.describe('Intermediate Readmore.js usage', () => {
     });
   });
 
+  test.describe('block created after the page loads', () => {
+    test('expands to show all of its content, including its children’s margins', async ({ page }) => {
+      await visit(page);
+      // Past the debounced re-measure that follows `load`, which would otherwise measure the block again.
+      await page.waitForTimeout(300);
+
+      await page.evaluate(() => {
+        const clone = document.querySelector('article').cloneNode(true);
+
+        clone.removeAttribute('data-readmore');
+        clone.removeAttribute('style');
+        clone.id = 'late';
+        document.getElementById('demo').appendChild(clone);
+        new window.Readmore(clone, { speed: 0 });
+      });
+
+      await page.locator('[data-readmore-toggle="late"]').click();
+
+      expect(await page.locator('#late').evaluate((el) => el.scrollHeight - el.clientHeight)).toBe(0);
+    });
+  });
+
   test.describe('inline max-height', () => {
     test('collapses a block to its own inline `max-height`', async ({ page }) => {
       await visit(page);
@@ -274,6 +332,169 @@ test.describe('Intermediate Readmore.js usage', () => {
       });
 
       await expect(page.locator('#inline-max')).toHaveCSS('height', '120px');
+    });
+  });
+
+  test.describe('folding on re-measure', () => {
+    const toggle = (page) => page.locator('#refold-wrapper [data-readmore-toggle]');
+    const block = (page) => page.locator('#refold');
+
+    // `fitWidth` sets collapsedHeight to the block's height at that container width, so it only folds when narrower.
+    // `unfoldAbove` makes collapsedHeight a function returning Infinity above that block width, and 100 below it.
+    const addBlock = (page, { hidden = false, fitWidth, unfoldAbove, options: extra = {} } = {}) =>
+      page.evaluate(
+        ({ hidden, fitWidth, unfoldAbove, extra }) => {
+          const wrapper = document.createElement('div');
+          const clone = document.querySelector('article').cloneNode(true);
+          const options = { speed: 0, ...extra };
+
+          clone.removeAttribute('data-readmore');
+          clone.removeAttribute('style');
+          clone.id = 'refold';
+          wrapper.id = 'refold-wrapper';
+          wrapper.hidden = hidden;
+          wrapper.appendChild(clone);
+          document.getElementById('demo').appendChild(wrapper);
+
+          if (fitWidth) {
+            wrapper.style.width = `${fitWidth}px`;
+            options.collapsedHeight = Math.ceil(clone.getBoundingClientRect().height);
+          }
+
+          if (unfoldAbove) {
+            wrapper.style.width = `${unfoldAbove + 300}px`;
+            options.collapsedHeight = (el) => (el.offsetWidth > unfoldAbove ? Infinity : 100);
+          }
+
+          window.refold = new window.Readmore(clone, options);
+        },
+        { hidden, fitWidth, unfoldAbove, extra },
+      );
+
+    const setWrapper = (page, props) =>
+      page.evaluate((props) => {
+        Object.assign(document.getElementById('refold-wrapper'), props.attrs);
+        Object.assign(document.getElementById('refold-wrapper').style, props.style);
+      }, props);
+
+    test('folds a block that was hidden at setup once it is shown', async ({ page }) => {
+      await visit(page);
+      await addBlock(page, { hidden: true });
+
+      await expect(toggle(page)).toHaveCount(0);
+
+      await page.evaluate(() => window.refold.toggle(document.getElementById('refold')));
+
+      expect(await block(page).evaluate((el) => el.readmore.expanded)).toBe(false);
+
+      await setWrapper(page, { attrs: { hidden: false } });
+
+      await expect(toggle(page)).toHaveText('Read More');
+      await expect(block(page)).toHaveCSS('height', '200px');
+      await expect(block(page)).toHaveAttribute('data-readmore', '');
+    });
+
+    test('folds a block once its container narrows, and unfolds it once it fits again', async ({ page }) => {
+      await visit(page);
+      await addBlock(page, { fitWidth: 900 });
+
+      await expect(toggle(page)).toHaveCount(0);
+
+      await setWrapper(page, { style: { width: '300px' } });
+
+      await expect(toggle(page)).toHaveText('Read More');
+      await expect(block(page)).toHaveAttribute('data-readmore', '');
+      await expect(block(page)).toHaveCSS('overflow', 'hidden');
+
+      await setWrapper(page, { style: { width: '900px' } });
+
+      await expect(toggle(page)).toHaveCount(0);
+      await expect(block(page)).not.toHaveAttribute('data-readmore');
+      await expect(block(page)).toHaveCSS('overflow', 'visible');
+      expect(await block(page).evaluate((el) => el.style.height)).toBe('auto');
+    });
+
+    test('settles unfolded when folding widens the block enough to unfold it', async ({ page }) => {
+      await visit(page);
+      await addBlock(page, { fitWidth: 600 });
+
+      // Stands in for a page scrollbar that goes away while the block is folded, which widens it.
+      await page.evaluate(() => {
+        const el = document.getElementById('refold');
+        const wrapper = document.getElementById('refold-wrapper');
+
+        window.foldChanges = 0;
+        new MutationObserver(() => {
+          window.foldChanges += 1;
+          wrapper.style.width = el.hasAttribute('data-readmore') ? '600px' : '500px';
+        }).observe(el, { attributes: true, attributeFilter: ['data-readmore'] });
+      });
+
+      await setWrapper(page, { style: { width: '500px' } });
+      await expect.poll(() => page.evaluate(() => window.foldChanges)).toBe(2);
+      await page.waitForTimeout(500);
+
+      expect(await page.evaluate(() => window.foldChanges)).toBe(2);
+      await expect(block(page)).not.toHaveAttribute('data-readmore');
+      await expect(toggle(page)).toHaveCount(0);
+    });
+
+    test('leaves a block unfolded while a `collapsedHeight` function returns Infinity', async ({ page }) => {
+      await visit(page);
+      await addBlock(page, { unfoldAbove: 600 });
+
+      await expect(toggle(page)).toHaveCount(0);
+
+      await setWrapper(page, { style: { width: '300px' } });
+      await expect(toggle(page)).toHaveText('Read More');
+      await expect(block(page)).toHaveCSS('height', '100px');
+
+      await setWrapper(page, { style: { width: '900px' } });
+      await expect(toggle(page)).toHaveCount(0);
+      await expect(block(page)).not.toHaveAttribute('data-readmore');
+    });
+
+    test('folds an open block again without a toggle when there is no `lessLink`', async ({ page }) => {
+      await visit(page);
+      await addBlock(page, { fitWidth: 900, options: { lessLink: '' } });
+      await setWrapper(page, { style: { width: '300px' } });
+      await toggle(page).click();
+
+      await expect(toggle(page)).toHaveCount(0);
+
+      await setWrapper(page, { style: { width: '900px' } });
+      await expect(block(page)).not.toHaveAttribute('data-readmore');
+
+      await setWrapper(page, { style: { width: '320px' } });
+      await expect(block(page)).toHaveAttribute('data-readmore', '');
+      await expect(toggle(page)).toHaveCount(0);
+      expect(await block(page).evaluate((el) => el.readmore.expanded)).toBe(true);
+    });
+  });
+
+  test.describe('shadow root', () => {
+    test('swaps the toggle of a block inside a shadow root', async ({ page }) => {
+      await visit(page);
+
+      await page.evaluate(() => {
+        const host = document.createElement('div');
+        const clone = document.querySelector('article').cloneNode(true);
+
+        clone.removeAttribute('id');
+        clone.removeAttribute('data-readmore');
+        clone.removeAttribute('style');
+        host.id = 'shadow-host';
+        host.attachShadow({ mode: 'open' }).appendChild(clone);
+        document.getElementById('demo').appendChild(host);
+        new window.Readmore(clone, { speed: 0 });
+      });
+
+      const toggle = page.locator('#shadow-host [data-readmore-toggle]');
+
+      await expect(toggle).toHaveText('Read More');
+      await toggle.click();
+      await expect(toggle).toHaveText('Close');
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     });
   });
 

@@ -50,7 +50,7 @@ new Readmore('article', {
 ## Options
 
 * `speed: 100` in milliseconds. The animation is turned off for visitors who prefer reduced motion (`prefers-reduced-motion: reduce`), checked on every toggle
-* `collapsedHeight: 200` in pixels; also accepts a function that receives the block and returns a height in pixels. It's called when the block is set up and whenever it's re-measured. A function wins over a CSS `max-height`, which wins over a number
+* `collapsedHeight: 200` in pixels; also accepts a function that receives the block and returns a height in pixels. It's called when the block is set up and whenever it's re-measured, and can return `Infinity` to leave the block unfolded (above a breakpoint, say). A function wins over a CSS `max-height`, which wins over a number
 * `heightMargin: 16` in pixels, avoids collapsing blocks that are only slightly larger than `collapsedHeight`
 * `moreLink: '<a href="#">Read More</a>'` HTML string for the "more" toggle link; also accepts a callback function that returns an HTML string
 * `lessLink: '<a href="#">Close</a>'` HTML string for the "less" toggle link; also accepts a callback function that returns an HTML string
@@ -58,13 +58,13 @@ new Readmore('article', {
 * `blockCSS: 'display: block; width: 100%;'` sets the styling of the blocks, ignored if `embedCSS` is `false`
 * `startOpen: false` do not immediately truncate, start in the fully opened position
 * `sourceOrder: 'after'` the toggle link is inserted `'before'` or `'after'` the block
-* `blockProcessed: function() {}` called once per block during initialization after Readmore.js has processed the block
+* `blockProcessed: function() {}` called once per block during initialization after Readmore.js has processed the block, but not when a later re-measure folds or unfolds it
 * `beforeToggle: function() {}` called after a more or less link is clicked, but *before* the block is collapsed or expanded
 * `afterToggle: function() {}` called *after* the block is collapsed or expanded
 
 If the element has a `max-height` CSS property, Readmore.js will use that value rather than the value of a numeric `collapsedHeight` option. The `max-height` is read again each time the block is re-measured, so a value that changes with a media query follows the viewport.
 
-Readmore.js re-measures a block whenever its width changes and once the page has loaded, so the fold follows text that re-wraps.
+Readmore.js re-measures a block whenever its width changes and once the page has loaded, so the fold follows text that re-wraps. When re-wrapped text grows past `collapsedHeight` the block gets folded, and when it no longer needs folding it loses its toggle. A block that's hidden when Readmore.js starts (in an inactive tab, say) is folded once it's shown.
 
 
 ### Callbacks
@@ -98,7 +98,7 @@ With `speed: 0`, or when the visitor prefers reduced motion, `afterToggle` fires
 The `blockProcessed` callback receives `element` and `collapsible`.
 
 * `element`: the block that has just been processed
-* `collapsible`: Boolean; `false` means the block was shorter than the specified minimum `collapsedHeight`, so it will not have a "Read more" link
+* `collapsible`: Boolean; `false` means the block was shorter than the specified minimum `collapsedHeight` (or hidden), so it has no "Read more" link for now
 
 Here's an example of how you could use the `afterToggle` callback to scroll back to the top of a block when the "Close" link is clicked.
 
@@ -211,6 +211,8 @@ new Readmore('article', { embedCSS: false });
 ```
 
 Because the transition is inline, a site's own `transition` rule on `[data-readmore]` needs `!important` to win.
+
+The `<style>` goes in the document's `<head>`, so it can't reach blocks inside a shadow root. Put the `blockCSS` rules in the shadow root's own styles instead.
 
 ### Media queries and other CSS tricks
 

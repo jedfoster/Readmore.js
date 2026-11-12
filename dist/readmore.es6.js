@@ -4,7 +4,7 @@
  * Readmore.js plugin
  * Author: Jed Foster
  * Project home: jedfoster.com/Readmore.js
- * Version: 3.0.1
+ * Version: 3.1.0
  * Source: github.com/jedfoster/Readmore.js
  * Licensed under the MIT license
  *
@@ -39,6 +39,19 @@ function shouldFold(height, collapsedHeight, heightMargin) {
   return height > collapsedHeight + heightMargin;
 }
 
+// That loop flips a block every frame or two; a person resizing the window back to the same width takes far longer.
+const loopWindow = 500;
+
+// Folding a block can take the page's scrollbar away, which widens the block and can unfold it, which brings the scrollbar back.
+// A block about to fold, right after unfolding, at the width it folded at the flip before is in that loop, so it stays unfolded.
+function isFoldLoop(flips, width, time) {
+  return flips.length === 2 && flips[0].folded && flips[0].width === width && time - flips[1].time < loopWindow;
+}
+
+function recordFlip(flips, width, folded, time) {
+  return [...flips, { width, folded, time }].slice(-2);
+}
+
 function targetHeight({ expanded, expandedHeight, collapsedHeight }) {
   return expanded ? expandedHeight : collapsedHeight;
 }
@@ -47,7 +60,8 @@ function resolveCollapsedHeight({ option, element, cssMaxHeight }) {
   if (typeof option === 'function') {
     const fromFunction = Number(option(element));
 
-    if (Number.isFinite(fromFunction)) {
+    // Infinity is how a function says not to fold the block at all.
+    if (Number.isFinite(fromFunction) || fromFunction === Infinity) {
       return fromFunction;
     }
   }
@@ -64,11 +78,11 @@ function transitionFor(speed, reducedMotion) {
 }
 
 function widthOf(entry) {
-  return entry.contentBoxSize ? entry.contentBoxSize[0].inlineSize : entry.contentRect.width;
+  return entry.borderBoxSize ? entry.borderBoxSize[0].inlineSize : entry.target.getBoundingClientRect().width;
 }
 
 const embeddedStyles = new Map();
-let liveBlocks = 0;
+const liveBlocks = new Set();
 
 function forEach(arr, callback, scope) {
   for (let i = 0; i < arr.length; i += 1) {
@@ -116,10 +130,24 @@ function extend(...objects) {
 }
 
 function setBoxHeights(element) {
+  // The observer's first report on a block can come after its width has already changed (WebKit), so it's compared against this.
+  element.readmore.width = element.getBoundingClientRect().width;
+
+  const { overflow } = element.style;
+
   element.style.height = 'auto';
   element.style.maxHeight = 'none';
+  // Whether to fold is decided on the block as it looks unfolded, with its children's margins collapsing through it.
+  element.style.overflow = '';
 
-  const expandedHeight = parseInt(element.getBoundingClientRect().height, 10);
+  const naturalHeight = element.getBoundingClientRect().height;
+
+  // A folded block's overflow: hidden keeps its children's margins inside it, so it's measured that way.
+  element.style.overflow = 'hidden';
+
+  const expandedHeight = Math.ceil(element.getBoundingClientRect().height);
+
+  element.style.overflow = overflow;
 
   // Restoring the author's own inline value (if any) lets it and the stylesheet's max-height (and its media queries) show through again.
   element.style.maxHeight = element.readmore.inlineMaxHeight;
@@ -129,6 +157,7 @@ function setBoxHeights(element) {
   element.style.maxHeight = 'none';
 
   // Store our measurements.
+  element.readmore.naturalHeight = naturalHeight;
   element.readmore.expandedHeight = expandedHeight;
   element.readmore.maxHeight = cssMaxHeight;
   element.readmore.collapsedHeight = resolveCollapsedHeight({
@@ -220,21 +249,77 @@ function isEnvironmentSupported() {
   );
 }
 
+function fold(element) {
+  const { readmore } = element;
+  const { options } = readmore.instance;
+
+  element.setAttribute('data-readmore', '');
+  element.style.overflow = 'hidden';
+  applyTransition(element, options.speed);
+  element.id = element.id || uniqueId();
+
+  const toggleLink = readmore.expanded ? options.lessLink : options.moreLink;
+
+  // With no lessLink, an expanded block's toggle went away when it opened, so it doesn't come back.
+  if (toggleLink) {
+    readmore.toggle = buildToggle(toggleLink, element, readmore.instance);
+    element.parentNode.insertBefore(readmore.toggle, options.sourceOrder === 'before' ? element : element.nextSibling);
+  }
+
+  readmore.folded = true;
+}
+
+function unfold(element) {
+  const { readmore } = element;
+
+  element.removeAttribute('data-readmore');
+  element.style.overflow = '';
+  element.style.transition = '';
+  readmore.toggle?.remove();
+  readmore.toggle = null;
+  readmore.folded = false;
+}
+
 function remeasure(element) {
   if (!element.readmore) {
     return;
   }
 
+  // A hidden block (in an inactive tab, say) measures 0. Its width changes when it's shown, which re-measures it.
+  if (element.getClientRects().length === 0) {
+    element.readmore.width = 0;
+
+    return;
+  }
+
   setBoxHeights(element);
 
-  element.style.height = `${targetHeight(element.readmore)}px`;
+  const { readmore } = element;
+
+  const folds =
+    shouldFold(readmore.naturalHeight, readmore.collapsedHeight, readmore.heightMargin) &&
+    (readmore.folded || !isFoldLoop(readmore.flips, readmore.width, performance.now()));
+
+  if (folds !== readmore.folded) {
+    if (folds) {
+      fold(element);
+    } else {
+      unfold(element);
+    }
+
+    readmore.flips = recordFlip(readmore.flips, readmore.width, folds, performance.now());
+  }
+
+  if (folds) {
+    element.style.height = `${targetHeight(readmore)}px`;
+  }
 
   // Setting a height mid-transition cancels it, so no transitionend will arrive for the pending toggle.
-  element.readmore.transitionendHandler?.({ target: element });
+  readmore.transitionendHandler?.({ target: element });
 }
 
 const resizeBoxes = debounce(() => {
-  forEach(document.querySelectorAll('[data-readmore]'), remeasure);
+  liveBlocks.forEach(remeasure);
 }, 100);
 
 const pendingRemeasure = new Set();
@@ -261,12 +346,8 @@ const resizeObserver =
             return;
           }
 
-          const seeded = readmore.width !== undefined;
-          const changed = readmore.width !== width;
-
-          readmore.width = width;
-
-          if (seeded && changed) {
+          if (readmore.width !== width) {
+            readmore.width = width;
             pendingRemeasure.add(entry.target);
           }
         });
@@ -343,49 +424,29 @@ class Readmore {
         element.classList.add(this.instanceSelector.substr(1));
       }
 
-      const expanded = this.options.startOpen;
-
       element.readmore = {
-        expanded,
+        instance: this,
+        expanded: this.options.startOpen,
+        folded: false,
+        flips: [],
         inlineMaxHeight: element.style.maxHeight,
         collapsedHeightOption: this.options.collapsedHeight,
         heightMargin: this.options.heightMargin,
       };
 
-      setBoxHeights(element);
+      remeasure(element);
 
-      const { heightMargin } = element.readmore;
-
-      if (!shouldFold(element.getBoundingClientRect().height, element.readmore.collapsedHeight, heightMargin)) {
-        if (typeof this.options.blockProcessed === 'function') {
-          this.options.blockProcessed(element, false);
-        }
-
-        return;
-      }
-
-      element.setAttribute('data-readmore', '');
-      element.style.overflow = 'hidden';
-      applyTransition(element, this.options.speed);
-      element.id = element.id || uniqueId();
-
-      const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
-      const toggleElement = buildToggle(toggleLink, element, this);
-
-      element.parentNode.insertBefore(toggleElement, this.options.sourceOrder === 'before' ? element : element.nextSibling);
-
-      element.style.height = `${targetHeight(element.readmore)}px`;
-
+      // Every block is watched, folded or not, so one that outgrows the fold (or stops needing it) is caught.
       if (resizeObserver) {
         resizeObserver.observe(element);
       }
 
       if (typeof this.options.blockProcessed === 'function') {
-        this.options.blockProcessed(element, true);
+        this.options.blockProcessed(element, element.readmore.folded);
       }
 
       this.elements.push(element);
-      liveBlocks += 1;
+      liveBlocks.add(element);
     });
   }
 
@@ -399,7 +460,12 @@ class Readmore {
     let el = args[0];
 
     const toggleElement = (element) => {
-      const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
+      if (!element.readmore?.folded) {
+        return;
+      }
+
+      // Held on the block, not looked up in the document, which can't see into a shadow root.
+      const trigger = element.readmore.toggle;
       const expanded = !element.readmore.expanded;
 
       // beforeToggle receives the current (pre-toggle) state
@@ -443,9 +509,11 @@ class Readmore {
       const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
 
       if (!toggleLink) {
-        trigger.remove();
+        trigger?.remove();
+        element.readmore.toggle = null;
       } else if (trigger && trigger.parentNode) {
-        trigger.parentNode.replaceChild(buildToggle(toggleLink, element, this), trigger);
+        element.readmore.toggle = buildToggle(toggleLink, element, this);
+        trigger.parentNode.replaceChild(element.readmore.toggle, trigger);
       }
     };
 
@@ -496,7 +564,7 @@ class Readmore {
         element.classList.remove(this.instanceSelector.substr(1));
       }
 
-      liveBlocks -= 1;
+      liveBlocks.delete(element);
 
       if (element.readmore.transitionendHandler) {
         element.removeEventListener('transitionend', element.readmore.transitionendHandler, false);
@@ -508,6 +576,7 @@ class Readmore {
 
       element.style.height = '';
       element.style.maxHeight = element.readmore.inlineMaxHeight;
+      element.readmore.toggle?.remove();
 
       delete element.readmore;
 
@@ -515,12 +584,6 @@ class Readmore {
       element.style.transition = '';
 
       element.removeAttribute('data-readmore');
-
-      const trigger = document.querySelector(`[aria-controls="${element.id}"]`);
-
-      if (trigger) {
-        trigger.remove();
-      }
 
       if (element.id.indexOf('rmjs-') !== -1) {
         element.removeAttribute('id');
@@ -532,13 +595,13 @@ class Readmore {
       this.styleSelector = null;
     }
 
-    if (liveBlocks === 0) {
+    if (liveBlocks.size === 0) {
       window.removeEventListener('load', resizeBoxes);
       window.removeEventListener('resize', resizeBoxes);
     }
   }
 }
 
-Readmore.VERSION = "3.0.1";
+Readmore.VERSION = "3.1.0";
 
 export { Readmore as default };

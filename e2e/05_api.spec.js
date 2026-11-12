@@ -39,7 +39,7 @@ import { iphone6, macbook15 } from './viewports.js';
 
 test('exposes the package version', async ({ page }) => {
   await visit(page);
-  expect(await page.evaluate(() => window.Readmore.VERSION)).toBe('3.0.1');
+  expect(await page.evaluate(() => window.Readmore.VERSION)).toBe('3.1.0');
 });
 
 const readmoreStyles = (page) =>
@@ -70,7 +70,8 @@ test.describe('destroy()', () => {
     expect(await readmoreStyles(page)).toBe(1);
 
     await page.evaluate(() => {
-      window.folded = Array.from(document.querySelectorAll('[data-readmore]'));
+      // Every article, including the short one Readmore never folded.
+      window.blocks = Array.from(document.querySelectorAll('article'));
       window.demo.destroy();
     });
 
@@ -80,7 +81,7 @@ test.describe('destroy()', () => {
     await expect(page.locator('[data-readmore-toggle]')).toHaveCount(0);
 
     const inline = await page.evaluate(() =>
-      window.folded.map((article) => ({
+      window.blocks.map((article) => ({
         overflow: article.style.overflow,
         transition: article.style.transition,
         height: article.style.height,

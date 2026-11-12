@@ -1,7 +1,17 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, mock, test } from 'node:test';
 
-import { debounce, resolveCollapsedHeight, shouldFold, targetHeight, transitionFor, uniqueId, widthOf } from '../src/logic.js';
+import {
+  debounce,
+  isFoldLoop,
+  recordFlip,
+  resolveCollapsedHeight,
+  shouldFold,
+  targetHeight,
+  transitionFor,
+  uniqueId,
+  widthOf,
+} from '../src/logic.js';
 
 test('shouldFold folds a block taller than the collapsed height plus margin', () => {
   assert.equal(shouldFold(400, 200, 16), true);
@@ -25,6 +35,13 @@ test('resolveCollapsedHeight coerces a numeric string from a function option', (
   assert.equal(resolveCollapsedHeight({ option: () => '150', element: {}, cssMaxHeight: 300 }), 150);
 });
 
+test('resolveCollapsedHeight keeps Infinity from a function option, so the block never folds', () => {
+  const collapsedHeight = resolveCollapsedHeight({ option: () => Infinity, element: {}, cssMaxHeight: 300 });
+
+  assert.equal(collapsedHeight, Infinity);
+  assert.equal(shouldFold(5000, collapsedHeight, 16), false);
+});
+
 test('resolveCollapsedHeight falls through to the CSS max-height when a function returns NaN', () => {
   assert.equal(resolveCollapsedHeight({ option: () => NaN, element: {}, cssMaxHeight: 300 }), 300);
 });
@@ -39,6 +56,46 @@ test('resolveCollapsedHeight prefers the CSS max-height over a numeric option', 
 
 test('resolveCollapsedHeight falls back to the option when the CSS max-height is NaN', () => {
   assert.equal(resolveCollapsedHeight({ option: '200', element: {}, cssMaxHeight: NaN }), 200);
+});
+
+const foldThenUnfold = [
+  { width: 500, folded: true, time: 1000 },
+  { width: 515, folded: false, time: 1020 },
+];
+
+test('isFoldLoop is false until the block has flipped twice', () => {
+  assert.equal(isFoldLoop([], 500, 1040), false);
+  assert.equal(isFoldLoop([{ width: 500, folded: true, time: 1000 }], 500, 1040), false);
+});
+
+test('isFoldLoop catches a fold, right after an unfold, at the width the block folded at before', () => {
+  assert.equal(isFoldLoop(foldThenUnfold, 500, 1040), true);
+});
+
+test('isFoldLoop lets a block fold at a new width', () => {
+  assert.equal(isFoldLoop(foldThenUnfold, 480, 1040), false);
+});
+
+test('isFoldLoop lets a block fold at the same width once the unfold is a while ago', () => {
+  assert.equal(isFoldLoop(foldThenUnfold, 500, 1520), false);
+});
+
+test('isFoldLoop lets a block fold again when two flips ago was an unfold', () => {
+  const unfoldThenFold = [
+    { width: 500, folded: false, time: 1000 },
+    { width: 480, folded: true, time: 1020 },
+  ];
+
+  assert.equal(isFoldLoop(unfoldThenFold, 500, 1040), false);
+});
+
+test('recordFlip keeps only the last two flips', () => {
+  const flips = recordFlip(recordFlip(recordFlip([], 1, true, 10), 2, false, 20), 3, true, 30);
+
+  assert.deepEqual(flips, [
+    { width: 2, folded: false, time: 20 },
+    { width: 3, folded: true, time: 30 },
+  ]);
 });
 
 test('targetHeight returns the expanded height when expanded', () => {
@@ -143,10 +200,10 @@ test('transitionFor returns an empty string under reduced motion, whatever the s
   assert.equal(transitionFor(100, false), 'height 100ms');
 });
 
-test('widthOf reads the content box inline size', () => {
-  assert.equal(widthOf({ contentBoxSize: [{ inlineSize: 320 }], contentRect: { width: 100 } }), 320);
+test('widthOf reads the border box inline size', () => {
+  assert.equal(widthOf({ borderBoxSize: [{ inlineSize: 320 }], target: { getBoundingClientRect: () => ({ width: 100 }) } }), 320);
 });
 
-test('widthOf falls back to the content rect width without contentBoxSize', () => {
-  assert.equal(widthOf({ contentRect: { width: 100 } }), 100);
+test('widthOf falls back to the bounding rect width without borderBoxSize', () => {
+  assert.equal(widthOf({ target: { getBoundingClientRect: () => ({ width: 100 }) } }), 100);
 });
