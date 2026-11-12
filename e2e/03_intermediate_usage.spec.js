@@ -49,6 +49,11 @@ Feature: Intermediate Readmore.js usage
     And 'afterToggle' has fired by the time the click resolves
     And with reduced motion off, toggling again transitions the height
 
+  ✔︎ Scenario: Inline 'max-height' on the block
+    Given an 'article' with an inline max-height of 120px
+    When Readmore.js is instantiated on it
+    Then the block collapses to 120px
+
   ✔︎ Scenario: Container width changes without a viewport resize
     Given a Readmore.js instance with a 'collapsedHeight' function, inside a container whose width a button toggles
     When the user clicks the width button
@@ -252,6 +257,23 @@ test.describe('Intermediate Readmore.js usage', () => {
       await page.setViewportSize(iphone6);
 
       await expect.poll(() => page.locator('#rmjs-1').evaluate((el) => el.getBoundingClientRect().height)).toBe(150);
+    });
+  });
+
+  test.describe('inline max-height', () => {
+    test('collapses a block to its own inline `max-height`', async ({ page }) => {
+      await visit(page);
+
+      await page.evaluate(() => {
+        const clone = document.querySelector('article').cloneNode(true);
+
+        clone.id = 'inline-max';
+        clone.style.maxHeight = '120px';
+        document.getElementById('demo').appendChild(clone);
+        new window.Readmore(clone);
+      });
+
+      await expect(page.locator('#inline-max')).toHaveCSS('height', '120px');
     });
   });
 

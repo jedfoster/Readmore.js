@@ -54,8 +54,8 @@ function setBoxHeights(element) {
 
   const expandedHeight = parseInt(element.getBoundingClientRect().height, 10);
 
-  // Clearing the inline value lets the stylesheet's max-height (and its media queries) show through again.
-  element.style.maxHeight = '';
+  // Restoring the author's own inline value (if any) lets it and the stylesheet's max-height (and its media queries) show through again.
+  element.style.maxHeight = element.readmore.inlineMaxHeight;
 
   const cssMaxHeight = parseInt(window.getComputedStyle(element).maxHeight, 10);
 
@@ -280,6 +280,7 @@ class Readmore {
 
       element.readmore = {
         expanded,
+        inlineMaxHeight: element.style.maxHeight,
         collapsedHeightOption: this.options.collapsedHeight,
         heightMargin: this.options.heightMargin,
       };
