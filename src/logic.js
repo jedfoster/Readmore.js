@@ -34,3 +34,15 @@ export function shouldFold(height, collapsedHeight, heightMargin) {
 export function targetHeight({ expanded, expandedHeight, collapsedHeight }) {
   return expanded ? expandedHeight : collapsedHeight;
 }
+
+export function resolveCollapsedHeight({ option, element, cssMaxHeight }) {
+  if (typeof option === 'function') {
+    return option(element);
+  }
+
+  if (Number.isFinite(cssMaxHeight)) {
+    return cssMaxHeight;
+  }
+
+  return parseInt(option, 10);
+}

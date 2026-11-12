@@ -30,9 +30,21 @@ Feature: Intermediate Readmore.js usage
     And the user clicks its "Read more" link
     Then the block expands to its full content height, not 300px
 
+  ✔︎ Scenario: 'collapsedHeight' option as a function
+    Given a Readmore.js instance configured with a 'collapsedHeight' function
+    When Readmore.js is instantiated on 'article' elements
+    Then the first article is as tall as the function's return value
+    And when the viewport is resized, the article's height follows the function's new return value
+
+  ✔︎ Scenario: CSS 'max-height' is re-read on resize
+    Given the page CSS sets a max-height of 300px, and 150px below 600px wide
+    When Readmore.js is instantiated on 'article' elements
+    Then the first article is 300px tall on a wide viewport
+    And 150px tall after the viewport narrows
+
 */
 import { expect, test, visit } from './fixtures.js';
-import { macbook15 } from './viewports.js';
+import { iphone6, macbook15 } from './viewports.js';
 
 test.describe('Intermediate Readmore.js usage', () => {
   test.use({ viewport: macbook15 });
@@ -122,6 +134,51 @@ test.describe('Intermediate Readmore.js usage', () => {
       await expect
         .poll(() => block.evaluate((node) => node.getBoundingClientRect().height))
         .toBeGreaterThanOrEqual(contentHeight - 1);
+    });
+  });
+
+  test.describe('`collapsedHeight` function', () => {
+    const callbackHeight = (page) =>
+      page
+        .locator('#rmjs-1')
+        .evaluate((el) => el.querySelector('p').getBoundingClientRect().bottom - el.getBoundingClientRect().top);
+
+    const blockHeight = (page) => page.locator('#rmjs-1').evaluate((el) => el.getBoundingClientRect().height);
+
+    test.beforeEach(async ({ page }) => {
+      await visit(page, 'collapsedHeightCallback');
+    });
+
+    test('collapses to the return value', async ({ page }) => {
+      const expected = await callbackHeight(page);
+
+      await expect.poll(() => blockHeight(page)).toBeCloseTo(expected, 0);
+    });
+
+    test('follows the return value when the viewport resizes', async ({ page }) => {
+      const wide = await blockHeight(page);
+
+      await page.setViewportSize(iphone6);
+
+      await expect.poll(() => blockHeight(page)).not.toBeCloseTo(wide, 0);
+
+      const expected = await callbackHeight(page);
+
+      await expect.poll(() => blockHeight(page)).toBeCloseTo(expected, 0);
+    });
+  });
+
+  test.describe('CSS `max-height` with a media query', () => {
+    test.beforeEach(async ({ page }) => {
+      await visit(page, 'max-height-media');
+    });
+
+    test('is 300px on a wide viewport and 150px on a narrow one', async ({ page }) => {
+      await expect.poll(() => page.locator('#rmjs-1').evaluate((el) => el.getBoundingClientRect().height)).toBe(300);
+
+      await page.setViewportSize(iphone6);
+
+      await expect.poll(() => page.locator('#rmjs-1').evaluate((el) => el.getBoundingClientRect().height)).toBe(150);
     });
   });
 });

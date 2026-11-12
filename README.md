@@ -50,7 +50,7 @@ new Readmore('article', {
 ## Options
 
 * `speed: 100` in milliseconds
-* `collapsedHeight: 200` in pixels
+* `collapsedHeight: 200` in pixels; also accepts a function that receives the block and returns a height in pixels. It's called when the block is set up and whenever it's re-measured. A function wins over a CSS `max-height`, which wins over a number
 * `heightMargin: 16` in pixels, avoids collapsing blocks that are only slightly larger than `collapsedHeight`
 * `moreLink: '<a href="#">Read more</a>'` HTML string for the "more" toggle link; also accepts a callback function that returns an HTML string
 * `lessLink: '<a href="#">Close</a>'` HTML string for the "less" toggle link; also accepts a callback function that returns an HTML string
@@ -62,7 +62,7 @@ new Readmore('article', {
 * `beforeToggle: function() {}` called after a more or less link is clicked, but *before* the block is collapsed or expanded
 * `afterToggle: function() {}` called *after* the block is collapsed or expanded
 
-If the element has a `max-height` CSS property, Readmore.js will use that value rather than the value of the `collapsedHeight` option.
+If the element has a `max-height` CSS property, Readmore.js will use that value rather than the value of a numeric `collapsedHeight` option. The `max-height` is read again each time the block is re-measured, so a value that changes with a media query follows the viewport.
 
 
 ### Callbacks

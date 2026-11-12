@@ -125,6 +125,9 @@
         sourceOrder: {
           sourceOrder: 'before'
         },
+        collapsedHeightCallback: {
+          collapsedHeight: (el) => el.querySelector('p').getBoundingClientRect().bottom - el.getBoundingClientRect().top
+        },
         blockProcessed: {
           blockProcessed: window.mockFunc
         }
@@ -134,6 +137,10 @@
 
       if (suite === 'max-height') {
         insertCSS('article { max-height: 300px; }');
+      }
+
+      if (suite === 'max-height-media') {
+        insertCSS('article { max-height: 300px; } @media (max-width: 600px) { article { max-height: 150px; } }');
       }
 
       const demo = new Readmore('article', suite && configs[suite] ? configs[suite] : null);

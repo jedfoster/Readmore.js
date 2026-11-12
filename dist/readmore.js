@@ -49,6 +49,18 @@
     return expanded ? expandedHeight : collapsedHeight;
   }
 
+  function resolveCollapsedHeight({ option, element, cssMaxHeight }) {
+    if (typeof option === 'function') {
+      return option(element);
+    }
+
+    if (Number.isFinite(cssMaxHeight)) {
+      return cssMaxHeight;
+    }
+
+    return parseInt(option, 10);
+  }
+
   const isCssEmbeddedFor = [];
 
   function forEach(arr, callback, scope) {
@@ -98,18 +110,25 @@
 
   function setBoxHeights(element) {
     element.style.height = 'auto';
+    element.style.maxHeight = 'none';
+
+    const expandedHeight = parseInt(element.getBoundingClientRect().height, 10);
+
+    // Clearing the inline value lets the stylesheet's max-height (and its media queries) show through again.
+    element.style.maxHeight = '';
 
     const cssMaxHeight = parseInt(window.getComputedStyle(element).maxHeight, 10);
 
     element.style.maxHeight = 'none';
 
-    const expandedHeight = parseInt(element.getBoundingClientRect().height, 10);
-    const defaultHeight = parseInt(element.readmore.defaultHeight, 10);
-
     // Store our measurements.
     element.readmore.expandedHeight = expandedHeight;
     element.readmore.maxHeight = cssMaxHeight;
-    element.readmore.collapsedHeight = cssMaxHeight || element.readmore.collapsedHeight || defaultHeight;
+    element.readmore.collapsedHeight = resolveCollapsedHeight({
+      option: element.readmore.collapsedHeightOption,
+      element,
+      cssMaxHeight,
+    });
   }
 
   function createElementFromString(htmlString) {
@@ -255,7 +274,7 @@
         const expanded = this.options.startOpen;
 
         element.readmore = {
-          defaultHeight: this.options.collapsedHeight,
+          collapsedHeightOption: this.options.collapsedHeight,
           heightMargin: this.options.heightMargin,
         };
 

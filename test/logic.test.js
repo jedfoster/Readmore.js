@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, mock, test } from 'node:test';
 
-import { debounce, shouldFold, targetHeight, uniqueId } from '../src/logic.js';
+import { debounce, resolveCollapsedHeight, shouldFold, targetHeight, uniqueId } from '../src/logic.js';
 
 test('shouldFold folds a block taller than the collapsed height plus margin', () => {
   assert.equal(shouldFold(400, 200, 16), true);
@@ -13,6 +13,20 @@ test('shouldFold leaves a block exactly at the collapsed height plus margin alon
 
 test('shouldFold leaves a block shorter than the collapsed height alone', () => {
   assert.equal(shouldFold(100, 200, 16), false);
+});
+
+test('resolveCollapsedHeight calls a function option with the element', () => {
+  const element = {};
+
+  assert.equal(resolveCollapsedHeight({ option: (el) => (el === element ? 120 : 0), element, cssMaxHeight: 300 }), 120);
+});
+
+test('resolveCollapsedHeight prefers the CSS max-height over a numeric option', () => {
+  assert.equal(resolveCollapsedHeight({ option: 200, element: {}, cssMaxHeight: 300 }), 300);
+});
+
+test('resolveCollapsedHeight falls back to the option when the CSS max-height is NaN', () => {
+  assert.equal(resolveCollapsedHeight({ option: '200', element: {}, cssMaxHeight: NaN }), 200);
 });
 
 test('targetHeight returns the expanded height when expanded', () => {
