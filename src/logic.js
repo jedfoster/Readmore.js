@@ -47,8 +47,8 @@ export function resolveCollapsedHeight({ option, element, cssMaxHeight }) {
   return parseInt(option, 10);
 }
 
-export function transitionFor(speed) {
-  return speed > 0 ? `height ${speed}ms` : '';
+export function transitionFor(speed, reducedMotion) {
+  return speed > 0 && !reducedMotion ? `height ${speed}ms` : '';
 }
 
 export function widthOf(entry) {

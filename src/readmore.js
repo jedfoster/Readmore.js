@@ -79,8 +79,10 @@ function createElementFromString(htmlString) {
   return div.firstElementChild;
 }
 
+const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
 function applyTransition(element, speed) {
-  element.style.transition = transitionFor(speed);
+  element.style.transition = transitionFor(speed, prefersReducedMotion());
 }
 
 // Instances sharing a selector string share one tag, so it goes when the last of them is emptied.
@@ -340,6 +342,7 @@ class Readmore {
       }
 
       element.readmore.expanded = expanded;
+      applyTransition(element, this.options.speed);
       element.style.height = `${targetHeight(element.readmore)}px`;
 
       if (element.readmore.transitionendHandler) {
@@ -360,7 +363,7 @@ class Readmore {
       element.readmore.transitionendHandler = transitionendHandler;
       element.addEventListener('transitionend', transitionendHandler, false);
 
-      if (this.options.speed < 1) {
+      if (this.options.speed < 1 || prefersReducedMotion()) {
         transitionendHandler.call(this, { target: element });
       }
 

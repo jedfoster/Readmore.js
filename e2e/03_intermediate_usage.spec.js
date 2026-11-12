@@ -42,6 +42,13 @@ Feature: Intermediate Readmore.js usage
     Then the first article is 300px tall on a wide viewport
     And 150px tall after the viewport narrows
 
+  ✔︎ Scenario: Reduced motion turns the animation off
+    Given the visitor prefers reduced motion and a Readmore.js instance has a 'speed' of 560
+    When the user clicks the first "Read more" link
+    Then the block expands with no transition
+    And 'afterToggle' has fired by the time the click resolves
+    And with reduced motion off, toggling again transitions the height
+
   ✔︎ Scenario: Container width changes without a viewport resize
     Given a Readmore.js instance with a 'collapsedHeight' function, inside a container whose width a button toggles
     When the user clicks the width button
@@ -172,6 +179,28 @@ test.describe('Intermediate Readmore.js usage', () => {
       await expect
         .poll(() => block.evaluate((node) => node.getBoundingClientRect().height))
         .toBeGreaterThanOrEqual(contentHeight - 1);
+    });
+  });
+
+  test.describe('reduced motion', () => {
+    test('skips the transition and fires `afterToggle` at once, then restores it', async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await visit(page, 'reducedMotion');
+
+      const block = page.locator('#rmjs-1');
+      const calls = () => page.evaluate(() => window.afterToggleCalls.length);
+
+      await expect(block).toHaveCSS('transition-duration', '0s');
+      await page.locator('[data-readmore-toggle="rmjs-1"]').click();
+
+      expect(await calls()).toBe(1);
+      await expect(block).toHaveCSS('transition-duration', '0s');
+
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+      await page.locator('[data-readmore-toggle="rmjs-1"]').click();
+
+      await expect(block).toHaveCSS('transition-duration', '0.56s');
+      await expect.poll(calls).toBe(2);
     });
   });
 

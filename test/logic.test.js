@@ -126,6 +126,11 @@ test('transitionFor returns an empty string for a speed of 0 or less', () => {
   assert.equal(transitionFor(-5), '');
 });
 
+test('transitionFor returns an empty string under reduced motion, whatever the speed', () => {
+  assert.equal(transitionFor(100, true), '');
+  assert.equal(transitionFor(100, false), 'height 100ms');
+});
+
 test('widthOf reads the content box inline size', () => {
   assert.equal(widthOf({ contentBoxSize: [{ inlineSize: 320 }], contentRect: { width: 100 } }), 320);
 });

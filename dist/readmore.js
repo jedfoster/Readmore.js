@@ -61,8 +61,8 @@
     return parseInt(option, 10);
   }
 
-  function transitionFor(speed) {
-    return speed > 0 ? `height ${speed}ms` : '';
+  function transitionFor(speed, reducedMotion) {
+    return speed > 0 && !reducedMotion ? `height ${speed}ms` : '';
   }
 
   function widthOf(entry) {
@@ -148,8 +148,10 @@
     return div.firstElementChild;
   }
 
+  const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
   function applyTransition(element, speed) {
-    element.style.transition = transitionFor(speed);
+    element.style.transition = transitionFor(speed, prefersReducedMotion());
   }
 
   // Instances sharing a selector string share one tag, so it goes when the last of them is emptied.
@@ -409,6 +411,7 @@
         }
 
         element.readmore.expanded = expanded;
+        applyTransition(element, this.options.speed);
         element.style.height = `${targetHeight(element.readmore)}px`;
 
         if (element.readmore.transitionendHandler) {
@@ -429,7 +432,7 @@
         element.readmore.transitionendHandler = transitionendHandler;
         element.addEventListener('transitionend', transitionendHandler, false);
 
-        if (this.options.speed < 1) {
+        if (this.options.speed < 1 || prefersReducedMotion()) {
           transitionendHandler.call(this, { target: element });
         }
 

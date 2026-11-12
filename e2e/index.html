@@ -138,6 +138,10 @@
           speed: 0,
           afterToggle: (trigger, element, expanded) => window.afterToggleCalls.push({ id: element.id, expanded })
         },
+        reducedMotion: {
+          speed: 560,
+          afterToggle: (trigger, element, expanded) => window.afterToggleCalls.push({ id: element.id, expanded })
+        },
         containerResize: {
           speed: 560,
           collapsedHeight: (el) => el.querySelector('p').getBoundingClientRect().bottom - el.getBoundingClientRect().top
