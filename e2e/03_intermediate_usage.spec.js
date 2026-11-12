@@ -42,6 +42,12 @@ Feature: Intermediate Readmore.js usage
     Then the first article is 300px tall on a wide viewport
     And 150px tall after the viewport narrows
 
+  ✔︎ Scenario: Container width changes without a viewport resize
+    Given a Readmore.js instance with a 'collapsedHeight' function, inside a container whose width a button toggles
+    When the user clicks the width button
+    Then the first article's height follows the function's new return value
+    And toggling a block open does not re-measure it partway through the animation
+
 */
 import { expect, test, visit } from './fixtures.js';
 import { iphone6, macbook15 } from './viewports.js';
@@ -211,6 +217,62 @@ test.describe('Intermediate Readmore.js usage', () => {
       await page.setViewportSize(iphone6);
 
       await expect.poll(() => page.locator('#rmjs-1').evaluate((el) => el.getBoundingClientRect().height)).toBe(150);
+    });
+  });
+
+  test.describe('container width change', () => {
+    const callbackHeight = (page) =>
+      page
+        .locator('#rmjs-1')
+        .evaluate((el) => el.querySelector('p').getBoundingClientRect().bottom - el.getBoundingClientRect().top);
+
+    const blockHeight = (page) => page.locator('#rmjs-1').evaluate((el) => el.getBoundingClientRect().height);
+
+    test.beforeEach(async ({ page }) => {
+      await visit(page, 'containerResize');
+    });
+
+    test('follows the `collapsedHeight` function without a viewport resize', async ({ page }) => {
+      const wide = await blockHeight(page);
+
+      await page.locator('#width-button').click();
+
+      await expect.poll(() => blockHeight(page)).not.toBeCloseTo(wide, 0);
+
+      const expected = await callbackHeight(page);
+
+      await expect.poll(() => blockHeight(page)).toBeCloseTo(expected, 0);
+    });
+
+    test('does not re-measure a block partway through its open animation', async ({ page }) => {
+      // The debounced re-measure that follows `load` would otherwise land mid-animation and cancel it.
+      await page.waitForTimeout(300);
+
+      const result = await page.evaluate(
+        () =>
+          new Promise((resolve) => {
+            const block = document.getElementById('rmjs-1');
+            const heights = [];
+            const sample = () => {
+              heights.push(block.getBoundingClientRect().height);
+              requestAnimationFrame(sample);
+            };
+
+            block.addEventListener('transitionend', () => resolve({ heights, expandedHeight: block.readmore.expandedHeight }), {
+              once: true,
+            });
+            document.querySelector('[data-readmore-toggle="rmjs-1"]').click();
+            sample();
+          }),
+      );
+
+      expect(result.heights.length).toBeGreaterThan(2);
+
+      for (let i = 1; i < result.heights.length; i += 1) {
+        expect(result.heights[i]).toBeGreaterThanOrEqual(result.heights[i - 1]);
+      }
+
+      await expect.poll(() => blockHeight(page)).toBeCloseTo(result.expandedHeight, 0);
     });
   });
 });

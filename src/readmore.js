@@ -1,4 +1,4 @@
-import { debounce, resolveCollapsedHeight, shouldFold, targetHeight, transitionFor, uniqueId } from './logic.js';
+import { debounce, resolveCollapsedHeight, shouldFold, targetHeight, transitionFor, uniqueId, widthOf } from './logic.js';
 
 const embeddedStyles = new Map();
 
@@ -126,15 +126,58 @@ function isEnvironmentSupported() {
   );
 }
 
+function remeasure(element) {
+  if (!element.readmore) {
+    return;
+  }
+
+  setBoxHeights(element);
+
+  element.style.height = `${targetHeight(element.readmore)}px`;
+}
+
 const resizeBoxes = debounce(() => {
-  const elements = document.querySelectorAll('[data-readmore]');
-
-  forEach(elements, (element) => {
-    setBoxHeights(element);
-
-    element.style.height = `${targetHeight(element.readmore)}px`;
-  });
+  forEach(document.querySelectorAll('[data-readmore]'), remeasure);
 }, 100);
+
+const pendingRemeasure = new Set();
+let remeasureFrame = null;
+
+function flushRemeasure() {
+  const elements = Array.from(pendingRemeasure);
+
+  pendingRemeasure.clear();
+  remeasureFrame = null;
+  elements.forEach(remeasure);
+}
+
+// Re-measuring inside the callback would resize observed blocks mid-delivery, which raises a loop error.
+const resizeObserver =
+  typeof ResizeObserver === 'undefined'
+    ? null
+    : new ResizeObserver((entries) => {
+        entries.forEach((entry) => {
+          const { readmore } = entry.target;
+          const width = widthOf(entry);
+
+          if (!readmore) {
+            return;
+          }
+
+          const seeded = readmore.width !== undefined;
+          const changed = readmore.width !== width;
+
+          readmore.width = width;
+
+          if (seeded && changed) {
+            pendingRemeasure.add(entry.target);
+          }
+        });
+
+        if (pendingRemeasure.size > 0 && remeasureFrame === null) {
+          remeasureFrame = requestAnimationFrame(flushRemeasure);
+        }
+      });
 
 const defaults = {
   speed: 100,
@@ -187,7 +230,10 @@ class Readmore {
 
     // Need to resize boxes when the page has fully loaded.
     window.addEventListener('load', resizeBoxes);
-    window.addEventListener('resize', resizeBoxes);
+
+    if (!resizeObserver) {
+      window.addEventListener('resize', resizeBoxes);
+    }
 
     this.elements = [];
 
@@ -227,6 +273,10 @@ class Readmore {
       element.parentNode.insertBefore(toggleElement, this.options.sourceOrder === 'before' ? element : element.nextSibling);
 
       element.style.height = `${targetHeight(element.readmore)}px`;
+
+      if (resizeObserver) {
+        resizeObserver.observe(element);
+      }
 
       if (typeof this.options.blockProcessed === 'function') {
         this.options.blockProcessed(element, true);

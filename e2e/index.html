@@ -132,6 +132,10 @@
         collapsedHeightCallback: {
           collapsedHeight: (el) => el.querySelector('p').getBoundingClientRect().bottom - el.getBoundingClientRect().top
         },
+        containerResize: {
+          speed: 560,
+          collapsedHeight: (el) => el.querySelector('p').getBoundingClientRect().bottom - el.getBoundingClientRect().top
+        },
         blockProcessed: {
           blockProcessed: window.mockFunc
         }
@@ -145,6 +149,25 @@
 
       if (suite === 'max-height-media') {
         insertCSS('article { max-height: 300px; } @media (max-width: 600px) { article { max-height: 150px; } }');
+      }
+
+      if (suite === 'containerResize') {
+        const wrapper = document.createElement('div');
+        const button = document.createElement('button');
+        const demoSection = document.getElementById('demo');
+
+        wrapper.id = 'wrapper';
+        wrapper.style.width = '960px';
+        button.id = 'width-button';
+        button.type = 'button';
+        button.textContent = 'Toggle width';
+        button.addEventListener('click', () => {
+          wrapper.style.width = wrapper.style.width === '960px' ? '400px' : '960px';
+        });
+
+        demoSection.parentNode.insertBefore(button, demoSection);
+        demoSection.parentNode.insertBefore(wrapper, demoSection);
+        wrapper.appendChild(demoSection);
       }
 
       const demo = new Readmore('article', suite && configs[suite] ? configs[suite] : null);

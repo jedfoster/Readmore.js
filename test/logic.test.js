@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, mock, test } from 'node:test';
 
-import { debounce, resolveCollapsedHeight, shouldFold, targetHeight, transitionFor, uniqueId } from '../src/logic.js';
+import { debounce, resolveCollapsedHeight, shouldFold, targetHeight, transitionFor, uniqueId, widthOf } from '../src/logic.js';
 
 test('shouldFold folds a block taller than the collapsed height plus margin', () => {
   assert.equal(shouldFold(400, 200, 16), true);
@@ -124,4 +124,12 @@ test('transitionFor returns a height transition for a positive speed', () => {
 test('transitionFor returns an empty string for a speed of 0 or less', () => {
   assert.equal(transitionFor(0), '');
   assert.equal(transitionFor(-5), '');
+});
+
+test('widthOf reads the content box inline size', () => {
+  assert.equal(widthOf({ contentBoxSize: [{ inlineSize: 320 }], contentRect: { width: 100 } }), 320);
+});
+
+test('widthOf falls back to the content rect width without contentBoxSize', () => {
+  assert.equal(widthOf({ contentRect: { width: 100 } }), 100);
 });

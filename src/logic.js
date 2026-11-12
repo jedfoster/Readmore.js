@@ -50,3 +50,7 @@ export function resolveCollapsedHeight({ option, element, cssMaxHeight }) {
 export function transitionFor(speed) {
   return speed > 0 ? `height ${speed}ms` : '';
 }
+
+export function widthOf(entry) {
+  return entry.contentBoxSize ? entry.contentBoxSize[0].inlineSize : entry.contentRect.width;
+}
