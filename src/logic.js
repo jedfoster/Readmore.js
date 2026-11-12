@@ -56,5 +56,5 @@ export function transitionFor(speed, reducedMotion) {
 }
 
 export function widthOf(entry) {
-  return entry.contentBoxSize ? entry.contentBoxSize[0].inlineSize : entry.contentRect.width;
+  return entry.borderBoxSize ? entry.borderBoxSize[0].inlineSize : entry.target.getBoundingClientRect().width;
 }

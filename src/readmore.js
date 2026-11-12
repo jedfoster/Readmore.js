@@ -49,6 +49,9 @@ function extend(...objects) {
 }
 
 function setBoxHeights(element) {
+  // The observer's first report on a block can come after its width has already changed (WebKit), so it's compared against this.
+  element.readmore.width = element.getBoundingClientRect().width;
+
   const { overflow } = element.style;
 
   element.style.height = 'auto';
@@ -200,12 +203,8 @@ const resizeObserver =
             return;
           }
 
-          const seeded = readmore.width !== undefined;
-          const changed = readmore.width !== width;
-
-          readmore.width = width;
-
-          if (seeded && changed) {
+          if (readmore.width !== width) {
+            readmore.width = width;
             pendingRemeasure.add(entry.target);
           }
         });

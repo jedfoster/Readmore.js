@@ -70,7 +70,7 @@
   }
 
   function widthOf(entry) {
-    return entry.contentBoxSize ? entry.contentBoxSize[0].inlineSize : entry.contentRect.width;
+    return entry.borderBoxSize ? entry.borderBoxSize[0].inlineSize : entry.target.getBoundingClientRect().width;
   }
 
   const embeddedStyles = new Map();
@@ -122,6 +122,9 @@
   }
 
   function setBoxHeights(element) {
+    // The observer's first report on a block can come after its width has already changed (WebKit), so it's compared against this.
+    element.readmore.width = element.getBoundingClientRect().width;
+
     const { overflow } = element.style;
 
     element.style.height = 'auto';
@@ -273,12 +276,8 @@
               return;
             }
 
-            const seeded = readmore.width !== undefined;
-            const changed = readmore.width !== width;
-
-            readmore.width = width;
-
-            if (seeded && changed) {
+            if (readmore.width !== width) {
+              readmore.width = width;
               pendingRemeasure.add(entry.target);
             }
           });

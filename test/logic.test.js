@@ -143,10 +143,10 @@ test('transitionFor returns an empty string under reduced motion, whatever the s
   assert.equal(transitionFor(100, false), 'height 100ms');
 });
 
-test('widthOf reads the content box inline size', () => {
-  assert.equal(widthOf({ contentBoxSize: [{ inlineSize: 320 }], contentRect: { width: 100 } }), 320);
+test('widthOf reads the border box inline size', () => {
+  assert.equal(widthOf({ borderBoxSize: [{ inlineSize: 320 }], target: { getBoundingClientRect: () => ({ width: 100 }) } }), 320);
 });
 
-test('widthOf falls back to the content rect width without contentBoxSize', () => {
-  assert.equal(widthOf({ contentRect: { width: 100 } }), 100);
+test('widthOf falls back to the bounding rect width without borderBoxSize', () => {
+  assert.equal(widthOf({ target: { getBoundingClientRect: () => ({ width: 100 }) } }), 100);
 });
