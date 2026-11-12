@@ -19,7 +19,7 @@
     "test:e2e": "npm run build && playwright test",
     "test:e2e:ui": "playwright test --ui",
     "lint": "eslint --cache .",
-    "precommit": "npm run lint #&& npm run test",
+    "prepare": "husky",
     "prepublishOnly": "npm run build"
   },
   "repository": {
@@ -50,6 +50,8 @@
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.14.0",
     "http-server": "^14.1.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
     "nodemon": "^3.1.0",
     "npm-run-all2": "^9.0.0",
     "prettier": "^3.10.0",
@@ -62,5 +64,13 @@
       "name": "node",
       "version": ">=24"
     }
+  },
+  "lint-staged": {
+    "*.{js,mjs}": [
+      "eslint --fix"
+    ],
+    "*.{js,mjs,json}": [
+      "prettier --write"
+    ]
   }
 }
