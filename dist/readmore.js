@@ -61,7 +61,11 @@
     return parseInt(option, 10);
   }
 
-  const isCssEmbeddedFor = [];
+  function transitionFor(speed) {
+    return speed > 0 ? `height ${speed}ms` : '';
+  }
+
+  const embeddedStyles = new Map();
 
   function forEach(arr, callback, scope) {
     for (let i = 0; i < arr.length; i += 1) {
@@ -139,38 +143,25 @@
     return div.firstElementChild;
   }
 
+  function applyTransition(element, speed) {
+    element.style.transition = transitionFor(speed);
+  }
+
   function embedCSS(selector, options) {
-    if (!isCssEmbeddedFor[selector]) {
-      let styles = '';
-
-      if (options.embedCSS && options.blockCSS !== '') {
-        styles += `${selector} + [data-readmore-toggle], ${selector}[data-readmore] {
-        ${options.blockCSS}
-      }`;
-      }
-
-      // Include the transition CSS even if embedCSS is false
-      styles += `${selector}[data-readmore] {
-      transition: height ${options.speed}ms;
-      overflow: hidden;
-    }`;
-
-      ((d, u) => {
-        const css = d.createElement('style');
-
-        css.type = 'text/css';
-
-        if (css.styleSheet) {
-          css.styleSheet.cssText = u;
-        } else {
-          css.appendChild(d.createTextNode(u));
-        }
-
-        d.getElementsByTagName('head')[0].appendChild(css);
-      })(document, styles);
-
-      isCssEmbeddedFor[selector] = true;
+    if (embeddedStyles.has(selector) || !options.embedCSS || options.blockCSS === '') {
+      return;
     }
+
+    const css = document.createElement('style');
+
+    css.appendChild(
+      document.createTextNode(`${selector} + [data-readmore-toggle], ${selector}[data-readmore] {
+        ${options.blockCSS}
+      }`),
+    );
+    document.head.appendChild(css);
+
+    embeddedStyles.set(selector, css);
   }
 
   function buildToggle(link, element, scope) {
@@ -291,6 +282,8 @@
         }
 
         element.setAttribute('data-readmore', '');
+        element.style.overflow = 'hidden';
+        applyTransition(element, this.options.speed);
         element.id = element.id || uniqueId();
 
         const toggleLink = expanded ? this.options.lessLink : this.options.moreLink;
@@ -411,6 +404,8 @@
 
         element.style.height = 'initial';
         element.style.maxHeight = 'initial';
+        element.style.overflow = '';
+        element.style.transition = '';
 
         element.removeAttribute('data-readmore');
 

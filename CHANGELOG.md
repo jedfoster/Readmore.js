@@ -5,6 +5,7 @@
 - jQuery is no longer required. Readmore is plain JavaScript.
 - IE10 and IE11 are no longer supported.
 - `aria-expanded` is now on the toggle, not the block.
+- With `embedCSS: false`, Readmore no longer injects any `<style>`. The height transition and `overflow: hidden` are now inline styles on each block, so a site's own `[data-readmore]` transition needs `!important` to win.
 
 # 2.0.0
 

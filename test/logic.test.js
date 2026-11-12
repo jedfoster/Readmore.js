@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { afterEach, beforeEach, mock, test } from 'node:test';
 
-import { debounce, resolveCollapsedHeight, shouldFold, targetHeight, uniqueId } from '../src/logic.js';
+import { debounce, resolveCollapsedHeight, shouldFold, targetHeight, transitionFor, uniqueId } from '../src/logic.js';
 
 test('shouldFold folds a block taller than the collapsed height plus margin', () => {
   assert.equal(shouldFold(400, 200, 16), true);
@@ -115,4 +115,13 @@ test('debounce passes this and arguments through', () => {
 
   assert.equal(func.mock.calls[0].this, context);
   assert.deepEqual(func.mock.calls[0].arguments, ['a', 'b']);
+});
+
+test('transitionFor returns a height transition for a positive speed', () => {
+  assert.equal(transitionFor(100), 'height 100ms');
+});
+
+test('transitionFor returns an empty string for a speed of 0 or less', () => {
+  assert.equal(transitionFor(0), '');
+  assert.equal(transitionFor(-5), '');
 });

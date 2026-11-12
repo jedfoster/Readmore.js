@@ -54,12 +54,44 @@ test.describe('Intermediate Readmore.js usage', () => {
       await visit(page, 'embedCSS');
     });
 
-    test('does not insert CSS block', async ({ page }) => {
-      const css = await page.evaluate(() =>
-        [...document.querySelectorAll('head style')].map((node) => node.textContent).join('\n'),
-      );
+    test('adds no <style> to the head', async ({ page }) => {
+      const counts = await page.evaluate(() => {
+        const before = document.querySelectorAll('head style').length;
+        const el = document.querySelector('article').cloneNode(true);
 
-      expect(css).not.toContain('article + [data-readmore-toggle]');
+        el.removeAttribute('id');
+        document.body.append(el);
+        new window.Readmore(el, { embedCSS: false });
+
+        return { before, after: document.querySelectorAll('head style').length };
+      });
+
+      expect(counts.after).toBe(counts.before);
+    });
+
+    test('still hides overflow and transitions the height inline', async ({ page }) => {
+      const block = page.locator('article[data-readmore]').first();
+
+      await expect(block).toHaveCSS('overflow', 'hidden');
+      await expect(block).toHaveCSS('transition-property', 'height');
+    });
+
+    test('keeps each instance its own transition speed', async ({ page }) => {
+      const durations = await page.evaluate(() => {
+        const first = document.querySelector('article[data-readmore]');
+        const clone = first.cloneNode(true);
+
+        clone.removeAttribute('id');
+        clone.removeAttribute('data-readmore');
+        clone.removeAttribute('style');
+        document.body.append(clone);
+        new window.Readmore(clone, { embedCSS: false, speed: 900 });
+
+        return [getComputedStyle(first).transitionDuration, getComputedStyle(clone).transitionDuration];
+      });
+
+      expect(durations[0]).not.toBe(durations[1]);
+      expect(durations[1]).toBe('0.9s');
     });
   });
 
