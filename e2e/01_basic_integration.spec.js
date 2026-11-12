@@ -41,7 +41,7 @@ test.describe('Basic Readmore.js usage', () => {
       await page.locator('[data-readmore-toggle="rmjs-1"]').click();
     });
 
-    test('collapses all elements taller than 200px', async ({ page }) => {
+    test('sets aria-expanded on the toggle after a click', async ({ page }) => {
       await expect(page.locator('[aria-controls="rmjs-1"]')).toHaveAttribute('aria-expanded', 'true');
     });
 
@@ -56,7 +56,7 @@ test.describe('Basic Readmore.js usage', () => {
       await page.locator('[data-readmore-toggle="rmjs-1"]').click();
     });
 
-    test('collapses all elements taller than 300px', async ({ page }) => {
+    test('sets aria-expanded on the toggle after a click under a CSS max-height', async ({ page }) => {
       await expect(page.locator('[aria-controls="rmjs-1"]')).toHaveAttribute('aria-expanded', 'true');
     });
 
