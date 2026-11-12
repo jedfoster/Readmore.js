@@ -1,3 +1,34 @@
+# 3.0.0
+
+## New features
+
+- `collapsedHeight` accepts a function, `(element) => number`, which is called at setup and on every re-measure
+- Blocks re-measure when their width changes, not only on window resize, using `ResizeObserver`
+- The height animation is turned off under `prefers-reduced-motion: reduce`
+- Readmore has no runtime dependencies
+
+## Fixes
+
+- A block styled with a CSS `max-height` now expands to its full height before any resize
+- A CSS `max-height` inside a media query is re-read on resize
+- Toggle markup with leading whitespace no longer throws
+- `speed: 0` no longer throws when toggling
+- A toggle clicked just after page load is no longer undone by the load-time re-measure
+- `destroy()` removes Readmore's listeners, observer, inline styles and style tag, and gives the block back its own `max-height`, so a new instance can fold it again (#253)
+- `afterToggle` now fires when a re-measure (a width change or page load) interrupts the animation
+- An inline `max-height` on the block is honored again
+- A `collapsedHeight` function may return a numeric string
+
+## Potentially breaking changes
+
+- jQuery is no longer required. Readmore is plain JavaScript.
+- IE10 and IE11 are no longer supported.
+- `aria-expanded` is now on the toggle, not the block. Site CSS or scripts that select `[aria-expanded]` on blocks need updating.
+- A CSS `max-height: 0` now collapses the block to 0. It used to fall back to `collapsedHeight`.
+- Toggling again before the animation ends fires `afterToggle` once, for the final state.
+- Under reduced motion or `speed: 0`, `afterToggle` fires right away.
+- With `embedCSS: false`, Readmore no longer injects any `<style>`. The height transition and `overflow: hidden` are now inline styles on each block, so a site's own `[data-readmore]` transition needs `!important` to win.
+
 # 2.0.0
 
 ## New features

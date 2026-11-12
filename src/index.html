@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>Readmore.js: JavaScript plugin for long blocks of text</title>
+  <meta name="description" content="A smooth, lightweight JavaScript plugin for collapsing and expanding long blocks of text with &#8220;Read more&#8221; and &#8220;Close&#8221; links.">
+  <meta name="author" content="Jed Foster">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style media="screen">
+    html { box-sizing: border-box }
+    *,:after,:before { box-sizing: inherit }
+    body { font: 16px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif; color: #444; }
+    code { color: #777; font-family: "Source Code Pro", "Menlo", "Courier New", monospace;}
+    a { color: #178DB1; }
+    .container { margin: 0 auto; max-width: 960px; }
+    #demo { padding: 0 10%; }
+    article { max-height: 10em }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1>Readmore.js</h1>
+
+      <p>A smooth, lightweight JavaScript plugin for collapsing and expanding long blocks of text with &#8220;Read more&#8221; and &#8220;Close&#8221; links.</p>
+    </header>
+
+    <h1>Demo</h1>
+
+    <p><a href="/ajax.html">"AJAX" demo</a></p>
+
+    <section id="demo">
+
+      <article>
+        <h2>Artisanal Narwahls</h2>
+
+        <p>From this distant vantage point, the Earth might not seem of any particular interest. But for us, it's different. Consider again that dot. That's here. That's home. That's us. On it everyone you love, everyone you know, everyone you ever heard of, every human being who ever was, lived out their lives. The aggregate of our joy and suffering, thousands of confident religions, ideologies, and economic doctrines, every hunter and forager, every hero and coward, every creator and destroyer of civilization, every king and peasant, every young couple in love, every mother and father, hopeful child, inventor and explorer, every teacher of morals, every corrupt politician, every "superstar," every "supreme leader," every saint and sinner in the history of our species lived there – on a mote of dust suspended in a sunbeam.</p>
+
+        <p>Space, the final frontier. These are the voyages of the starship Enterprise. Its five year mission: to explore strange new worlds, to seek out new life and new civilizations, to boldly go where no man has gone before!</p>
+
+        <p>Here's how it is: Earth got used up, so we terraformed a whole new galaxy of Earths, some rich and flush with the new technologies, some not so much. Central Planets, them was formed the Alliance, waged war to bring everyone under their rule; a few idiots tried to fight it, among them myself. I'm Malcolm Reynolds, captain of Serenity. Got a good crew: fighters, pilot, mechanic. We even picked up a preacher, and a bona fide companion. There's a doctor, too, took his genius sister out of some Alliance camp, so they're keeping a low profile. You got a job, we can do it, don't much care what it is.</p>
+
+        <p>Space, the final frontier. These are the voyages of the starship Enterprise. Its five year mission: to explore strange new worlds, to seek out new life and new civilizations, to boldly go where no man has gone before!</p>
+      </article>
+
+      <article>
+        <h2>Portland Leggings</h2>
+
+        <p>Here's how it is: Earth got used up, so we terraformed a whole new galaxy of Earths, some rich and flush with the new technologies, some not so much. Central Planets, them was formed the Alliance, waged war to bring everyone under their rule; a few idiots tried to fight it, among them myself. I'm Malcolm Reynolds, captain of Serenity. Got a good crew: fighters, pilot, mechanic. We even picked up a preacher, and a bona fide companion. There's a doctor, too, took his genius sister out of some Alliance camp, so they're keeping a low profile. You got a job, we can do it, don't much care what it is.</p>
+
+        <p>I am Duncan Macleod, born 400 years ago in the Highlands of Scotland. I am Immortal, and I am not alone. For centuries, we have waited for the time of the Gathering when the stroke of a sword and the fall of a head will release the power of the Quickening. In the end, there can be only one.</p>
+
+        <p>From this distant vantage point, the Earth might not seem of any particular interest. But for us, it's different. Consider again that dot. That's here. That's home. That's us. On it everyone you love, everyone you know, everyone you ever heard of, every human being who ever was, lived out their lives. The aggregate of our joy and suffering, thousands of confident religions, ideologies, and economic doctrines, every hunter and forager, every hero and coward, every creator and destroyer of civilization, every king and peasant, every young couple in love, every mother and father, hopeful child, inventor and explorer, every teacher of morals, every corrupt politician, every "superstar," every "supreme leader," every saint and sinner in the history of our species lived there – on a mote of dust suspended in a sunbeam.</p>
+
+        <p>Space, the final frontier. These are the voyages of the starship Enterprise. Its five year mission: to explore strange new worlds, to seek out new life and new civilizations, to boldly go where no man has gone before!</p>
+      </article>
+
+      <article>
+        <h2>This section is shorter than the Readmore minimum</h2>
+
+        <p>Space, the final frontier. These are the voyages of the starship Enterprise. Its five year mission: to explore strange new worlds, to seek out new life and new civilizations, to boldly go where no man has gone before!</p>
+      </article>
+    </section>
+  </div>
+
+  <script src="readmore.js"></script>
+
+  <script>
+    var demo = new Readmore('article', {
+      collapsedHeight: 384,
+      speed: 500,
+      afterToggle: function(trigger, element, expanded) {
+        if(!expanded) { // The "Close" link was clicked
+          window.scrollTo({top: element.offsetTop, behavior: 'smooth'})
+        }
+        // console.log('afterToggle called', arguments);
+      },
+      beforeToggle: function(trigger, element, expanded) {
+        // console.log('beforeToggle called', arguments);
+      }
+    });
+  </script>
+</body>
+</html>

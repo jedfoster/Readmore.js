@@ -1,11 +1,28 @@
 {
   "name": "readmore-js",
-  "version": "2.2.1",
-  "description": "A lightweight jQuery plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links.",
-  "main": "readmore.js",
+  "version": "3.0.0",
+  "description": "A lightweight JavaScript plugin for collapsing and expanding long blocks of text with \"Read more\" and \"Close\" links.",
+  "main": "dist/readmore.js",
+  "files": [
+    "dist"
+  ],
+  "module": "dist/readmore.es6.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "./node_modules/gulp/bin/gulp.js compress"
+    "build": "rm -rf ./dist/* && npm-run-all -p build:*",
+    "build:js": "rollup --config rollup.config.mjs",
+    "build:html": "cpy \"src/*.html\" dist/",
+    "watch": "npm-run-all -p watch:*",
+    "watch:js": "npm run build:js -- --watch",
+    "watch:html": "nodemon --watch src -e html -x \"npm run build:html\"",
+    "serve": "http-server -p 9000 dist/",
+    "start": "npm-run-all -p watch serve",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "node --test --experimental-test-coverage --test-coverage-include=\"src/logic.js\" --test-coverage-lines=100 --test-coverage-branches=100 --test-coverage-functions=100 \"test/**/*.test.js\"",
+    "test:e2e": "npm run build && playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "lint": "eslint --cache .",
+    "prepare": "husky",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -13,23 +30,48 @@
   },
   "keywords": [
     "css",
-    "jquery",
     "readmore",
     "expand",
     "collapse"
   ],
   "author": "Jed Foster <jed@jedfoster.com>",
   "license": "MIT",
+  "homepage": "https://github.com/jedfoster/Readmore.js",
   "bugs": {
     "url": "https://github.com/jedfoster/Readmore.js/issues"
   },
-  "homepage": "https://github.com/jedfoster/Readmore.js",
-  "dependencies": {
-    "jquery": ">2.1.4"
-  },
   "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-rename": "^1.2.0",
-    "gulp-uglify": "^1.0.2"
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.0",
+    "@rollup/plugin-replace": "^6.0.3",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "cpy-cli": "^7.0.0",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.14.0",
+    "http-server": "^14.1.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "nodemon": "^3.1.0",
+    "npm-run-all2": "^9.0.0",
+    "prettier": "^3.10.0",
+    "prettier-plugin-brace-style": "^0.10.4",
+    "prettier-plugin-curly": "^0.4.2",
+    "rollup": "^4.0.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=24"
+    }
+  },
+  "lint-staged": {
+    "*.{js,mjs}": [
+      "eslint --fix"
+    ],
+    "*.{js,mjs,json}": [
+      "prettier --write"
+    ]
   }
 }
