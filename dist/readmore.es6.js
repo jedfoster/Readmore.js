@@ -506,10 +506,11 @@ class Readmore {
         resizeObserver.unobserve(element);
       }
 
+      element.style.height = '';
+      element.style.maxHeight = element.readmore.inlineMaxHeight;
+
       delete element.readmore;
 
-      element.style.height = '';
-      element.style.maxHeight = 'initial';
       element.style.overflow = '';
       element.style.transition = '';
 

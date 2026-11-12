@@ -91,24 +91,45 @@ test.describe('destroy()', () => {
 
     expect(inline.length).toBeGreaterThan(0);
     inline.forEach((styles) => {
-      expect(styles).toEqual({ overflow: '', transition: '', height: '', maxHeight: 'initial', hasState: false });
+      expect(styles).toEqual({ overflow: '', transition: '', height: '', maxHeight: '', hasState: false });
     });
   });
 
-  test('releases a CSS max-height clamp', async ({ page }) => {
+  test('hands a block back to its CSS max-height, so a new instance folds it again', async ({ page }) => {
     await visit(page, 'max-height');
 
     const article = page.locator('article').first();
 
-    expect(await article.evaluate((el) => el.getBoundingClientRect().height)).toBeLessThan(301);
     await page.evaluate(() => window.demo.destroy());
 
-    expect(await article.evaluate((el) => [el.style.overflow, el.style.transition])).toEqual(['', '']);
+    expect(await article.evaluate((el) => [el.style.maxHeight, window.getComputedStyle(el).maxHeight])).toEqual(['', '300px']);
 
-    const full = await article.evaluate((el) => el.scrollHeight);
+    await page.evaluate(() => {
+      window.demo = new window.Readmore('article');
+    });
 
-    expect(full).toBeGreaterThan(300);
-    expect(Math.abs((await article.evaluate((el) => el.getBoundingClientRect().height)) - full)).toBeLessThan(1);
+    await expect(article).toHaveCSS('height', '300px');
+  });
+
+  test('restores an inline max-height the block had before', async ({ page }) => {
+    await visit(page, 'basic');
+
+    const maxHeight = await page.evaluate(() => {
+      const el = document.querySelector('article').cloneNode(true);
+
+      el.removeAttribute('id');
+      el.removeAttribute('data-readmore');
+      el.style.cssText = 'max-height: 120px';
+      document.querySelector('#demo').append(el);
+
+      const instance = new window.Readmore(el);
+
+      instance.destroy();
+
+      return el.style.maxHeight;
+    });
+
+    expect(maxHeight).toBe('120px');
   });
 
   test('leaves the block at auto height after a viewport change', async ({ page }) => {
