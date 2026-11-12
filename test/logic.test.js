@@ -25,6 +25,13 @@ test('resolveCollapsedHeight coerces a numeric string from a function option', (
   assert.equal(resolveCollapsedHeight({ option: () => '150', element: {}, cssMaxHeight: 300 }), 150);
 });
 
+test('resolveCollapsedHeight keeps Infinity from a function option, so the block never folds', () => {
+  const collapsedHeight = resolveCollapsedHeight({ option: () => Infinity, element: {}, cssMaxHeight: 300 });
+
+  assert.equal(collapsedHeight, Infinity);
+  assert.equal(shouldFold(5000, collapsedHeight, 16), false);
+});
+
 test('resolveCollapsedHeight falls through to the CSS max-height when a function returns NaN', () => {
   assert.equal(resolveCollapsedHeight({ option: () => NaN, element: {}, cssMaxHeight: 300 }), 300);
 });

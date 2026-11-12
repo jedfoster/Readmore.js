@@ -84,6 +84,12 @@ Feature: Intermediate Readmore.js usage
     Then the block folds and gets a "Read more" link
     And when the container widens again, the block unfolds and loses its link
 
+  ✔︎ Scenario: A 'collapsedHeight' function that returns Infinity
+    Given an 'article' whose 'collapsedHeight' function returns Infinity above 600px wide, and 100 below
+    When its container narrows below 600px
+    Then the block folds to 100px and gets a "Read more" link
+    And when the container widens again, the block unfolds and loses its link
+
   ✔︎ Scenario: A block inside a shadow root
     Given an 'article' inside an open shadow root
     When Readmore.js is instantiated on it
@@ -328,9 +334,10 @@ test.describe('Intermediate Readmore.js usage', () => {
     const block = (page) => page.locator('#refold');
 
     // `fitWidth` sets collapsedHeight to the block's height at that container width, so it only folds when narrower.
-    const addBlock = (page, { hidden = false, fitWidth, options: extra = {} } = {}) =>
+    // `unfoldAbove` makes collapsedHeight a function returning Infinity above that block width, and 100 below it.
+    const addBlock = (page, { hidden = false, fitWidth, unfoldAbove, options: extra = {} } = {}) =>
       page.evaluate(
-        ({ hidden, fitWidth, extra }) => {
+        ({ hidden, fitWidth, unfoldAbove, extra }) => {
           const wrapper = document.createElement('div');
           const clone = document.querySelector('article').cloneNode(true);
           const options = { speed: 0, ...extra };
@@ -348,9 +355,14 @@ test.describe('Intermediate Readmore.js usage', () => {
             options.collapsedHeight = Math.ceil(clone.getBoundingClientRect().height);
           }
 
+          if (unfoldAbove) {
+            wrapper.style.width = `${unfoldAbove + 300}px`;
+            options.collapsedHeight = (el) => (el.offsetWidth > unfoldAbove ? Infinity : 100);
+          }
+
           window.refold = new window.Readmore(clone, options);
         },
-        { hidden, fitWidth, extra },
+        { hidden, fitWidth, unfoldAbove, extra },
       );
 
     const setWrapper = (page, props) =>
@@ -394,6 +406,21 @@ test.describe('Intermediate Readmore.js usage', () => {
       await expect(block(page)).not.toHaveAttribute('data-readmore');
       await expect(block(page)).toHaveCSS('overflow', 'visible');
       expect(await block(page).evaluate((el) => el.style.height)).toBe('auto');
+    });
+
+    test('leaves a block unfolded while a `collapsedHeight` function returns Infinity', async ({ page }) => {
+      await visit(page);
+      await addBlock(page, { unfoldAbove: 600 });
+
+      await expect(toggle(page)).toHaveCount(0);
+
+      await setWrapper(page, { style: { width: '300px' } });
+      await expect(toggle(page)).toHaveText('Read More');
+      await expect(block(page)).toHaveCSS('height', '100px');
+
+      await setWrapper(page, { style: { width: '900px' } });
+      await expect(toggle(page)).toHaveCount(0);
+      await expect(block(page)).not.toHaveAttribute('data-readmore');
     });
 
     test('folds an open block again without a toggle when there is no `lessLink`', async ({ page }) => {

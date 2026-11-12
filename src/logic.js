@@ -39,7 +39,8 @@ export function resolveCollapsedHeight({ option, element, cssMaxHeight }) {
   if (typeof option === 'function') {
     const fromFunction = Number(option(element));
 
-    if (Number.isFinite(fromFunction)) {
+    // Infinity is how a function says not to fold the block at all.
+    if (Number.isFinite(fromFunction) || fromFunction === Infinity) {
       return fromFunction;
     }
   }

@@ -50,7 +50,7 @@ new Readmore('article', {
 ## Options
 
 * `speed: 100` in milliseconds. The animation is turned off for visitors who prefer reduced motion (`prefers-reduced-motion: reduce`), checked on every toggle
-* `collapsedHeight: 200` in pixels; also accepts a function that receives the block and returns a height in pixels. It's called when the block is set up and whenever it's re-measured. A function wins over a CSS `max-height`, which wins over a number
+* `collapsedHeight: 200` in pixels; also accepts a function that receives the block and returns a height in pixels. It's called when the block is set up and whenever it's re-measured, and can return `Infinity` to leave the block unfolded (above a breakpoint, say). A function wins over a CSS `max-height`, which wins over a number
 * `heightMargin: 16` in pixels, avoids collapsing blocks that are only slightly larger than `collapsedHeight`
 * `moreLink: '<a href="#">Read More</a>'` HTML string for the "more" toggle link; also accepts a callback function that returns an HTML string
 * `lessLink: '<a href="#">Close</a>'` HTML string for the "less" toggle link; also accepts a callback function that returns an HTML string
